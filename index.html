@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Demo UI - Chấm điểm tiêu chí</title>
+    <link rel="stylesheet" href="css/lib/tom-select.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/lib/tom-select.complete.min.js"></script>
+  </head>
+
+  <body>
+    <div class="frame">
+      <div class="app">
+        <div class="left">
+          <!--
+          <div class="section-title">Loại kinh doanh</div>
+          <div class="select-wrap">
+            <span class="icon">🏪</span>
+            <select id="businessType">
+              <option value="trasua" selected>Trà sữa</option>
+              <option value="cafe">Cà phê</option>
+              <option value="nhahang">Nhà hàng</option>
+              <option value="tienloi">Cửa hàng tiện lợi</option>
+            </select>
+          </div>
+          -->
+
+          <div class="card">
+            <div class="section-title">Địa điểm kinh doanh</div>
+            <div class="stack">
+              <div class="select-wrap">
+                <span class="icon">🏢</span>
+                <select id="district">
+                  <option value="Chọn Quận" selected disabled>Chọn Quận</option>
+                  <option>Quận 1</option>
+                  <option>Quận 2</option>
+                  <option>Quận 3</option>
+                  <option>Quận 4</option>
+                  <option>Quận 5</option>
+                  <option>Quận 6</option>
+                  <option>Quận 7</option>
+                  <option>Quận 8</option>
+                  <option>Quận 10</option>
+                  <option>Quận 11</option>
+                  <option>Quận 12</option>
+                  <option>Gò Vấp</option>
+                  <option>Bình Thạnh</option>
+                  <option>Phú Nhuận</option>
+                  <option>Tân Bình</option>
+                  <option>Tân Phú</option>
+                  <option>Thủ Đức</option>
+                  <option>Cần Giờ</option>
+                  <option>Củ Chi</option>
+                  <option>Hóc Môn</option>
+                  <option>Bình Chánh</option>
+                  <option>Nhà Bè</option>
+                </select>
+              </div>
+
+              <div class="select-wrap">
+                <span class="icon">🏢</span>
+                <select id="ward">
+                  <option value="" selected disabled>Chọn Phường / Xã</option>
+                  <option>Phường 1</option>
+                  <option>Phường 2</option>
+                  <option>Phường 3</option>
+                </select>
+              </div>
+
+              <input class="field" id="street" placeholder="Chọn Tên đường" />
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="criteria-head">
+              <div class="section-title" style="margin: 0">
+                Chấm điểm tiêu chí
+              </div>
+            </div>
+
+            <div id="criteriaList" class="criteria-list"></div>
+
+            <div class="criteria-sub">
+              Tiêu chí được xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
+            </div>
+
+            <div class="center" style="margin-top: 12px">
+              <button class="btn" id="calcBtn">Tính điểm tiêu chí</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="card">
+            <div class="login-title">Đăng nhập</div>
+
+            <input
+              class="field"
+              id="emailInput"
+              type="email"
+              placeholder="Email đăng nhập"
+            />
+
+            <input
+              class="field"
+              id="password"
+              type="password"
+              placeholder="•••••"
+              value="12345"
+            />
+            <div style="height: 10px"></div>
+            <button class="btn" id="loginBtn" style="width: 100%">
+              Đăng nhập
+            </button>
+
+            <div class="divider">hoặc</div>
+
+            <button class="btn btn-outline google" id="googleBtn">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path
+                  fill="#FFC107"
+                  d="M43.611 20.083H42V20H24v8h11.303C33.651 32.657 29.215 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.842 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.268 4 24 4c-7.682 0-14.354 4.315-17.694 10.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.115 0 9.805-1.969 13.332-5.18l-6.157-5.207C29.104 35.091 26.673 36 24 36c-5.195 0-9.621-3.317-11.287-7.946l-6.52 5.025C9.505 39.556 16.227 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611 20.083H42V20H24v8h11.303c-.79 2.247-2.231 4.16-4.128 5.613l.003-.002 6.157 5.207C36.9 39.2 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+                />
+              </svg>
+              Đăng nhập với Google
+            </button>
+
+            <div class="register-link" id="openRegister">
+              Nếu bạn chưa có tài khoản! <span>Đăng ký</span>
+            </div>
+
+            <div id="loginMsg" class="login-msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Đăng ký -->
+    <div class="modal-overlay" id="registerModal">
+      <div class="modal personal-info-modal">
+        <div class="modal-title">Đăng ký tài khoản</div>
+        <div class="info-item">
+          <div class="info-label">Họ và tên</div>
+          <input
+            class="modal-input"
+            id="reg-fullname"
+            placeholder="Nhập họ và tên"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <input class="modal-input" id="reg-email" placeholder="Nhập email" />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Số điện thoại</div>
+          <input
+            class="modal-input"
+            id="reg-phone"
+            placeholder="Nhập số điện thoại (không bắt buộc)"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mật khẩu</div>
+          <input
+            class="modal-input"
+            id="reg-password"
+            type="password"
+            placeholder="Nhập mật khẩu"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Xác nhận mật khẩu</div>
+          <input
+            class="modal-input"
+            id="reg-password-confirm"
+            type="password"
+            placeholder="Nhập lại mật khẩu"
+          />
+        </div>
+        <div id="reg-msg" class="login-msg" style="margin-top: 10px"></div>
+        <button class="btn-confirm" id="registerBtn" style="margin-top: 20px">
+          Đăng ký
+        </button>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/chatbot.js"></script>
+  </body>
+</html>

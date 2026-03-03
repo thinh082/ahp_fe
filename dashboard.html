@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard - Hệ thống chấm điểm dự án</title>
+    <link rel="stylesheet" href="css/lib/tom-select.css" />
+    <script src="js/lib/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="frame">
+      <div class="app">
+        <!-- LEFT -->
+        <div class="left">
+          <!--
+          <div class="card">
+            <div class="section-title">Loại hình kinh doanh</div>
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
+              <select id="businessType">
+                <option value="">Chọn loại hình kinh doanh</option>
+                <option value="trasua">Trà sữa</option>
+                <option value="cafe">Cà phê</option>
+                <option value="nhahang">Nhà hàng</option>
+                <option value="tienloi">Cửa hàng tiện lợi</option>
+                <option value="quanao">Quần áo</option>
+                <option value="khac">Khác</option>
+              </select>
+            </div>
+          </div>
+          -->
+
+          <!-- Phương án địa điểm -->
+          <div class="card">
+            <div class="section-title">Địa điểm kinh doanh</div>
+            <div class="stack" id="alternativesContainer">
+              <div class="select-wrap">
+                <span class="icon">🏢</span>
+                <select id="district">
+                  <option value="" selected disabled>
+                    Chọn Tỉnh / Thành phố
+                  </option>
+                  <option>Hà Nội</option>
+                  <option>TP. Hồ Chí Minh</option>
+                  <option>Đà Nẵng</option>
+                  <option>Hải Phòng</option>
+                </select>
+              </div>
+
+              <div class="select-wrap">
+                <span class="icon">🏢</span>
+                <select id="ward">
+                  <option value="" selected disabled>Chọn Phường / Xã</option>
+                  <option>Phường 1</option>
+                  <option>Phường 2</option>
+                  <option>Phường 3</option>
+                </select>
+              </div>
+
+              <input class="field" id="street" placeholder="Chọn Tên đường" />
+
+              <button
+                id="addAlternativeBtn"
+                class="btn"
+                style="width: 100%; margin-top: 8px"
+              >
+                Thêm địa điểm
+              </button>
+
+              <div id="alternativesList" style="margin-top: 8px"></div>
+            </div>
+          </div>
+
+          <!-- So sánh cặp tiêu chí -->
+          <div class="card">
+            <div class="criteria-head">
+              <div class="section-title" style="margin: 0">
+                So sánh tầm quan trọng tiêu chí
+              </div>
+            </div>
+
+            <div id="criteriaList" class="criteria-list"></div>
+
+            <div class="criteria-sub">
+              Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
+            </div>
+          </div>
+
+          <!-- So sánh phương án theo từng tiêu chí -->
+          <div
+            class="card"
+            id="alternativesComparisonCard"
+            style="display: none"
+          >
+            <div class="criteria-head">
+              <div class="section-title" style="margin: 0">
+                So sánh phương án theo tiêu chí
+              </div>
+              <select
+                class="field"
+                id="selectedCriterion"
+                style="width: auto; padding: 6px 10px; font-size: 12px"
+              >
+                <option value="">Chọn tiêu chí...</option>
+              </select>
+            </div>
+
+            <div id="alternativesComparisonList" class="criteria-list"></div>
+
+            <div class="criteria-sub">
+              Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)
+            </div>
+          </div>
+
+          <!-- Nút tính toán -->
+          <div class="card">
+            <div class="center">
+              <button class="btn" id="calculateBtn" style="width: 100%">
+                Tính điểm và xếp hạng
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="right">
+          <div class="card">
+            <!-- User Profile Icon -->
+            <div class="user-profile">
+              <div class="user-icon" id="userIcon" title="Thông tin cá nhân">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M12.0002 14.5C7.99016 14.5 4.75016 17.15 4.75016 20.5C4.75016 20.78 4.97016 21 5.25016 21H18.7502C19.0302 21 19.2502 20.78 19.2502 20.5C19.2502 17.15 16.0102 14.5 12.0002 14.5Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+              <div class="user-icon logout-icon" id="logoutBtn" title="Đăng xuất">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10 6C10 5.44772 10.4477 5 11 5H18C18.5523 5 19 5.44772 19 6V18C19 18.5523 18.5523 19 18 19H11C10.4477 19 10 18.5523 10 18"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M15 12H5M5 12L8 9M5 12L8 15"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-section">
+              <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="Tìm kiếm..."
+              />
+              <button class="btn-search" id="searchBtn">Tìm</button>
+            </div>
+
+            <!-- Danh sách dự án cũ -->
+            <div class="projects-list-title">Danh sách dự án cũ</div>
+            <div id="projectsList" style="margin-top: 12px">
+              <div class="project-item">Dự án Trà sữa - Quận 1</div>
+              <div class="project-item">Dự án Cà phê - Quận 3</div>
+              <div class="project-item">Dự án Nhà hàng - Quận 7</div>
+              <div class="project-item">Dự án Tiện lợi - Quận 10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Yêu cầu nhập tên dự án -->
+    <div class="modal-overlay" id="projectNameModal">
+      <div class="modal">
+        <div class="modal-title">YÊU CẦU NHẬP TÊN DỰ ÁN</div>
+        <input
+          type="text"
+          class="modal-input"
+          id="projectNameInput"
+          placeholder="Nhập tên dự án"
+        />
+        <button class="btn-confirm" id="confirmBtn">Xác nhận</button>
+      </div>
+    </div>
+
+    <!-- Modal: Kết quả AHP -->
+    <div class="modal-overlay" id="resultsModal">
+      <div
+        class="modal"
+        style="max-width: 600px; max-height: 80vh; overflow-y: auto"
+      >
+        <div class="modal-title">KẾT QUẢ HỖ TRỢ RA QUYẾT ĐỊNH</div>
+
+        <div id="resultsContent" style="margin-bottom: 20px"></div>
+
+        <div style="display: flex; gap: 10px">
+          <button class="btn-confirm" id="saveResultsBtn" style="flex: 1">
+            Lưu kết quả
+          </button>
+          <button class="btn btn-outline" id="closeResultsBtn" style="flex: 1">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Thông tin cá nhân -->
+    <div class="modal-overlay" id="personalInfoModal">
+      <div class="modal personal-info-modal">
+        <div class="modal-title">Thông tin cá nhân</div>
+        <div class="info-item">
+          <div class="info-label">Họ và tên</div>
+          <input
+            class="modal-input"
+            id="pi-fullname"
+            placeholder="Nhập họ và tên"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value" id="pi-email">--</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Số điện thoại</div>
+          <input
+            class="modal-input"
+            id="pi-phone"
+            placeholder="Nhập số điện thoại"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mật khẩu mới</div>
+          <input
+            class="modal-input"
+            id="pi-password"
+            type="password"
+            placeholder="Nhập mật khẩu mới"
+          />
+        </div>
+        <div class="info-item">
+          <div class="info-label">Xác nhận mật khẩu</div>
+          <input
+            class="modal-input"
+            id="pi-password-confirm"
+            type="password"
+            placeholder="Nhập lại mật khẩu"
+          />
+        </div>
+        <div id="pi-msg" class="login-msg" style="margin-top: 10px"></div>
+        <button
+          class="btn-confirm"
+          id="updatePersonalInfoBtn"
+          style="margin-top: 20px"
+        >
+          Cập nhật thông tin
+        </button>
+      </div>
+    </div>
+    <script src="js/dashboard.js" defer></script>
+    <script src="js/chatbot.js"></script>
+  </body>
+</html>

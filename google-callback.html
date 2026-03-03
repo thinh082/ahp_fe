@@ -1,0 +1,44 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Google Callback</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="frame">
+      <div
+        class="app"
+        style="
+          min-height: 60vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          class="card"
+          style="max-width: 520px; width: 100%; padding: 24px; text-align: center"
+        >
+          <div style="font-size: 40px; line-height: 1; margin-bottom: 12px">
+            🔐
+          </div>
+          <div class="login-title">Đang xử lý đăng nhập Google</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 6px">
+            Vui lòng chờ trong giây lát...
+          </div>
+          <div
+            id="callbackMsg"
+            class="login-msg"
+            style="margin-top: 14px"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/google-callback.js" defer></script>
+  </body>
+</html>

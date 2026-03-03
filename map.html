@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Nhóm 14 - Hệ hỗ trợ ra quyết định lựa chọn địa điểm kinh doanh
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <header>
+          <h1>Nhóm 14</h1>
+          <p>Hệ hỗ trợ ra quyết định lựa chọn địa điểm kinh doanh</p>
+        </header>
+
+        <!--
+        <div class="search-container">
+          <h3 class="search-title">Tìm kiếm địa điểm</h3>
+
+          <div class="search-field">
+            <label for="search-quan">Quận</label>
+            <select id="search-quan" placeholder="Chọn quận..."></select>
+          </div>
+
+          <div class="search-field">
+            <label for="search-phuong">Phường</label>
+            <select id="search-phuong" placeholder="Chọn phường..."></select>
+          </div>
+
+          <div class="search-field">
+            <label for="search-diachi">Địa chỉ</label>
+            <select id="search-diachi" placeholder="Chọn địa chỉ..."></select>
+          </div>
+        </div>
+        -->
+
+        <div class="stats-group">
+          <div class="stat-item">
+            <label>Tổng số địa điểm</label>
+            <div id="total-locations" class="stat-value">0</div>
+          </div>
+          <!--
+          <div class="stat-item">
+            <label>Điểm AHP trung bình</label>
+            <div id="avg-revenue" class="stat-value">0</div>
+          </div>
+          -->
+        </div>
+
+        <!-- So sánh 2 địa điểm (tách riêng khỏi panel tiêu chí) -->
+        <div
+          id="compare-overlay"
+          class="legend-container legend-overlay"
+          style="margin-top: 16px; display: none"
+        >
+          <button type="button" class="compare-close" aria-label="��ng">
+            �
+          </button>
+          <h3>So sánh địa điểm</h3>
+          <div id="locationCompareResult"></div>
+        </div>
+
+        <div class="legend-container">
+          <h3>Chú thích doanh thu</h3>
+          <div id="legend-list"></div>
+        </div>
+      </aside>
+
+      <main id="map"></main>
+
+      <div
+        id="criteriaPanel"
+        class="criteria-float-panel hidden"
+        style="display: none"
+      >
+        <div class="criteria-form-header">
+          <h4>
+            Tiêu chí đánh giá
+            <span
+              onclick="closeCriteriaPanel()"
+              class="criteria-close"
+              >&times;</span
+            >
+          </h4>
+        </div>
+        <div class="criteria-form-body">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 10px">
+            Kéo thanh để so sánh mức quan trọng (1–9). Khi bấm “Áp dụng”, bản đồ
+            sẽ gọi API và render theo ma trận mới.
+          </div>
+          <div id="criteriaListAHP" class="criteria-list"></div>
+          <div class="center" style="margin-top: 12px">
+            <button class="btn" id="applyAHPBtn" style="width: 100%">
+              Áp dụng tiêu chí
+            </button>
+          </div>
+          <div id="criteriaCompareResult" style="margin-top: 12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Satellite View Modal -->
+    <div id="streetview-modal" class="streetview-modal hidden">
+      <div class="streetview-header">
+        <h3 id="streetview-title">Bản đồ vệ tinh 3D</h3>
+        <button id="streetview-close" class="streetview-close-btn">×</button>
+      </div>
+      <div id="streetview-container"></div>
+    </div>
+    <div id="streetview-backdrop" class="streetview-backdrop hidden"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/chatbot.js"></script>
+  </body>
+</html>
