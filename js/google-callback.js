@@ -25,7 +25,7 @@
       setMsg("Đang đăng nhập...", "#334155");
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/XacThucTaiKhoan/google-callback?code=${encodeURIComponent(
+        `${API_BASE_URL}/api/XacThucTaiKhoan/google-callback?code=${encodeURIComponent(
           authCode
         )}&redirect_uri=${encodeURIComponent(redirectUriValue)}`,
         { method: "GET", credentials: "include" }

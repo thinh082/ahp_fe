@@ -113,7 +113,7 @@ async function loadFavoriteLocations() {
     if (!projectId) return;
 
     try {
-        const resp = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/favorite-locations`, {
+        const resp = await fetch(`${API_BASE_URL}/api/projects/${projectId}/favorite-locations`, {
             method: 'GET',
             credentials: 'include'
         });
@@ -969,7 +969,7 @@ document.addEventListener('click', function (e) {
         const originalText = btn.textContent;
         btn.textContent = 'Đang xử lý...';
 
-        fetch('http://127.0.0.1:8000/api/projects/favorite-locations', {
+        fetch(API_BASE_URL + '/api/projects/favorite-locations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -978,34 +978,34 @@ document.addEventListener('click', function (e) {
                 location_id: locationId
             })
         })
-        .then(async (res) => {
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                throw new Error(data.detail || 'Không thể cập nhật yêu thích.');
-            }
-            if (data.action === 'added') {
-                favoriteLocationIds.add(locationId);
-                btn.textContent = '❤️ Đã yêu thích';
-            } else if (data.action === 'removed') {
-                favoriteLocationIds.delete(locationId);
-                btn.textContent = '❤️ Yêu thích';
-            } else {
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Không thể cập nhật yêu thích.');
+                }
+                if (data.action === 'added') {
+                    favoriteLocationIds.add(locationId);
+                    btn.textContent = '❤️ Đã yêu thích';
+                } else if (data.action === 'removed') {
+                    favoriteLocationIds.delete(locationId);
+                    btn.textContent = '❤️ Yêu thích';
+                } else {
+                    btn.textContent = originalText;
+                }
+            })
+            .catch((err) => {
+                console.error('Favorite error:', err);
                 btn.textContent = originalText;
-            }
-        })
-        .catch((err) => {
-            console.error('Favorite error:', err);
-            btn.textContent = originalText;
-            alert(err.message || 'Lỗi kết nối tới backend.');
-        })
-        .finally(() => {
-            btn.disabled = false;
-        });
+                alert(err.message || 'Lỗi kết nối tới backend.');
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
     }
 });
 
 // Toggle Criteria Panel
-window.showCriteriaPanel = function() {
+window.showCriteriaPanel = function () {
     const panel = document.getElementById("criteriaPanel");
     if (panel) {
         panel.classList.remove("hidden");
@@ -1013,7 +1013,7 @@ window.showCriteriaPanel = function() {
     }
 };
 
-window.closeCriteriaPanel = function() {
+window.closeCriteriaPanel = function () {
     const panel = document.getElementById("criteriaPanel");
     if (panel) {
         panel.classList.add("hidden");

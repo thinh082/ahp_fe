@@ -580,7 +580,7 @@ if (confirmBtn) {
       confirmBtn.disabled = true;
       confirmBtn.textContent = "Đang tạo...";
 
-      const response = await fetch("http://127.0.0.1:8000/api/projects", {
+      const response = await fetch(API_BASE_URL + "/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -645,6 +645,12 @@ if (projectNameModal) {
 // Icon người dùng - hiển thị thông tin cá nhân
 if (userIcon) {
   userIcon.addEventListener("click", () => {
+    // Clear password fields to prevent stale autofill
+    if (personalInfoEls.password) personalInfoEls.password.value = "";
+    if (personalInfoEls.passwordConfirm) personalInfoEls.passwordConfirm.value = "";
+    if (personalInfoEls.msg) personalInfoEls.msg.textContent = "";
+    // Always reload fresh data each time modal opens
+    loadPersonalInfo();
     personalInfoModal.classList.add("active");
   });
 }
@@ -654,7 +660,7 @@ if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/XacThucTaiKhoan/logout",
+        API_BASE_URL + "/api/XacThucTaiKhoan/logout",
         { method: "POST", credentials: "include" }
       );
 
@@ -672,7 +678,7 @@ if (logoutBtn) {
 async function loadPersonalInfo() {
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/api/XacThucTaiKhoan/me",
+      API_BASE_URL + "/api/XacThucTaiKhoan/me",
       { method: "GET", credentials: "include" }
     );
 
@@ -688,14 +694,16 @@ async function loadPersonalInfo() {
       personalInfoEls.email.textContent = data.email || "--";
     }
     if (personalInfoEls.phone) {
-      personalInfoEls.phone.value = data.sodienthoai || data.phone || "";
+      // Only use sodienthoai — do NOT fall back to data.phone which may contain email
+      personalInfoEls.phone.value = data.sodienthoai || "";
     }
   } catch (err) {
     console.error("Không thể tải thông tin cá nhân:", err);
   }
 }
 
-loadPersonalInfo();
+// loadPersonalInfo is now called on-demand from userIcon click,
+// do NOT auto-call here to avoid stale data on page load for a different account.
 
 // Đóng modal thông tin cá nhân
 if (personalInfoModal) {
@@ -744,7 +752,7 @@ async function updatePersonalInfo() {
     updatePersonalInfoBtn.textContent = "Đang cập nhật...";
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/XacThucTaiKhoan/update-profile",
+      API_BASE_URL + "/api/XacThucTaiKhoan/update-profile",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -832,7 +840,7 @@ function renderProjects(items) {
       if (!confirm("Bạn có chắc muốn xóa dự án này?")) return;
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/projects/${item.id}`,
+          `${API_BASE_URL}/api/projects/${item.id}`,
           { method: "DELETE", credentials: "include" }
         );
         const data = await response.json().catch(() => ({}));
@@ -912,7 +920,7 @@ async function fetchProjects(params) {
   try {
     const qs = params ? `?${params.toString()}` : "";
     const response = await fetch(
-      `http://127.0.0.1:8000/api/projects${qs}`,
+      `${API_BASE_URL}/api/projects${qs}`,
       { method: "GET", credentials: "include" }
     );
 

@@ -93,7 +93,7 @@ const regEls = {
 async function redirectIfLoggedIn() {
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/api/XacThucTaiKhoan/me",
+      API_BASE_URL + "/api/XacThucTaiKhoan/me",
       { method: "GET", credentials: "include" }
     );
     if (response.ok) {
@@ -166,7 +166,7 @@ function normalizeForFilter(input) {
 // Hàm lấy giá trị text từ TomSelect instance hoặc select element
 function getSelectText(selectElement, tomSelectInstance) {
   if (!selectElement || !selectElement.value) return null;
-  
+
   // Nếu có TomSelect instance, dùng nó để lấy text
   if (tomSelectInstance) {
     const selectedValue = selectElement.value;
@@ -175,19 +175,19 @@ function getSelectText(selectElement, tomSelectInstance) {
       return item.text || item.textContent || selectedValue;
     }
   }
-  
+
   // Fallback: tìm option có value đã chọn
   const selectedOption = Array.from(selectElement.options).find(
     opt => opt.value === selectElement.value
   );
-  
+
   return selectedOption ? selectedOption.textContent.trim() : null;
 }
 
 // Hàm lấy filters từ các input
 function getFilters() {
   const filters = {};
-  
+
   // Lấy district (quận)
   const districtEl = document.getElementById("district");
   if (districtEl && districtEl.value) {
@@ -198,7 +198,7 @@ function getFilters() {
       if (normalized) filters.district = normalized;
     }
   }
-  
+
   // Lấy ward (phường)
   const wardEl = document.getElementById("ward");
   if (wardEl && wardEl.value) {
@@ -208,7 +208,7 @@ function getFilters() {
       if (normalized) filters.ward = normalized;
     }
   }
-  
+
   // Lấy street (tên đường)
   const streetEl = document.getElementById("street");
   if (streetEl && streetEl.value) {
@@ -219,7 +219,7 @@ function getFilters() {
       if (normalized) filters.street = normalized;
     }
   }
-  
+
   return filters;
 }
 
@@ -230,14 +230,14 @@ async function callCalculateAHP(criteriaMatrix, filters) {
       criteriaMatrix: criteriaMatrix,
       filters: filters
     };
-    
+
     console.log("Gửi request đến API:", requestBody);
-    
+
     const response = await apiFetch("/api/locations/calculate-ahp", {
       method: "POST",
       body: JSON.stringify(requestBody),
     });
-    
+
     return response;
   } catch (error) {
     console.error("Lỗi khi gọi API:", error);
@@ -250,19 +250,19 @@ if (calcBtn) {
     try {
       // Xây dựng ma trận tiêu chí
       const criteriaMatrix = buildCriteriaMatrix();
-      
+
       // Lấy filters
       const filters = getFilters();
-      
+
       console.log("Ma trận tiêu chí:", criteriaMatrix);
       console.log("Filters:", filters);
-      
+
       // Gọi API
       calcBtn.disabled = true;
       calcBtn.textContent = "Đang tính toán...";
-      
+
       const result = await callCalculateAHP(criteriaMatrix, filters);
-      
+
       console.log("Kết quả từ API:", result);
 
       // Lưu request/response để map.html render ngay
@@ -280,7 +280,7 @@ if (calcBtn) {
 
       // Chuyển sang trang bản đồ
       window.location.href = "map.html";
-      
+
     } catch (error) {
       alert("❌ Lỗi khi tính toán: " + error.message);
       console.error("Chi tiết lỗi:", error);
@@ -307,7 +307,7 @@ if (loginBtn && emailInput && passwordInput && loginMsg) {
       loginBtn.textContent = "Đang đăng nhập...";
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/XacThucTaiKhoan/login",
+        API_BASE_URL + "/api/XacThucTaiKhoan/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -412,7 +412,7 @@ async function handleRegister() {
     registerBtn.textContent = "Đang đăng ký...";
 
     const response = await fetch(
-      "http://127.0.0.1:8000/api/XacThucTaiKhoan/register",
+      API_BASE_URL + "/api/XacThucTaiKhoan/register",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -453,28 +453,8 @@ if (registerBtn) {
   registerBtn.addEventListener("click", handleRegister);
 }
 
-// Import apiFetch từ api.js (đảm bảo api.js được load trước app.js)
-// Nếu chưa có, sẽ định nghĩa lại
-if (typeof apiFetch === 'undefined') {
-  const API_BASE_URL = 'http://127.0.0.1:8000';
-  async function apiFetch(path, options = {}) {
-    const url = API_BASE_URL + path;
-    const defaultHeaders = { 'Content-Type': 'application/json' };
-    const response = await fetch(url, {
-      ...options,
-      headers: { ...defaultHeaders, ...(options.headers || {}) },
-    });
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`API error ${response.status} ${response.statusText}: ${errorText}`);
-    }
-    const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      return response.json();
-    }
-    return response.text();
-  }
-}
+// api.js phải được load trước app.js để apiFetch khả dụng
+
 
 const businessTypeEl = document.getElementById("businessType");
 if (businessTypeEl) {

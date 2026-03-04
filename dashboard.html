@@ -1,20 +1,1053 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Dashboard - Hệ thống chấm điểm dự án</title>
-    <link rel="stylesheet" href="css/lib/tom-select.css" />
-    <script src="js/lib/tom-select.complete.min.js"></script>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
 
-  <body>
-    <div class="frame">
-      <div class="app">
-        <!-- LEFT -->
-        <div class="left">
-          <!--
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - Hệ thống chấm điểm dự án</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/lib/tom-select.css" />
+  <script src="js/lib/tom-select.complete.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ===== Dashboard Premium Light Styles (matching index.html) ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #f8faff 0%, #eef2ff 40%, #f0f4ff 70%, #faf8ff 100%);
+      position: relative;
+      overflow-x: hidden;
+      color: #1e293b;
+    }
+
+    /* Animated background mesh */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+      animation: meshFloat 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes meshFloat {
+
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      25% {
+        transform: translate(2%, -1%) rotate(1deg);
+      }
+
+      50% {
+        transform: translate(-1%, 2%) rotate(-1deg);
+      }
+
+      75% {
+        transform: translate(1%, -2%) rotate(0.5deg);
+      }
+    }
+
+    /* ── Layout frame ─────────────────────────── */
+    .frame {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Glass card ────────────────────────────── */
+    .card {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.18);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* ── Section title ─────────────────────────── */
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1e293b;
+      letter-spacing: -0.3px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Form fields ───────────────────────────── */
+    .field,
+    .modal-input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: #fff;
+      color: #1e293b;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .field::placeholder,
+    .modal-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .field:focus,
+    .modal-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* ── Select wrap ───────────────────────────── */
+    .select-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .select-wrap .icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .select-wrap select {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 11px 14px 11px 40px;
+      background: #fff;
+      color: #1e293b;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    .select-wrap select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn,
+    .btn-confirm,
+    .btn-search {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn:hover,
+    .btn-confirm:hover,
+    .btn-search:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      filter: brightness(1.05);
+    }
+
+    .btn:active,
+    .btn-confirm:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      color: #334155;
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      filter: none;
+    }
+
+    /* ── Criteria list ─────────────────────────── */
+    .criteria-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .criteria-list {
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .c-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .c-left,
+    .c-right {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      flex: 1;
+    }
+
+    .c-right {
+      text-align: right;
+    }
+
+    .c-score {
+      font-size: 14px;
+      font-weight: 800;
+      color: #6366f1;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #6366f1;
+      height: 4px;
+      border-radius: 4px;
+    }
+
+    .criteria-sub {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── User profile / Icons ──────────────────── */
+    .user-profile {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .user-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      color: #6366f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .user-icon:hover {
+      background: rgba(99, 102, 241, 0.14);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .logout-icon {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.07);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .logout-icon:hover {
+      background: rgba(239, 68, 68, 0.13);
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+
+    /* ── Search section ────────────────────────── */
+    .search-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      color: #1e293b;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .search-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-search {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    /* ── Project list ──────────────────────────── */
+    .projects-list-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    .project-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.04);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .project-item:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.18);
+      color: #1e293b;
+      transform: translateX(2px);
+    }
+
+    /* ── Alternatives list ─────────────────────── */
+    .alternative-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.04);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .alternative-item button {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .alternative-item button:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* ── Modals ────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.12);
+      border-radius: 20px;
+      padding: 32px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
+    }
+
+    .modal-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      color: #1e293b;
+      margin-bottom: 20px;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-input {
+      margin-bottom: 14px;
+    }
+
+    /* ── Personal info modal ───────────────────── */
+    .personal-info-modal {
+      max-width: 440px;
+    }
+
+    .info-item {
+      margin-bottom: 14px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ── Login message ─────────────────────────── */
+    .login-msg {
+      font-size: 12px;
+      color: #64748b;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Center helper ─────────────────────────── */
+    .center {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── Floating particles ─────────────────── */
+    .particles {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(99, 102, 241, 0.18);
+      border-radius: 50%;
+      animation: particleFloat linear infinite;
+    }
+
+    .particle:nth-child(1) {
+      left: 10%;
+      animation-duration: 18s;
+      animation-delay: 0s;
+    }
+
+    .particle:nth-child(2) {
+      left: 25%;
+      animation-duration: 22s;
+      animation-delay: 3s;
+      width: 3px;
+      height: 3px;
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .particle:nth-child(3) {
+      left: 40%;
+      animation-duration: 16s;
+      animation-delay: 6s;
+    }
+
+    .particle:nth-child(4) {
+      left: 55%;
+      animation-duration: 24s;
+      animation-delay: 2s;
+      width: 5px;
+      height: 5px;
+      background: rgba(59, 130, 246, 0.14);
+    }
+
+    .particle:nth-child(5) {
+      left: 70%;
+      animation-duration: 20s;
+      animation-delay: 5s;
+    }
+
+    .particle:nth-child(6) {
+      left: 85%;
+      animation-duration: 19s;
+      animation-delay: 1s;
+      width: 3px;
+      height: 3px;
+    }
+
+    .particle:nth-child(7) {
+      left: 50%;
+      animation-duration: 21s;
+      animation-delay: 7s;
+    }
+
+    .particle:nth-child(8) {
+      left: 15%;
+      animation-duration: 17s;
+      animation-delay: 4s;
+      width: 6px;
+      height: 6px;
+      background: rgba(168, 85, 247, 0.12);
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* ── AHP Guide Card ────────────────────── */
+    .guide-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .step-text {
+      font-size: 12.5px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .guide-accent {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    .guide-img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ── Top Navigation Bar ───────────────────── */
+    .dash-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.08);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      margin-bottom: 0;
+    }
+
+    .dash-nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .dash-nav .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    .dash-nav .logo-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+    }
+
+    .dash-nav .logo-text span {
+      background: linear-gradient(135deg, #3b82f6, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 999px;
+      color: #4f46e5;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    .nav-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: #6366f1;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+    }
+
+    @keyframes badgePulse {
+
+      0%,
+      100% {
+        border-color: rgba(99, 102, 241, 0.18);
+      }
+
+      50% {
+        border-color: rgba(99, 102, 241, 0.35);
+      }
+    }
+
+    .rewatch-btn {
+      background: none;
+      border: none;
+      font-weight: 700;
+      color: #6366f1;
+      cursor: pointer;
+      padding: 0;
+      font-size: 12px;
+      text-decoration: underline;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Video Guide Overlay ──────────────────── */
+    #video-guide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+    }
+
+    #video-guide-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .guide-container {
+      width: 90%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transform: scale(1);
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #video-guide-overlay.hidden .guide-container {
+      transform: scale(0.9);
+    }
+
+    .guide-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #3b82f6, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto 24px;
+      aspect-ratio: 9 / 16;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .guide-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .guide-footer {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .btn-understood {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-understood:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ── Hero section ────────────────────── */
+    .hero-section {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 50px 20px 30px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 999px;
+      color: #4f46e5;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: #6366f1;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+    }
+
+    .hero-title {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 900;
+      color: #1e293b;
+      line-height: 1.2;
+      margin: 0 0 14px;
+      letter-spacing: -1px;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #3b82f6, #7c3aed, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(14px, 2vw, 16px);
+      color: #64748b;
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    /* ── Features strip ───────────────────── */
+    .features-strip {
+      position: relative;
+      z-index: 5;
+      max-width: 1100px;
+      margin: 0 auto 30px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .features-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-section {
+        padding: 30px 20px 20px;
+      }
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      border-radius: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .feature-item:hover {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(99, 102, 241, 0.16);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.06);
+    }
+
+    .feature-item .f-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .feature-item:nth-child(1) .f-icon {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+    }
+
+    .feature-item:nth-child(2) .f-icon {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+    }
+
+    .feature-item:nth-child(3) .f-icon {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.1));
+    }
+
+    .feature-item .f-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Video Guide Overlay -->
+  <div id="video-guide-overlay">
+    <div class="guide-container">
+      <h2 class="guide-title">Chào mừng đến với AHP Location</h2>
+      <div class="video-wrapper">
+        <iframe id="guide-iframe" class="guide-video" src="https://www.youtube.com/embed/grQib3MYno8?autoplay=1&mute=1"
+          title="YouTube video player" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
+        </iframe>
+      </div>
+      <div class="guide-footer">
+        <button id="btn-understood" class="btn-understood">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="dash-nav">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">📍</div>
+      <div class="logo-text"><span>AHP</span> Location</div>
+    </a>
+  </nav>
+
+  <!-- Floating Particles -->
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Hệ thống phân tích thông minh
+      <button id="btn-rewatch" class="rewatch-btn">Xem hướng dẫn</button>
+    </div>
+    <h1 class="hero-title">
+      Dashboard — Đánh giá<br />
+      <span class="gradient-text">Địa điểm kinh doanh</span>
+    </h1>
+    <p class="hero-subtitle">
+      So sánh các địa điểm, điều chỉnh trọng số tiêu chí và nhận kết quả AHP chính xác ngay tức khắc.
+    </p>
+  </section>
+
+  <!-- Features Strip -->
+  <div class="features-strip">
+    <div class="feature-item">
+      <div class="f-icon">🗺️</div>
+      <div class="f-text">Bản đồ trực quan với dữ liệu giá bất động sản</div>
+    </div>
+    <div class="feature-item">
+      <div class="f-icon">📊</div>
+      <div class="f-text">Phân tích đa tiêu chí theo phương pháp AHP</div>
+    </div>
+    <div class="feature-item">
+      <div class="f-icon">🤖</div>
+      <div class="f-text">Chatbot AI hỗ trợ tư vấn địa điểm phù hợp</div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="app">
+      <!-- LEFT -->
+      <div class="left">
+        <!--
           <div class="card">
             <div class="section-title">Loại hình kinh doanh</div>
             <div class="select-wrap">
@@ -32,259 +1065,255 @@
           </div>
           -->
 
-          <!-- Phương án địa điểm -->
-          <div class="card">
-            <div class="section-title">Địa điểm kinh doanh</div>
-            <div class="stack" id="alternativesContainer">
-              <div class="select-wrap">
-                <span class="icon">🏢</span>
-                <select id="district">
-                  <option value="" selected disabled>
-                    Chọn Tỉnh / Thành phố
-                  </option>
-                  <option>Hà Nội</option>
-                  <option>TP. Hồ Chí Minh</option>
-                  <option>Đà Nẵng</option>
-                  <option>Hải Phòng</option>
-                </select>
-              </div>
-
-              <div class="select-wrap">
-                <span class="icon">🏢</span>
-                <select id="ward">
-                  <option value="" selected disabled>Chọn Phường / Xã</option>
-                  <option>Phường 1</option>
-                  <option>Phường 2</option>
-                  <option>Phường 3</option>
-                </select>
-              </div>
-
-              <input class="field" id="street" placeholder="Chọn Tên đường" />
-
-              <button
-                id="addAlternativeBtn"
-                class="btn"
-                style="width: 100%; margin-top: 8px"
-              >
-                Thêm địa điểm
-              </button>
-
-              <div id="alternativesList" style="margin-top: 8px"></div>
-            </div>
-          </div>
-
-          <!-- So sánh cặp tiêu chí -->
-          <div class="card">
-            <div class="criteria-head">
-              <div class="section-title" style="margin: 0">
-                So sánh tầm quan trọng tiêu chí
-              </div>
-            </div>
-
-            <div id="criteriaList" class="criteria-list"></div>
-
-            <div class="criteria-sub">
-              Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
-            </div>
-          </div>
-
-          <!-- So sánh phương án theo từng tiêu chí -->
-          <div
-            class="card"
-            id="alternativesComparisonCard"
-            style="display: none"
-          >
-            <div class="criteria-head">
-              <div class="section-title" style="margin: 0">
-                So sánh phương án theo tiêu chí
-              </div>
-              <select
-                class="field"
-                id="selectedCriterion"
-                style="width: auto; padding: 6px 10px; font-size: 12px"
-              >
-                <option value="">Chọn tiêu chí...</option>
+        <!-- Phương án địa điểm -->
+        <div class="card">
+          <div class="section-title">Địa điểm kinh doanh</div>
+          <div class="stack" id="alternativesContainer">
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
+              <select id="district">
+                <option value="" selected disabled>
+                  Chọn Tỉnh / Thành phố
+                </option>
+                <option>Hà Nội</option>
+                <option>TP. Hồ Chí Minh</option>
+                <option>Đà Nẵng</option>
+                <option>Hải Phòng</option>
               </select>
             </div>
 
-            <div id="alternativesComparisonList" class="criteria-list"></div>
-
-            <div class="criteria-sub">
-              Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
+              <select id="ward">
+                <option value="" selected disabled>Chọn Phường / Xã</option>
+                <option>Phường 1</option>
+                <option>Phường 2</option>
+                <option>Phường 3</option>
+              </select>
             </div>
-          </div>
 
-          <!-- Nút tính toán -->
-          <div class="card">
-            <div class="center">
-              <button class="btn" id="calculateBtn" style="width: 100%">
-                Tính điểm và xếp hạng
-              </button>
-            </div>
+            <input class="field" id="street" placeholder="Chọn Tên đường" />
+
+            <button id="addAlternativeBtn" class="btn" style="width: 100%; margin-top: 8px">
+              Thêm địa điểm
+            </button>
+
+            <div id="alternativesList" style="margin-top: 8px"></div>
           </div>
         </div>
 
-        <!-- RIGHT -->
-        <div class="right">
-          <div class="card">
-            <!-- User Profile Icon -->
-            <div class="user-profile">
-              <div class="user-icon" id="userIcon" title="Thông tin cá nhân">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M12.0002 14.5C7.99016 14.5 4.75016 17.15 4.75016 20.5C4.75016 20.78 4.97016 21 5.25016 21H18.7502C19.0302 21 19.2502 20.78 19.2502 20.5C19.2502 17.15 16.0102 14.5 12.0002 14.5Z"
-                    fill="currentColor"
-                  />
-                </svg>
+        <!-- So sánh cặp tiêu chí -->
+        <div class="card">
+          <div class="criteria-head">
+            <div class="section-title" style="margin: 0">
+              So sánh tầm quan trọng tiêu chí
+            </div>
+          </div>
+
+          <div id="criteriaList" class="criteria-list"></div>
+
+          <div class="criteria-sub">
+            Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
+          </div>
+        </div>
+
+        <!-- So sánh phương án theo từng tiêu chí -->
+        <div class="card" id="alternativesComparisonCard" style="display: none">
+          <div class="criteria-head">
+            <div class="section-title" style="margin: 0">
+              So sánh phương án theo tiêu chí
+            </div>
+            <select class="field" id="selectedCriterion" style="width: auto; padding: 6px 10px; font-size: 12px">
+              <option value="">Chọn tiêu chí...</option>
+            </select>
+          </div>
+
+          <div id="alternativesComparisonList" class="criteria-list"></div>
+
+          <div class="criteria-sub">
+            Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)
+          </div>
+        </div>
+
+        <!-- Nút tính toán -->
+        <div class="card">
+          <div class="center">
+            <button class="btn" id="calculateBtn" style="width: 100%">
+              Tính điểm và xếp hạng
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+        <div class="card">
+          <!-- User Profile Icon -->
+          <div class="user-profile">
+            <div class="user-icon" id="userIcon" title="Thông tin cá nhân">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                  fill="currentColor" />
+                <path
+                  d="M12.0002 14.5C7.99016 14.5 4.75016 17.15 4.75016 20.5C4.75016 20.78 4.97016 21 5.25016 21H18.7502C19.0302 21 19.2502 20.78 19.2502 20.5C19.2502 17.15 16.0102 14.5 12.0002 14.5Z"
+                  fill="currentColor" />
+              </svg>
+            </div>
+            <div class="user-icon logout-icon" id="logoutBtn" title="Đăng xuất">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M10 6C10 5.44772 10.4477 5 11 5H18C18.5523 5 19 5.44772 19 6V18C19 18.5523 18.5523 19 18 19H11C10.4477 19 10 18.5523 10 18"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M15 12H5M5 12L8 9M5 12L8 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-section">
+            <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm..." />
+            <button class="btn-search" id="searchBtn">Tìm</button>
+          </div>
+
+          <!-- Danh sách dự án cũ -->
+          <div class="projects-list-title">Danh sách dự án cũ</div>
+          <div id="projectsList" style="margin-top: 12px"></div>
+
+          <!-- AHP Guide Card -->
+          <div class="card" style="margin-top: 20px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+              <div
+                style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));border:1px solid rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                📖</div>
+              <div>
+                <div style="font-weight:700;font-size:15px;color:#1e293b;">Hướng dẫn đánh giá AHP</div>
+                <div style="font-size:12px;color:#94a3b8;margin-top:2px;">Cách sử dụng hệ thống hiệu quả</div>
               </div>
-              <div class="user-icon logout-icon" id="logoutBtn" title="Đăng xuất">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10 6C10 5.44772 10.4477 5 11 5H18C18.5523 5 19 5.44772 19 6V18C19 18.5523 18.5523 19 18 19H11C10.4477 19 10 18.5523 10 18"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M15 12H5M5 12L8 9M5 12L8 15"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+            </div>
+
+            <div class="guide-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <div class="step-title">Chọn địa điểm</div>
+                <div class="step-text">Chọn <span class="guide-accent">Quận, Phường</span> và <span
+                    class="guide-accent">Tên đường</span>, sau đó nhấn <span class="guide-accent">Thêm địa điểm</span>
+                  để thêm nhiều phương án cần so sánh.</div>
               </div>
             </div>
 
-            <!-- Search Bar -->
-            <div class="search-section">
-              <input
-                type="text"
-                class="search-input"
-                id="searchInput"
-                placeholder="Tìm kiếm..."
-              />
-              <button class="btn-search" id="searchBtn">Tìm</button>
+            <div class="guide-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <div class="step-title">So sánh tiêu chí</div>
+                <div class="step-text">
+                  Kéo thanh trượt về phía tiêu chí bạn ưu tiên hơn.<br>
+                  • <span class="guide-accent">Vị trí lệch:</span> Bên nào gần thanh trượt hơn là quan trọng hơn.<br>
+                  • <span class="guide-accent">Con số (1-9):</span> Độ lệch càng cao, ưu tiên càng lọn (1 là ngang
+                  nhau).<br>
+                  • <span class="guide-accent">Ví dụ:</span> Mức <span class="guide-accent">6</span> bên phải nghĩa là
+                  bạn coi trọng <span class="guide-accent">Doanh thu</span> hơn hẳn <span class="guide-accent">Vị
+                    trí</span>.
+                  <img src="https://drive.google.com/thumbnail?id=1Gg1sr5onC6gbr0nkYA-H1tqx83vMOGLU&sz=w1000"
+                    alt="Minh họa so sánh tiêu chí" class="guide-img">
+                </div>
+              </div>
             </div>
 
-            <!-- Danh sách dự án cũ -->
-            <div class="projects-list-title">Danh sách dự án cũ</div>
-            <div id="projectsList" style="margin-top: 12px">
-              <div class="project-item">Dự án Trà sữa - Quận 1</div>
-              <div class="project-item">Dự án Cà phê - Quận 3</div>
-              <div class="project-item">Dự án Nhà hàng - Quận 7</div>
-              <div class="project-item">Dự án Tiện lợi - Quận 10</div>
+            <div class="guide-step" style="margin-bottom:0">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <div class="step-title">Tính toán &amp; Phân tích</div>
+                <div class="step-text">Nhấn <span class="guide-accent">Tính điểm và xếp hạng</span>. Hệ thống sẽ sử dụng
+                  thuật toán AHP để đưa ra kết quả tối ưu nhất.</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Modal: Yêu cầu nhập tên dự án -->
-    <div class="modal-overlay" id="projectNameModal">
-      <div class="modal">
-        <div class="modal-title">YÊU CẦU NHẬP TÊN DỰ ÁN</div>
-        <input
-          type="text"
-          class="modal-input"
-          id="projectNameInput"
-          placeholder="Nhập tên dự án"
-        />
-        <button class="btn-confirm" id="confirmBtn">Xác nhận</button>
-      </div>
+  <!-- Modal: Yêu cầu nhập tên dự án -->
+  <div class="modal-overlay" id="projectNameModal">
+    <div class="modal">
+      <div class="modal-title">YÊU CẦU NHẬP TÊN DỰ ÁN</div>
+      <input type="text" class="modal-input" id="projectNameInput" placeholder="Nhập tên dự án" />
+      <button class="btn-confirm" id="confirmBtn">Xác nhận</button>
     </div>
+  </div>
 
-    <!-- Modal: Kết quả AHP -->
-    <div class="modal-overlay" id="resultsModal">
-      <div
-        class="modal"
-        style="max-width: 600px; max-height: 80vh; overflow-y: auto"
-      >
-        <div class="modal-title">KẾT QUẢ HỖ TRỢ RA QUYẾT ĐỊNH</div>
+  <!-- Modal: Kết quả AHP -->
+  <div class="modal-overlay" id="resultsModal">
+    <div class="modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto">
+      <div class="modal-title">KẾT QUẢ HỖ TRỢ RA QUYẾT ĐỊNH</div>
 
-        <div id="resultsContent" style="margin-bottom: 20px"></div>
+      <div id="resultsContent" style="margin-bottom: 20px"></div>
 
-        <div style="display: flex; gap: 10px">
-          <button class="btn-confirm" id="saveResultsBtn" style="flex: 1">
-            Lưu kết quả
-          </button>
-          <button class="btn btn-outline" id="closeResultsBtn" style="flex: 1">
-            Đóng
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal: Thông tin cá nhân -->
-    <div class="modal-overlay" id="personalInfoModal">
-      <div class="modal personal-info-modal">
-        <div class="modal-title">Thông tin cá nhân</div>
-        <div class="info-item">
-          <div class="info-label">Họ và tên</div>
-          <input
-            class="modal-input"
-            id="pi-fullname"
-            placeholder="Nhập họ và tên"
-          />
-        </div>
-        <div class="info-item">
-          <div class="info-label">Email</div>
-          <div class="info-value" id="pi-email">--</div>
-        </div>
-        <div class="info-item">
-          <div class="info-label">Số điện thoại</div>
-          <input
-            class="modal-input"
-            id="pi-phone"
-            placeholder="Nhập số điện thoại"
-          />
-        </div>
-        <div class="info-item">
-          <div class="info-label">Mật khẩu mới</div>
-          <input
-            class="modal-input"
-            id="pi-password"
-            type="password"
-            placeholder="Nhập mật khẩu mới"
-          />
-        </div>
-        <div class="info-item">
-          <div class="info-label">Xác nhận mật khẩu</div>
-          <input
-            class="modal-input"
-            id="pi-password-confirm"
-            type="password"
-            placeholder="Nhập lại mật khẩu"
-          />
-        </div>
-        <div id="pi-msg" class="login-msg" style="margin-top: 10px"></div>
-        <button
-          class="btn-confirm"
-          id="updatePersonalInfoBtn"
-          style="margin-top: 20px"
-        >
-          Cập nhật thông tin
+      <div style="display: flex; gap: 10px">
+        <button class="btn-confirm" id="saveResultsBtn" style="flex: 1">
+          Lưu kết quả
+        </button>
+        <button class="btn btn-outline" id="closeResultsBtn" style="flex: 1">
+          Đóng
         </button>
       </div>
     </div>
-    <script src="js/dashboard.js" defer></script>
-    <script src="js/chatbot.js"></script>
-  </body>
+  </div>
+
+  <!-- Modal: Thông tin cá nhân -->
+  <div class="modal-overlay" id="personalInfoModal">
+    <div class="modal personal-info-modal">
+      <div class="modal-title">Thông tin cá nhân</div>
+      <div class="info-item">
+        <div class="info-label">Họ và tên</div>
+        <input class="modal-input" id="pi-fullname" placeholder="Nhập họ và tên" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value" id="pi-email">--</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Số điện thoại</div>
+        <input class="modal-input" id="pi-phone" placeholder="Nhập số điện thoại" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Mật khẩu mới</div>
+        <input class="modal-input" id="pi-password" type="password" placeholder="Nhập mật khẩu mới" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Xác nhận mật khẩu</div>
+        <input class="modal-input" id="pi-password-confirm" type="password" placeholder="Nhập lại mật khẩu" />
+      </div>
+      <div id="pi-msg" class="login-msg" style="margin-top: 10px"></div>
+      <button class="btn-confirm" id="updatePersonalInfoBtn" style="margin-top: 20px">
+        Cập nhật thông tin
+      </button>
+    </div>
+  </div>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js" defer></script>
+  <script src="js/chatbot.js"></script>
+  <script>
+    // Video Guide Overlay Logic
+    const guideOverlay = document.getElementById('video-guide-overlay');
+    const guideIframe = document.getElementById('guide-iframe');
+    const YT_SRC = 'https://www.youtube.com/embed/grQib3MYno8?autoplay=1&mute=1';
+
+    document.getElementById('btn-understood').addEventListener('click', function () {
+      guideOverlay.classList.add('hidden');
+      guideIframe.src = '';
+    });
+
+    const rewatchBtn = document.getElementById('btn-rewatch');
+    if (rewatchBtn) {
+      rewatchBtn.addEventListener('click', function () {
+        guideOverlay.classList.remove('hidden');
+        guideIframe.src = YT_SRC;
+      });
+    }
+  </script>
+</body>
+
 </html>
