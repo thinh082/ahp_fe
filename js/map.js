@@ -296,17 +296,23 @@ function ratingToColor(rating) {
 }
 
 function showLocationCompareMessage(html) {
-    const el = document.getElementById('locationCompareResult');
+    const el = document.getElementById('compareModalResult');
     if (!el) return;
-    const overlay = document.getElementById('compare-overlay');
-    if (overlay) {
-        overlay.style.display = 'block';
-    }
+
     el.innerHTML = html;
-    // canh giữa nội dung trong box so sánh
-    el.style.display = 'flex';
-    el.style.justifyContent = 'center';
-    el.style.alignItems = 'center';
+
+    // Hiện modal
+    if (typeof window.openCompareModal === 'function') {
+        window.openCompareModal();
+    }
+
+    // Vẫn render vào sidebar nếu phần tử đó tồn tại (optional fallback)
+    const sidebarEl = document.getElementById('locationCompareResult');
+    if (sidebarEl) {
+        sidebarEl.innerHTML = html;
+        const overlay = document.getElementById('compare-overlay');
+        if (overlay) overlay.style.display = 'block';
+    }
 }
 
 function renderLocationCompare(base, target) {
@@ -448,11 +454,24 @@ function renderAHPResponse(resp) {
                 timer = setTimeout(() => { this.closePopup(); }, 1200);
             });
 
-            // Khi click marker: lưu criteria_scores của location đang chọn
+            // Khi click marker
             circle.on('click', function () {
+                // Nếu đang chờ chọn marker để so sánh
+                if (waitingCompareTarget && compareBase) {
+                    // cùng marker -> bỏ qua, vẫn chờ
+                    if ((compareBase.loc?.id ?? null) === (loc?.id ?? null)) return;
+                    const target = { loc, cluster, label: popupTitle || (`Location #${loc.id}`) };
+                    renderLocationCompare(compareBase, target);
+                    waitingCompareTarget = false;
+                    compareBase = null;
+                    setMapPickMode(false);
+                    return; // Thoát sớm, không hiện bảng AHP
+                }
+
                 selectedCriteriaScores = loc.criteria_scores || null;
                 selectedLocationLabel = popupTitle || (`Location #${loc.id}`);
                 lastClicked = { loc, cluster, label: selectedLocationLabel };
+
                 if (typeof window.showCriteriaPanel === 'function') {
                     window.showCriteriaPanel();
                 }
@@ -464,17 +483,6 @@ function renderAHPResponse(resp) {
                         <div style="color:#334155; font-size:13px;">${selectedLocationLabel}</div>
                         <div style="color:#64748b; font-size:12px; margin-top:4px;">Chỉnh slider rồi bấm “Áp dụng tiêu chí” để xem so sánh.</div>
                     </div>`;
-                }
-
-                // Nếu đang chờ chọn marker để so sánh
-                if (waitingCompareTarget && compareBase) {
-                    // cùng marker -> bỏ qua, vẫn chờ
-                    if ((compareBase.loc?.id ?? null) === (loc?.id ?? null)) return;
-                    const target = { loc, cluster, label: selectedLocationLabel };
-                    renderLocationCompare(compareBase, target);
-                    waitingCompareTarget = false;
-                    compareBase = null;
-                    setMapPickMode(false);
                 }
             });
         });
@@ -1020,6 +1028,23 @@ window.closeCriteriaPanel = function () {
     if (panel) {
         panel.classList.add("hidden");
         panel.style.display = "none";
+    }
+};
+
+// Toggle Comparison Modal
+window.openCompareModal = function () {
+    const modal = document.getElementById("compareModal");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.style.display = "flex";
+    }
+};
+
+window.closeCompareModal = function () {
+    const modal = document.getElementById("compareModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.style.display = "none";
     }
 };
 
