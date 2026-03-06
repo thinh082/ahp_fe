@@ -16,18 +16,15 @@ const criteriaTypes = {
   "Rủi ro": "bad",
 };
 
-const FIXED_CRITERIA_MATRIX = [
-  [1, 3, 2, 4, 3],
-  [0.33, 1, 0.5, 2, 2],
-  [0.5, 2, 1, 3, 2],
-  [0.25, 0.5, 0.33, 1, 1],
-  [0.33, 0.5, 0.5, 1, 1],
-];
+// Ma trận giá trị so sánh tiêu chí n x n (khởi tạo tất cả = 1)
+const criteriaMatrixValues = Array.from({ length: criteria.length }, () =>
+  Array(criteria.length).fill(1)
+);
 
 // Danh sách phương án địa điểm
 let alternatives = [];
 
-// Các cặp so sánh tiêu chí
+// Các cặp so sánh tiêu chí (giữ lại để tương thích với buildComparisonMatrix)
 const criteriaPairs = [];
 const criteriaListEl = document.getElementById("criteriaList");
 
@@ -54,54 +51,113 @@ function initAlternativesComparison() {
   }
 }
 
-// Hiển thị so sánh tiêu chí với visual feedback
-function createCriteriaRow(pair, idx) {
-  const row = document.createElement("div");
-  row.className = "c-row";
-
-  const left = document.createElement("div");
-  left.className = "c-left";
-  left.textContent = criteria[pair.a];
-
-  const slider = document.createElement("input");
-  slider.type = "range";
-  slider.min = "1";
-  slider.max = "9";
-  slider.step = "1";
-  slider.value = String(pair.value);
-
-  // Xác định tiêu chí nào đang được so sánh (bên trái ưu tiên)
-  const criterionA = criteria[pair.a];
-  const criterionB = criteria[pair.b];
-  const typeA = criteriaTypes[criterionA];
-
-  // Thiết lập data attributes cho visual feedback
-  slider.setAttribute("data-criteria-type", typeA);
-  slider.setAttribute("data-value", slider.value);
-
-  const score = document.createElement("div");
-  score.className = "c-score";
-  score.textContent = slider.value;
-
-  const right = document.createElement("div");
-  right.className = "c-right";
-  right.textContent = criteria[pair.b];
-
-  slider.addEventListener("input", () => {
-    score.textContent = slider.value;
-    criteriaPairs[idx].value = Number(slider.value);
-    slider.setAttribute("data-value", slider.value);
-  });
-
-  row.append(left, slider, score, right);
-  return row;
+function formatReciprocal(v) {
+  return v === 1 ? "1" : `1/${v}`;
 }
 
+// Hiển thị bảng ma trận AHP tiêu chí
 function renderCriteriaPairs() {
-  criteriaListEl.innerHTML = "";
-  criteriaPairs.forEach((p, idx) =>
-    criteriaListEl.appendChild(createCriteriaRow(p, idx))
-  );
+  if (!criteriaListEl) return;
+  const n = criteria.length;
+
+  const criteriaDesc = [
+    "Mức độ tiềm năng sinh lời của khu vực",
+    "Mức độ thuận tiện di chuyển, giao thông",
+    "Chi phí thuê mặt bằng hàng tháng",
+    "Mật độ đối thủ cạnh tranh trong khu vực",
+    "Mức độ rủi ro kinh doanh tại địa điểm",
+  ];
+
+  criteriaListEl.innerHTML = `
+    <div class="ahp-hint">
+      Chỉ nhập ô tam giác <strong>phía trên đường chéo</strong> với giá trị từ <strong>1 đến 9</strong>.
+      Ô đối xứng sẽ tự động sinh nghịch đảo.
+    </div>
+    <div class="ahp-legend">
+      ${criteria.map((c, i) => `
+        <div class="ahp-legend-item">
+          <span class="ahp-legend-code">C${i + 1}</span>
+          <span class="ahp-legend-name">${c}</span>
+          <span class="ahp-legend-desc">${criteriaDesc[i] || ""}</span>
+        </div>
+      `).join("")}
+    </div>
+    <div class="ahp-table-wrap">
+      <table class="ahp-table">
+        <thead>
+          <tr>
+            <th class="ahp-th-label">Tiêu chí</th>
+            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody id="ahpCriteriaTbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = criteriaListEl.querySelector("#ahpCriteriaTbody");
+
+  for (let i = 0; i < n; i++) {
+    const tr = document.createElement("tr");
+
+    const th = document.createElement("th");
+    th.className = "ahp-row-label";
+    th.textContent = `C${i + 1}`;
+    tr.appendChild(th);
+
+    for (let j = 0; j < n; j++) {
+      const td = document.createElement("td");
+
+      if (i === j) {
+        td.className = "ahp-cell ahp-diag";
+        td.textContent = "1";
+      } else if (j > i) {
+        td.className = "ahp-cell ahp-input-cell";
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.min = 1;
+        inp.max = 9;
+        inp.step = 1;
+        inp.value = criteriaMatrixValues[i][j];
+        inp.className = "ahp-input";
+        inp.addEventListener("input", () => {
+          const raw = inp.value.trim();
+          if (raw === "") return; // cho phép xóa trống, không ép về 1
+          let v = parseInt(raw, 10);
+          if (isNaN(v)) return;
+          if (v > 9) { v = 9; inp.value = v; }
+          if (v < 1) { v = 1; inp.value = v; }
+          criteriaMatrixValues[i][j] = v;
+          criteriaMatrixValues[j][i] = 1 / v;
+          const mirror = tbody.rows[j].cells[i + 1];
+          mirror.textContent = formatReciprocal(v);
+          const pairIdx = criteriaPairs.findIndex(p => p.a === i && p.b === j);
+          if (pairIdx !== -1) criteriaPairs[pairIdx].value = v;
+        });
+        inp.addEventListener("blur", () => {
+          let v = parseInt(inp.value, 10);
+          if (isNaN(v) || v < 1) v = 1;
+          if (v > 9) v = 9;
+          inp.value = v;
+          criteriaMatrixValues[i][j] = v;
+          criteriaMatrixValues[j][i] = 1 / v;
+          const mirror = tbody.rows[j].cells[i + 1];
+          mirror.textContent = formatReciprocal(v);
+          const pairIdx = criteriaPairs.findIndex(p => p.a === i && p.b === j);
+          if (pairIdx !== -1) criteriaPairs[pairIdx].value = v;
+        });
+        td.appendChild(inp);
+      } else {
+        td.className = "ahp-cell ahp-recip";
+        const v = criteriaMatrixValues[j][i];
+        td.textContent = formatReciprocal(v);
+      }
+
+      tr.appendChild(td);
+    }
+
+    tbody.appendChild(tr);
+  }
 }
 
 // Hiển thị danh sách phương án
@@ -293,73 +349,240 @@ function buildComparisonMatrix(pairs, n) {
   return matrix;
 }
 
-// Chuẩn bị dữ liệu ma trận để gửi cho BE
-function prepareMatrixForBE() {
-  if (alternatives.length < 1) {
-    throw new Error(`Cần ít nhất 1 phương án để tính toán (Hiện tại: ${alternatives.length})`);
-  }
+// =====================================================
+// AHP 4-BƯỚC API PIPELINE
+// =====================================================
 
-  // Xây dựng ma trận so sánh tiêu chí
-  const criteriaMatrix = buildComparisonMatrix(criteriaPairs, criteria.length);
+// State pipeline
+let ahpPipelineWeights = null; // [W1..W5] sau khi bước 3 thành công
+let ahpPipelineValid = false;  // true nếu CR < 0.1
 
-  // Chuẩn bị cấu trúc dữ liệu cho BE
-  const matrixData = {
-    criteria: criteria,
-    alternatives: alternatives,
-    criteriaMatrix: criteriaMatrix,
-  };
-
-  return matrixData;
+// Xây dựng ma trận từ bảng nhập (criteriaMatrixValues)
+function getRawMatrix() {
+  const n = criteria.length;
+  const r2 = (x) => Math.round(x * 100) / 100;
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => (i === j ? 1 : r2(criteriaMatrixValues[i][j])))
+  );
 }
 
-function computeWeightsFromMatrix(matrix) {
-  const n = matrix.length;
-  const geometricMeans = matrix.map((row) => {
-    const product = row.reduce((acc, v) => acc * v, 1);
-    return Math.pow(product, 1 / n);
+// Hiển thị kết quả pipeline bên dưới bảng ma trận
+function getPipelineContainer() {
+  let el = document.getElementById("ahpPipelineResult");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "ahpPipelineResult";
+    // Chèn sau card chứa criteriaList
+    const criteriaCard = criteriaListEl?.closest(".card");
+    if (criteriaCard) criteriaCard.after(el);
+    else document.querySelector(".left")?.appendChild(el);
+  }
+  return el;
+}
+
+function showPipelineStep(html) {
+  const container = getPipelineContainer();
+  container.innerHTML = html;
+}
+
+function renderColumnSumsRow(colSums) {
+  // Cập nhật hàng "Tổng cột" trong bảng AHP nếu có
+  const tbody = criteriaListEl?.querySelector("#ahpCriteriaTbody");
+  if (!tbody) return;
+  // Xóa hàng cũ nếu có
+  const old = criteriaListEl.querySelector("#ahpColSumRow");
+  if (old) old.remove();
+
+  const tfoot = document.createElement("tfoot");
+  tfoot.id = "ahpColSumRow";
+  const tr = document.createElement("tr");
+  tr.style.cssText = "background:#eaf1ff; font-weight:700;";
+
+  const th = document.createElement("th");
+  th.textContent = "Σ Tổng";
+  th.className = "ahp-row-label";
+  th.style.color = "var(--text)";
+  tr.appendChild(th);
+
+  colSums.forEach(s => {
+    const td = document.createElement("td");
+    td.className = "ahp-cell";
+    td.textContent = Number(s).toFixed(4);
+    td.style.color = "var(--primary)";
+    tr.appendChild(td);
   });
-  const sum = geometricMeans.reduce((acc, v) => acc + v, 0) || 1;
-  return geometricMeans.map((v) => v / sum);
+
+  tfoot.appendChild(tr);
+  criteriaListEl.querySelector(".ahp-table")?.appendChild(tfoot);
 }
 
-function calculateAHPScores() {
-  if (alternatives.length < 1) {
-    throw new Error("Cần ít nhất 1 phương án để tính toán.");
-  }
+function renderNormalizedMatrix(normMatrix) {
+  const n = criteria.length;
+  const rows = normMatrix.map((row, i) =>
+    `<tr>
+      <th class="ahp-row-label" style="background:#f0f4ff;">C${i + 1}</th>
+      ${row.map(v => `<td class="ahp-cell" style="background:#fff;">${Number(v).toFixed(4)}</td>`).join("")}
+    </tr>`
+  ).join("");
 
-  const criteriaWeights = computeWeightsFromMatrix(FIXED_CRITERIA_MATRIX);
+  return `
+    <div class="card" style="margin-top:12px;">
+      <div class="section-title">📋 Ma trận chuẩn hóa</div>
+      <div class="ahp-hint">Mỗi cột tổng đồng bằng 1.0 sau chuẩn hóa.</div>
+      <div class="ahp-table-wrap">
+        <table class="ahp-table">
+          <thead><tr>
+            <th class="ahp-th-label">Tiêu chí</th>
+            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
 
-  const altWeightsByCriterion = [];
-  for (let c = 0; c < criteria.length; c++) {
-    if (alternatives.length === 1) {
-      altWeightsByCriterion.push([1]);
-      continue;
+function renderWeightsResult(data) {
+  const weights = data.weights || {};
+  const cr = Number(data.consistency_ratio || 0);
+  const isValid = data.is_valid;
+  const weightKeys = Object.keys(weights);
+  const weightList = weightKeys.map(k => `
+    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f4ff; font-size:12px;">
+      <span style="color:var(--muted);">${k.replace(/_/g, " ")}</span>
+      <span style="font-weight:700; color:var(--primary);">${(Number(weights[k]) * 100).toFixed(2)}%</span>
+    </div>`).join("");
+
+  const crColor = isValid ? "#15803d" : "#b91c1c";
+  const crIcon = isValid ? "✅" : "⚠️";
+
+  return `
+    <div class="card" style="margin-top:12px;">
+      <div class="section-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
+      <div style="margin:8px 0;">${weightList}</div>
+      <div style="margin-top:10px; padding:10px; border-radius:8px; background:${isValid ? "#f0fdf4" : "#fff1f2"}; border:1px solid ${isValid ? "#bbf7d0" : "#fecaca"};">
+        <div style="font-size:12px; color:${crColor}; font-weight:700;">
+          ${crIcon} CHỄ SỐ NHẤT QUÁN (CR): <strong>${cr.toFixed(4)}</strong>
+        </div>
+        <div style="font-size:11px; color:${crColor}; margin-top:4px;">${data.message || ""}</div>
+      </div>
+      ${isValid
+      ? `<button class="btn" id="startAnalysisBtn" style="width:100%; margin-top:12px;">🚀 Phân tích địa điểm</button>`
+      : `<div style="margin-top:10px; padding:10px; border-radius:8px; background:#fff1f2; border:1px solid #fecaca; font-size:12px; color:#b91c1c;">
+             Vui lòng sửa lại bảng so sánh cặp và tính toán lại.
+           </div>`
     }
-    const comp = alternativesComparison[c];
-    if (!comp || !comp.pairs || comp.pairs.length === 0) {
-      altWeightsByCriterion.push(
-        Array(alternatives.length).fill(1 / alternatives.length)
-      );
-      continue;
-    }
-    const altMatrix = buildComparisonMatrix(comp.pairs, alternatives.length);
-    altWeightsByCriterion.push(computeWeightsFromMatrix(altMatrix));
-  }
+    </div>`;
+}
 
-  const finalScores = Array(alternatives.length).fill(0);
-  for (let i = 0; i < alternatives.length; i++) {
-    let score = 0;
-    for (let c = 0; c < criteria.length; c++) {
-      score += criteriaWeights[c] * (altWeightsByCriterion[c][i] || 0);
-    }
-    finalScores[i] = score;
-  }
+async function runAhpPipeline() {
+  const calculateBtn = document.getElementById("calculateBtn");
+  if (calculateBtn) { calculateBtn.disabled = true; calculateBtn.textContent = "Đang xử lý..."; }
 
-  return {
-    criteriaWeights,
-    finalScores,
-    criteriaCR: { CR: 0 },
-  };
+  ahpPipelineWeights = null;
+  ahpPipelineValid = false;
+
+  // Xóa kết quả cũ
+  const container = getPipelineContainer();
+  container.innerHTML = `<div style="padding:12px; font-size:12px; color:var(--muted); text-align:center;">⏳ Đang gọi API...</div>`;
+
+  // Xóa hàng tổng cũ
+  document.getElementById("ahpColSumRow")?.remove();
+
+  const rawMatrix = getRawMatrix();
+
+  try {
+    // ── BƯỚC 1: column-sums ────────────────────────────
+    const res1 = await apiFetch("/api/ahp/calculate/column-sums", {
+      method: "POST",
+      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+    });
+    renderColumnSumsRow(res1.column_sums || []);
+
+    // ── BƯỚC 2: normalize-matrix ─────────────────────
+    const res2 = await apiFetch("/api/ahp/calculate/normalize-matrix", {
+      method: "POST",
+      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+    });
+
+    // ── BƯỚC 3: priority-vector-and-cr ───────────────
+    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
+      method: "POST",
+      body: JSON.stringify({
+        raw_matrix: rawMatrix,
+        normalized_matrix: res2.normalized_matrix,
+      }),
+    });
+
+    // Hiển thị kết quả
+    showPipelineStep(
+      renderNormalizedMatrix(res2.normalized_matrix) +
+      renderWeightsResult(res3)
+    );
+
+    if (res3.is_valid) {
+      // Lưu weights dạng list [W1..W5]
+      const wObj = res3.weights || {};
+      ahpPipelineWeights = Object.values(wObj);
+      ahpPipelineValid = true;
+
+      // Gắn sự kiện cho nút Phân tích
+      setTimeout(() => {
+        const startBtn = document.getElementById("startAnalysisBtn");
+        if (startBtn) startBtn.addEventListener("click", runFinalAnalysis);
+      }, 0);
+    }
+  } catch (err) {
+    showPipelineStep(`<div class="card" style="margin-top:12px; padding:14px;">
+      <div style="color:#b91c1c; font-weight:700;">❌ Lỗi khi tính toán</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:6px;">${err.message}</div>
+    </div>`);
+    console.error("AHP pipeline error:", err);
+  } finally {
+    if (calculateBtn) { calculateBtn.disabled = false; calculateBtn.textContent = "Tính điểm và xếp hạng"; }
+  }
+}
+
+async function runFinalAnalysis() {
+  const btn = document.getElementById("startAnalysisBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Đang phân tích..."; }
+
+  try {
+    // Lấy filters
+    const districtEl = document.getElementById("district");
+    const wardEl = document.getElementById("ward");
+    const street = document.getElementById("street")?.value.trim() || "";
+    const cityText = getSelectText(districtEl, districtTomSelect);
+    const wardText = getSelectText(wardEl, wardTomSelect);
+
+    function normalizeForFilter(input) {
+      if (!input) return null;
+      return String(input).trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d").replace(/Đ/g, "D")
+        .replace(/\s+/g, " ").trim() || null;
+    }
+
+    const filters = {};
+    if (cityText) filters.district = normalizeForFilter(cityText);
+    if (wardText) filters.ward = normalizeForFilter(wardText);
+    if (street) filters.street = normalizeForFilter(street);
+    filters.limit = 50;
+
+    const result = await apiFetch("/api/locations/execute-final-analysis", {
+      method: "POST",
+      body: JSON.stringify({ weights: ahpPipelineWeights, filters }),
+    });
+
+    // Lưu vào localStorage để map.html dùng
+    localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: ahpPipelineWeights, filters }));
+    localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
+
+    window.location.href = "map.html";
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = "🚀 Phân tích địa điểm"; }
+    alert("❌ Lỗi khi phân tích: " + err.message);
+    console.error("Final analysis error:", err);
+  }
 }
 
 // Hiển thị ma trận để debug (sẽ được gửi cho BE)
@@ -375,37 +598,12 @@ function displayMatrixForDebugging(matrixData) {
   console.log(JSON.stringify(matrixData, null, 2));
 }
 
-// Nút tính toán - xây dựng ma trận và gửi cho BE
+// Nút tính toán - chạy AHP pipeline 4 bước qua API
 const calculateBtn = document.getElementById("calculateBtn");
-calculateBtn.addEventListener("click", () => {
-  // Auto-add default/current input if available
-  const districtEl = document.getElementById("district");
-  const wardEl = document.getElementById("ward");
-  const street = document.getElementById("street").value.trim();
-  const cityText = getSelectText(districtEl, districtTomSelect);
-  const wardText = getSelectText(wardEl, wardTomSelect);
+if (calculateBtn) {
+  calculateBtn.addEventListener("click", runAhpPipeline);
+}
 
-  if (cityText && wardText && street) {
-    addAlternativeFromInputs();
-  }
-
-  if (alternatives.length < 1) {
-    alert("Vui lòng nhập thông tin địa điểm (Quận, Phường/Xã, Tên đường) để tính toán!");
-    return;
-  }
-
-  try {
-    const matrixData = prepareMatrixForBE();
-    displayMatrixForDebugging(matrixData);
-
-    currentResults = calculateAHPScores();
-    projectNameModal.classList.add("active");
-    projectNameInput.focus();
-  } catch (error) {
-    alert("Lỗi khi xây dựng ma trận: " + error.message);
-    console.error(error);
-  }
-});
 
 // Hiển thị modal kết quả (sẽ dùng khi BE trả kết quả)
 // Bỏ comment khi tích hợp BE API
@@ -891,17 +1089,18 @@ function openProjectOnMap(item) {
     item.w_cost,
     item.w_competition,
     item.w_risk,
-  ];
-  const criteriaMatrix = buildCriteriaMatrixFromWeights(weights);
+  ].map(w => Number(w) || 0.2);
+
   const filters = {
     district: item.district || "",
     ward: item.ward || "",
     street: item.street || "",
+    limit: 50,
   };
 
   try {
     const payload = {
-      criteriaMatrix,
+      weights,
       filters,
       projectid: item.projectid ?? item.id ?? null,
       savedAt: new Date().toISOString(),
@@ -914,6 +1113,7 @@ function openProjectOnMap(item) {
 
   window.location.href = "map.html";
 }
+
 
 let searchTimer = null;
 async function fetchProjects(params) {

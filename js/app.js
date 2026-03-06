@@ -1,76 +1,141 @@
 
 const criteria = [
   "Tiềm năng doanh thu",
-  "Tiếp cận & vị trí",
-  "Chi phí",
+  "Khả năng tiếp cận",
+  "Chi phí thuê",
   "Cạnh tranh",
-  "Ổn định",
+  "Rủi ro",
 ];
 
 // Phân loại loại tiêu chí: 'good' = càng cao càng tốt, 'bad' = càng thấp càng tốt
 const criteriaTypes = {
   "Tiềm năng doanh thu": "good",
-  "Tiếp cận & vị trí": "good",
-  "Chi phí": "bad",
+  "Khả năng tiếp cận": "good",
+  "Chi phí thuê": "bad",
   "Cạnh tranh": "bad",
-  "Ổn định": "bad",
+  "Rủi ro": "bad",
 };
 
 const listEl = document.getElementById("criteriaList");
-const pairs = [];
 
-for (let i = 0; i < criteria.length; i++) {
-  for (let j = i + 1; j < criteria.length; j++) {
-    // Lưu thêm index i, j để dựng ma trận tiêu chí
-    pairs.push({ a: criteria[i], b: criteria[j], value: 1, i, j });
+// Ma trận giá trị so sánh n x n (chỉ lưu nửa trên, chéo = 1)
+// Khởi tạo tất cả bằng 1
+const matrixValues = Array.from({ length: criteria.length }, () =>
+  Array(criteria.length).fill(1)
+);
+
+function formatReciprocal(v) {
+  return v === 1 ? "1" : `1/${v}`;
+}
+
+function renderCriteriaMatrix() {
+  if (!listEl) return;
+  const n = criteria.length;
+
+  // Mô tả ngắn cho từng tiêu chí
+  const criteriaDesc = [
+    "Mức độ tiềm năng sinh lời của khu vực",
+    "Mức độ thuận tiện di chuyển, giao thông",
+    "Chi phí thuê mặt bằng hàng tháng",
+    "Mật độ đối thủ cạnh tranh trong khu vực",
+    "Mức độ rủi ro kinh doanh tại địa điểm",
+  ];
+
+  listEl.innerHTML = `
+    <div class="ahp-hint">
+      Chỉ nhập ô tam giác <strong>phía trên đường chéo</strong> với giá trị từ <strong>1 đến 9</strong>.
+      Ô đối xứng sẽ tự động sinh nghịch đảo.
+    </div>
+    <div class="ahp-legend">
+      ${criteria.map((c, i) => `
+        <div class="ahp-legend-item">
+          <span class="ahp-legend-code">C${i + 1}</span>
+          <span class="ahp-legend-name">${c}</span>
+          <span class="ahp-legend-desc">${criteriaDesc[i] || ""}</span>
+        </div>
+      `).join("")}
+    </div>
+    <div class="ahp-table-wrap">
+      <table class="ahp-table">
+        <thead>
+          <tr>
+            <th class="ahp-th-label">Tiêu chí</th>
+            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody id="ahpTbody">
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = listEl.querySelector("#ahpTbody");
+
+  for (let i = 0; i < n; i++) {
+    const tr = document.createElement("tr");
+
+    // Nhãn hàng
+    const th = document.createElement("th");
+    th.className = "ahp-row-label";
+    th.textContent = `C${i + 1}`;
+    tr.appendChild(th);
+
+    for (let j = 0; j < n; j++) {
+      const td = document.createElement("td");
+
+      if (i === j) {
+        // Đường chéo
+        td.className = "ahp-cell ahp-diag";
+        td.textContent = "1";
+      } else if (j > i) {
+        // Nửa trên: input
+        td.className = "ahp-cell ahp-input-cell";
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.min = 1;
+        inp.max = 9;
+        inp.step = 1;
+        inp.value = matrixValues[i][j];
+        inp.className = "ahp-input";
+        inp.addEventListener("input", () => {
+          const raw = inp.value.trim();
+          if (raw === "") return; // cho phép xóa trống, không ép về 1
+          let v = parseInt(raw, 10);
+          if (isNaN(v)) return;
+          // Chỉ clamp khi giá trị rõ ràng vượt ngưỡng
+          if (v > 9) { v = 9; inp.value = v; }
+          if (v < 1) { v = 1; inp.value = v; }
+          matrixValues[i][j] = v;
+          matrixValues[j][i] = 1 / v;
+          const mirror = tbody.rows[j].cells[i + 1];
+          mirror.textContent = formatReciprocal(v);
+        });
+        inp.addEventListener("blur", () => {
+          let v = parseInt(inp.value, 10);
+          if (isNaN(v) || v < 1) v = 1;
+          if (v > 9) v = 9;
+          inp.value = v;
+          matrixValues[i][j] = v;
+          matrixValues[j][i] = 1 / v;
+          const mirror = tbody.rows[j].cells[i + 1];
+          mirror.textContent = formatReciprocal(v);
+        });
+        td.appendChild(inp);
+      } else {
+        // Nửa dưới: nghịch đảo
+        td.className = "ahp-cell ahp-recip";
+        const v = matrixValues[j][i]; // giá trị gốc ở nửa trên
+        td.textContent = formatReciprocal(v);
+      }
+
+      tr.appendChild(td);
+    }
+
+    tbody.appendChild(tr);
   }
 }
 
-function createRow(pair, idx) {
-  const row = document.createElement("div");
-  row.className = "c-row";
-
-  const left = document.createElement("div");
-  left.className = "c-left";
-  left.textContent = pair.a;
-
-  const slider = document.createElement("input");
-  slider.type = "range";
-  slider.min = "1";
-  slider.max = "9";
-  slider.step = "1";
-  slider.value = String(pair.value);
-
-  // Xác định loại tiêu chí để visual feedback
-  const typeA = criteriaTypes[pair.a];
-  slider.setAttribute("data-criteria-type", typeA);
-  slider.setAttribute("data-value", slider.value);
-
-  const score = document.createElement("div");
-  score.className = "c-score";
-  score.textContent = slider.value;
-
-  const right = document.createElement("div");
-  right.className = "c-right";
-  right.textContent = pair.b;
-
-  slider.addEventListener("input", () => {
-    score.textContent = slider.value;
-    pairs[idx].value = Number(slider.value);
-    slider.setAttribute("data-value", slider.value);
-  });
-
-  row.append(left, slider, score, right);
-  return row;
-}
-
-function renderPairs() {
-  if (!listEl) return;
-  listEl.innerHTML = "";
-  pairs.forEach((p, idx) => listEl.appendChild(createRow(p, idx)));
-}
-
-renderPairs();
+renderCriteriaMatrix();
 
 const calcBtn = document.getElementById("calcBtn");
 const loginBtn = document.getElementById("loginBtn");
@@ -106,40 +171,16 @@ async function redirectIfLoggedIn() {
 
 redirectIfLoggedIn();
 
-// Hàm xây dựng ma trận tiêu chí từ pairs
+// Hàm xây dựng ma trận tiêu chí từ bảng nhập liệu
 function buildCriteriaMatrix() {
-  // TODO(tam-thoi): Set c?ng ma tr?n theo y�u c?u t?m th?i.
-  // Khi ho�n t?t, b? comment do?n t?o ma tr?n t? pairs b�n du?i.
-  const criteriaMatrix = [
-    [1, 3, 2, 4, 3],
-    [0.33, 1, 0.5, 2, 2],
-    [0.5, 2, 1, 3, 2],
-    [0.25, 0.5, 0.33, 1, 1],
-    [0.33, 0.5, 0.5, 1, 1],
-  ];
-
-  return criteriaMatrix;
-
-  // const n = criteria.length;
-  // const round2 = (x) => Math.round(x * 100) / 100;
-  //
-  // // Kh?i t?o ma tr?n n x n v?i du?ng ch�o = 1
-  // const criteriaMatrix = Array.from({ length: n }, () =>
-  //   Array.from({ length: n }, (_, j) => 1)
-  // );
-  //
-  // // Duy?t qua t?t c? c�c c?p v� g�n v�o ma tr?n
-  // pairs.forEach((p) => {
-  //   const i = p.i;
-  //   const j = p.j;
-  //   const v = Number(p.value) || 1;
-  //
-  //   // a_ij = v, a_ji = 1/v
-  //   criteriaMatrix[i][j] = round2(v);
-  //   criteriaMatrix[j][i] = v === 0 ? 0 : round2(1 / v);
-  // });
-  //
-  // return criteriaMatrix;
+  const n = criteria.length;
+  const round2 = (x) => Math.round(x * 100) / 100;
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (__, j) => {
+      if (i === j) return 1;
+      return round2(matrixValues[i][j]);
+    })
+  );
 }
 
 // Biến global để lưu TomSelect instances
@@ -223,73 +264,200 @@ function getFilters() {
   return filters;
 }
 
-// Hàm gọi API tính toán AHP
-async function callCalculateAHP(criteriaMatrix, filters) {
+
+// =====================================================
+// AHP 4-BƯỚC API PIPELINE (index.html)
+// =====================================================
+
+let appPipelineWeights = null; // [W1..W5] sau bước 3
+
+// Lấy/tạo container hiển thị kết quả pipeline
+function getAppPipelineContainer() {
+  let el = document.getElementById("appPipelineResult");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "appPipelineResult";
+    // Chèn sau card chứa bảng criteria
+    const criteriaCard = listEl?.closest(".card") || listEl?.parentElement;
+    if (criteriaCard) criteriaCard.after(el);
+    else document.querySelector(".content")?.appendChild(el);
+  }
+  return el;
+}
+
+function showAppPipelineStep(html) {
+  getAppPipelineContainer().innerHTML = html;
+}
+
+function appRenderColumnSumsRow(colSums) {
+  const table = listEl?.querySelector(".ahp-table");
+  if (!table) return;
+  const old = table.querySelector("tfoot");
+  if (old) old.remove();
+
+  const tfoot = document.createElement("tfoot");
+  const tr = document.createElement("tr");
+  tr.style.cssText = "background:#eaf1ff; font-weight:700;";
+
+  const th = document.createElement("th");
+  th.textContent = "Σ Tổng";
+  th.className = "ahp-row-label";
+  th.style.color = "var(--text)";
+  tr.appendChild(th);
+
+  (colSums || []).forEach(s => {
+    const td = document.createElement("td");
+    td.className = "ahp-cell";
+    td.textContent = Number(s).toFixed(4);
+    td.style.color = "var(--primary)";
+    tr.appendChild(td);
+  });
+
+  tfoot.appendChild(tr);
+  table.appendChild(tfoot);
+}
+
+function appRenderNormalizedMatrix(normMatrix) {
+  const rows = normMatrix.map((row, i) =>
+    `<tr>
+      <th class="ahp-row-label" style="background:#f0f4ff;">C${i + 1}</th>
+      ${row.map(v => `<td class="ahp-cell" style="background:#fff;">${Number(v).toFixed(4)}</td>`).join("")}
+    </tr>`
+  ).join("");
+
+  return `
+    <div class="card" style="margin-top:12px;">
+      <div class="section-title">📋 Ma trận chuẩn hóa</div>
+      <div class="ahp-hint">Mỗi cột tổng bằng 1.0 sau chuẩn hóa.</div>
+      <div class="ahp-table-wrap">
+        <table class="ahp-table">
+          <thead><tr>
+            <th class="ahp-th-label">Tiêu chí</th>
+            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function appRenderWeightsResult(data) {
+  const weights = data.weights || {};
+  const cr = Number(data.consistency_ratio || 0);
+  const isValid = data.is_valid;
+  const weightList = Object.keys(weights).map(k => `
+    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f4ff; font-size:12px;">
+      <span style="color:var(--muted);">${k.replace(/_/g, " ")}</span>
+      <span style="font-weight:700; color:var(--primary);">${(Number(weights[k]) * 100).toFixed(2)}%</span>
+    </div>`).join("");
+
+  const crColor = isValid ? "#15803d" : "#b91c1c";
+  const crIcon = isValid ? "✅" : "⚠️";
+
+  return `
+    <div class="card" style="margin-top:12px;">
+      <div class="section-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
+      <div style="margin:8px 0;">${weightList}</div>
+      <div style="margin-top:10px; padding:10px; border-radius:8px; background:${isValid ? "#f0fdf4" : "#fff1f2"}; border:1px solid ${isValid ? "#bbf7d0" : "#fecaca"};">
+        <div style="font-size:12px; color:${crColor}; font-weight:700;">
+          ${crIcon} CHỈ SỐ NHẤT QUÁN (CR): <strong>${cr.toFixed(4)}</strong>
+        </div>
+        <div style="font-size:11px; color:${crColor}; margin-top:4px;">${data.message || ""}</div>
+      </div>
+      ${isValid
+      ? `<button class="btn" id="appStartAnalysisBtn" style="width:100%; margin-top:12px;">🚀 Phân tích địa điểm</button>`
+      : `<div style="margin-top:10px; padding:10px; border-radius:8px; background:#fff1f2; border:1px solid #fecaca; font-size:12px; color:#b91c1c;">
+             Vui lòng sửa lại bảng so sánh cặp và tính toán lại.
+           </div>`
+    }
+    </div>`;
+}
+
+async function runAppAhpPipeline() {
+  if (calcBtn) { calcBtn.disabled = true; calcBtn.textContent = "Đang xử lý..."; }
+  appPipelineWeights = null;
+
+  // Xóa hàng tổng cũ + kết quả cũ
+  listEl?.querySelector(".ahp-table tfoot")?.remove();
+  showAppPipelineStep(`<div style="padding:12px; font-size:12px; color:var(--muted); text-align:center;">⏳ Đang gọi API...</div>`);
+
+  const rawMatrix = buildCriteriaMatrix();
+
   try {
-    const requestBody = {
-      criteriaMatrix: criteriaMatrix,
-      filters: filters
-    };
-
-    console.log("Gửi request đến API:", requestBody);
-
-    const response = await apiFetch("/api/locations/calculate-ahp", {
+    // Bước 1: column-sums (hiện tổng cột)
+    const res1 = await apiFetch("/api/ahp/calculate/column-sums", {
       method: "POST",
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+    });
+    appRenderColumnSumsRow(res1.column_sums || []);
+
+    // Bước 2: normalize-matrix
+    const res2 = await apiFetch("/api/ahp/calculate/normalize-matrix", {
+      method: "POST",
+      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
     });
 
-    return response;
-  } catch (error) {
-    console.error("Lỗi khi gọi API:", error);
-    throw error;
+    // Bước 3: priority-vector-and-cr
+    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
+      method: "POST",
+      body: JSON.stringify({
+        raw_matrix: rawMatrix,
+        normalized_matrix: res2.normalized_matrix,
+      }),
+    });
+
+    showAppPipelineStep(
+      appRenderNormalizedMatrix(res2.normalized_matrix) +
+      appRenderWeightsResult(res3)
+    );
+
+    if (res3.is_valid) {
+      appPipelineWeights = Object.values(res3.weights || {});
+      setTimeout(() => {
+        const startBtn = document.getElementById("appStartAnalysisBtn");
+        if (startBtn) startBtn.addEventListener("click", runAppFinalAnalysis);
+      }, 0);
+    }
+  } catch (err) {
+    showAppPipelineStep(`<div class="card" style="margin-top:12px; padding:14px;">
+      <div style="color:#b91c1c; font-weight:700;">❌ Lỗi khi tính toán</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:6px;">${err.message}</div>
+    </div>`);
+    console.error("AHP pipeline error:", err);
+  } finally {
+    if (calcBtn) { calcBtn.disabled = false; calcBtn.textContent = "Tính điểm tiêu chí"; }
+  }
+}
+
+async function runAppFinalAnalysis() {
+  const btn = document.getElementById("appStartAnalysisBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Đang phân tích..."; }
+
+  try {
+    const filters = getFilters();
+    filters.limit = 50;
+
+    const result = await apiFetch("/api/locations/execute-final-analysis", {
+      method: "POST",
+      body: JSON.stringify({ weights: appPipelineWeights, filters }),
+    });
+
+    localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: appPipelineWeights, filters }));
+    localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
+
+    window.location.href = "map.html";
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = "🚀 Phân tích địa điểm"; }
+    alert("❌ Lỗi khi phân tích: " + err.message);
+    console.error("Final analysis error:", err);
   }
 }
 
 if (calcBtn) {
-  calcBtn.addEventListener("click", async () => {
-    try {
-      // Xây dựng ma trận tiêu chí
-      const criteriaMatrix = buildCriteriaMatrix();
-
-      // Lấy filters
-      const filters = getFilters();
-
-      console.log("Ma trận tiêu chí:", criteriaMatrix);
-      console.log("Filters:", filters);
-
-      // Gọi API
-      calcBtn.disabled = true;
-      calcBtn.textContent = "Đang tính toán...";
-
-      const result = await callCalculateAHP(criteriaMatrix, filters);
-
-      console.log("Kết quả từ API:", result);
-
-      // Lưu request/response để map.html render ngay
-      try {
-        const payload = {
-          criteriaMatrix,
-          filters,
-          savedAt: new Date().toISOString(),
-        };
-        localStorage.setItem("ahp:lastRequest", JSON.stringify(payload));
-        localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
-      } catch (storageErr) {
-        console.warn("Không thể lưu localStorage (bỏ qua):", storageErr);
-      }
-
-      // Chuyển sang trang bản đồ
-      window.location.href = "map.html";
-
-    } catch (error) {
-      alert("❌ Lỗi khi tính toán: " + error.message);
-      console.error("Chi tiết lỗi:", error);
-    } finally {
-      calcBtn.disabled = false;
-      calcBtn.textContent = "Tính điểm tiêu chí";
-    }
-  });
+  calcBtn.addEventListener("click", runAppAhpPipeline);
 }
+
+
 
 if (loginBtn && emailInput && passwordInput && loginMsg) {
   loginBtn.addEventListener("click", async () => {

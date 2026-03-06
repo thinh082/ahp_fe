@@ -131,6 +131,180 @@ body {
   border-top: 2px dashed rgba(100, 116, 139, 0.3);
 }
 
+/* =====================================================
+   AHP MATRIX TABLE
+   ===================================================== */
+
+.ahp-hint {
+  font-size: 12px;
+  color: var(--muted);
+  background: #f0f4ff;
+  border: 1px solid rgba(47, 109, 246, 0.18);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 10px 0 10px;
+  line-height: 1.5;
+}
+
+.ahp-hint strong {
+  color: var(--primary);
+}
+
+/* Legend: C1 = Tiêu chí A, C2 = Tiêu chí B… */
+.ahp-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.ahp-legend-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.ahp-legend-code {
+  font-weight: 800;
+  color: var(--primary);
+  min-width: 22px;
+}
+
+.ahp-legend-name {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 140px;
+}
+
+.ahp-legend-desc {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* Table wrapper: allow horizontal scroll on small screens */
+.ahp-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+}
+
+.ahp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+/* Header row */
+.ahp-table thead tr {
+  background: #f0f4ff;
+}
+
+.ahp-table thead th {
+  padding: 8px 10px;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  border-bottom: 2px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.ahp-table thead th:last-child {
+  border-right: none;
+}
+
+/* Row-label header (the "Tiêu chí" column) */
+.ahp-th-label {
+  text-align: left !important;
+  color: var(--text) !important;
+  font-size: 11.5px;
+  min-width: 60px;
+}
+
+/* Row-label th inside tbody */
+.ahp-row-label {
+  padding: 8px 10px;
+  font-weight: 700;
+  color: var(--primary);
+  background: #f0f4ff;
+  text-align: center;
+  border-right: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+/* Table body rows */
+.ahp-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.ahp-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ahp-table tbody tr:hover {
+  background: rgba(47, 109, 246, 0.025);
+}
+
+/* Base cell */
+.ahp-cell {
+  padding: 6px 8px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  vertical-align: middle;
+  min-width: 52px;
+}
+
+.ahp-cell:last-child {
+  border-right: none;
+}
+
+/* Diagonal cell — always "1" */
+.ahp-diag {
+  background: #e9eef5;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* Editable input cell (upper triangle) */
+.ahp-input-cell {
+  background: #fff;
+}
+
+.ahp-input {
+  width: 52px;
+  padding: 5px 4px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 7px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.ahp-input::-webkit-inner-spin-button,
+.ahp-input::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.ahp-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.14);
+}
+
+/* Reciprocal cell (lower triangle) — fraction display */
+.ahp-recip {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 12px;
+  background: #f8faff;
+}
+
 .c-row {
   display: grid;
   grid-template-columns: 165px 1fr 34px 165px;

@@ -241,11 +241,26 @@ function buildFiltersForAPI() {
 }
 
 async function fetchCalculateAHP() {
+    // Lấy weights từ localStorage (được lưu từ dashboard sau pipeline bước 3)
+    let weights = null;
+    try {
+        const reqRaw = localStorage.getItem('ahp:lastRequest');
+        if (reqRaw) {
+            const req = JSON.parse(reqRaw);
+            weights = Array.isArray(req?.weights) ? req.weights : null;
+        }
+    } catch (_) { }
+
+    // Fallback: trọng số đều nhau nếu không có
+    if (!weights || weights.length !== 5) {
+        weights = [0.2, 0.2, 0.2, 0.2, 0.2];
+    }
+
     const body = {
-        criteriaMatrix: currentCriteriaMatrix || buildCriteriaMatrixFromUI(),
+        weights: weights,
         filters: buildFiltersForAPI()
     };
-    return await apiFetch('/api/locations/calculate-ahp', {
+    return await apiFetch('/api/locations/execute-final-analysis', {
         method: 'POST',
         body: JSON.stringify(body)
     });

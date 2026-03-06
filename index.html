@@ -1246,6 +1246,9 @@
             </button>
           </div>
         </div>
+
+        <!-- Kết quả pipeline AHP (Tổng cột / Chuẩn hóa / Trọng số CR) -->
+        <div id="appPipelineResult"></div>
       </div>
 
       <!-- Right side: Login -->
@@ -1319,15 +1322,13 @@
               <div class="step-content">
                 <div class="step-title">So sánh tiêu chí</div>
                 <div class="step-text">
-                  Kéo thanh trượt về phía tiêu chí bạn ưu tiên hơn.
-                  <br>• <span class="guide-accent">Vị trí lệch:</span> Bên nào gần thanh trượt hơn là quan trọng hơn.
-                  <br>• <span class="guide-accent">Con số (1-9):</span> Độ lệch càng cao, mức độ ưu tiên càng lớn (1 là
-                  ngang nhau).
-                  <br>• <span class="guide-accent">Ví dụ:</span> Mức <span class="guide-accent">6</span> bên phải nghĩa
-                  là bạn coi trọng <span class="guide-accent">Doanh thu</span> hơn hẳn <span class="guide-accent">Vị
-                    trí</span>.
-                  <img src="https://drive.google.com/thumbnail?id=1Gg1sr5onC6gbr0nkYA-H1tqx83vMOGLU&sz=w1000"
-                    alt="Minh họa so sánh tiêu chí" class="guide-img">
+                  Nhập giá trị vào các ô <span class="guide-accent">phía trên đường chéo</span> của bảng ma trận AHP.
+                  <br>• <span class="guide-accent">Đường chéo:</span> Luôn bằng <span class="guide-accent">1</span>
+                  (tiêu chí bằng chính nó).
+                  <br>• <span class="guide-accent">Giá trị (1–9):</span> Càng lớn, tiêu chí dòng quan trọng hơn cột. (1
+                  = ngang nhau, 9 = quan trọng hơn rất nhiều).
+                  <br>• <span class="guide-accent">ᵂ đối xứng:</span> Tự động hiển thị nghịch đảo (ví dụ: bạn nhập <span
+                    class="guide-accent">4</span>, ô ngược lại hiển thị <span class="guide-accent">1/4</span>).
                 </div>
               </div>
             </div>

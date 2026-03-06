@@ -1,0 +1,290 @@
+================================================================================
+MÔ TẢ CHI TIẾT CÁC ENDPOINT AHP PIPELINE
+================================================================================
+Dự án : He Ho Tro Ra Quyet Dinh - Backend FastAPI
+Ngày  : 2026-03-06
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+ENDPOINT 1: POST /api/ahp/calculate/column-sums
+Mô tả  : Tính tổng giá trị theo từng cột của ma trận so sánh cặp (Bước 3.1)
+────────────────────────────────────────────────────────────────────────────────
+
+PHƯƠNG THỨC XỬ LÝ (Backend):
+  1. Nhận ma trận 5x5 từ request body.
+  2. Validate: đúng 5 hàng, mỗi hàng 5 phần tử.
+  3. Tính tổng từng cột bằng numpy: col_sums = matrix.sum(axis=0)
+  4. Làm tròn 6 chữ số thập phân rồi trả về.
+
+INPUT (Request Body - JSON):
+  {
+    "criteriaMatrix": [
+      [1.0,  3.0,  2.0,  1.0,  2.0],
+      [0.33, 1.0,  0.5,  0.33, 0.5],
+      [0.5,  2.0,  1.0,  0.5,  1.0],
+      [1.0,  3.0,  2.0,  1.0,  2.0],
+      [0.5,  2.0,  1.0,  0.5,  1.0]
+    ]
+  }
+
+OUTPUT (Response Body - JSON):
+  {
+    "column_sums": [3.33, 11.0, 6.5, 3.33, 6.5]
+  }
+
+FE NÊN LÀM GÌ:
+  - Hiển thị hàng "Tổng cộng" ở dưới cùng bảng nhập liệu ma trận.
+  - Lưu lại "column_sums" để dùng cho bước tiếp theo (normalize-matrix).
+  - Hiện nút "Chuẩn hóa ma trận" để người dùng đi tiếp.
+
+LỖI CÓ THỂ XẢY RA:
+  - 422: Ma trận không phải 5x5.
+  - 500: Lỗi server không xác định.
+
+
+────────────────────────────────────────────────────────────────────────────────
+ENDPOINT 2: POST /api/ahp/calculate/normalize-matrix
+Mô tả  : Chuẩn hóa ma trận bằng cách chia mỗi ô cho tổng cột tương ứng (Bước 3.2)
+────────────────────────────────────────────────────────────────────────────────
+
+PHƯƠNG THỨC XỬ LÝ (Backend):
+  1. Nhận ma trận 5x5 gốc.
+  2. Tự tính lại column_sums (không cần truyền từ bước 1, để đảm bảo nhất quán).
+  3. Chia từng ô [i][j] cho column_sums[j].
+  4. Trả về ma trận chuẩn hóa mới. (Kiểm chứng: tổng mỗi cột = 1.0)
+
+INPUT (Request Body - JSON):
+  {
+    "criteriaMatrix": [
+      [1.0,  3.0,  2.0,  1.0,  2.0],
+      [0.33, 1.0,  0.5,  0.33, 0.5],
+      [0.5,  2.0,  1.0,  0.5,  1.0],
+      [1.0,  3.0,  2.0,  1.0,  2.0],
+      [0.5,  2.0,  1.0,  0.5,  1.0]
+    ]
+  }
+
+OUTPUT (Response Body - JSON):
+  {
+    "normalized_matrix": [
+      [0.300300, 0.272727, 0.307692, 0.300300, 0.307692],
+      [0.099099, 0.090909, 0.076923, 0.099099, 0.076923],
+      [0.150150, 0.181818, 0.153846, 0.150150, 0.153846],
+      [0.300300, 0.272727, 0.307692, 0.300300, 0.307692],
+      [0.150150, 0.181818, 0.153846, 0.150150, 0.153846]
+    ]
+  }
+
+FE NÊN LÀM GÌ:
+  - Hiển thị toàn bộ ma trận mới dưới tiêu đề "Ma trận chuẩn hóa".
+  - Lưu lại "normalized_matrix" để truyền vào Bước 3.3.
+  - Lưu lại "criteriaMatrix" gốc để truyền vào Bước 3.3 (dùng tính CR).
+  - Hiện nút "Tính trọng số & Kiểm tra nhất quán" để người dùng đi tiếp.
+
+LỖI CÓ THỂ XẢY RA:
+  - 422: Ma trận không phải 5x5.
+  - 500: Lỗi server không xác định.
+
+
+────────────────────────────────────────────────────────────────────────────────
+ENDPOINT 3: POST /api/ahp/calculate/priority-vector-and-cr
+Mô tả  : Tính vector trọng số (W) & Chỉ số nhất quán (CR) (Bước 3.3)
+────────────────────────────────────────────────────────────────────────────────
+
+PHƯƠNG THỨC XỬ LÝ (Backend):
+  1. Nhận raw_matrix (gốc) và normalized_matrix (đã chuẩn hóa).
+  2. Tính trọng số W: trung bình cộng từng hàng của normalized_matrix.
+  3. Kiểm tra: sum(W) == 1.0.
+  4. Tính lambda_max: (raw_matrix × W) / W → lấy trung bình.
+  5. Tính CI = (lambda_max - n) / (n - 1).
+  6. Tra bảng RI (n=5 → RI=1.12), tính CR = CI / RI.
+  7. Đặt is_valid = True nếu CR < 0.1, ngược lại False.
+  8. Tạo message gợi ý tương ứng.
+
+INPUT (Request Body - JSON):
+  {
+    "raw_matrix": [            <-- ma trận gốc từ bước 1
+      [1.0,  3.0,  2.0,  1.0,  2.0],
+      ...
+    ],
+    "normalized_matrix": [     <-- ma trận đã chuẩn hóa từ bước 2
+      [0.30, 0.27, 0.31, 0.30, 0.31],
+      ...
+    ]
+  }
+
+OUTPUT - Trường hợp NHẤT QUÁN (CR < 0.1):
+  {
+    "weights": {
+      "C1_revenue_potential": 0.297700,
+      "C2_accessibility":     0.088591,
+      "C3_cost":              0.157962,
+      "C4_competition":       0.297700,
+      "C5_risk_stability":    0.157962
+    },
+    "total_weight": 1.000000,
+    "consistency_ratio": 0.000123,
+    "is_valid": true,
+    "message": "Ma trận nhất quán! CR = 0.0001 < 0.1. Bạn có thể tiến hành phân tích địa điểm."
+  }
+
+OUTPUT - Trường hợp KHÔNG nhất quán (CR >= 0.1):
+  {
+    "weights": { ... },
+    "total_weight": 1.000000,
+    "consistency_ratio": 0.235000,
+    "is_valid": false,
+    "message": "Ma trận CHƯA nhất quán! CR = 0.2350 >= 0.1. Vui lòng điều chỉnh lại các giá trị so sánh cặp."
+  }
+
+FE NÊN LÀM GÌ:
+  - Hiển thị bảng trọng số W của 5 tiêu chí + biểu đồ (pie/bar chart).
+  - Hiển thị giá trị CR và nhận xét (Nhất quán / Không nhất quán).
+  - NẾU is_valid == true:
+      → BẬT nút "Phân tích địa điểm".
+      → Lưu lại mảng weights dưới dạng list [W1, W2, W3, W4, W5] để dùng bước 4.
+  - NẾU is_valid == false:
+      → TẮT nút "Phân tích địa điểm".
+      → Hiện cảnh báo đỏ: "Vui lòng sửa lại ma trận so sánh cặp".
+      → Người dùng quay lại bước 1 để nhập lại.
+
+LỖI CÓ THỂ XẢY RA:
+  - 422: Dữ liệu đầu vào không hợp lệ.
+  - 500: Lỗi server không xác định.
+
+
+────────────────────────────────────────────────────────────────────────────────
+ENDPOINT 4: POST /api/locations/execute-final-analysis
+Mô tả  : Áp trọng số vào dữ liệu thực tế, phân cụm & trả về kết quả cho bản đồ (Bước 4)
+────────────────────────────────────────────────────────────────────────────────
+
+PHƯƠNG THỨC XỬ LÝ (Backend):
+  (Tái sử dụng logic cũ từ endpoint /calculate-ahp)
+  1. Nhận vector weights (5 phần tử) và filters.
+  2. Truy vấn địa điểm từ DB theo filters (district, street, limit).
+  3. Tính điểm 5 tiêu chí (0-1) cho từng địa điểm:
+      C1 = (thu_nhập + mật_độ) × 0.5
+      C2 = giao_thông
+      C3 = 1/(giá_thuê + ε)     [chi phí - nghịch đảo]
+      C4 = 1/(cạnh_tranh + ε)   [cạnh tranh - nghịch đảo]
+      C5 = 1/(rủi_ro + ε)       [rủi ro - nghịch đảo]
+  4. Tính AHP score (1-9) = Σ(criteria_score × weight) × 8 + 1
+  5. Xếp hạng:
+      >= 7.0 → "NÊN MỞ"
+      >= 5.0 → "CÂN NHẮC"
+       < 5.0 → "KHÔNG NÊN"
+  6. Chạy K-Means (k=5, kmeans++, features = [lat, lng, C1..C5])
+  7. Tổng hợp kết quả theo từng cụm rồi trả về.
+
+INPUT (Request Body - JSON):
+  {
+    "weights": [0.2977, 0.0886, 0.1580, 0.2977, 0.1580],
+    "filters": {
+      "district": "Quan 8",    <-- optional, null nếu không lọc
+      "street":   null,         <-- optional
+      "limit":    50            <-- optional, mặc định 1000
+    }
+  }
+
+OUTPUT (Response Body - JSON):
+  Cấu trúc giống hệt endpoint /calculate-ahp cũ:
+  {
+    "success": true,
+    "criteria_weights": {
+      "C1_revenue_potential": 0.2977,
+      "C2_accessibility":     0.0886,
+      "C3_cost":              0.1580,
+      "C4_competition":       0.2977,
+      "C5_risk_stability":    0.1580
+    },
+    "clustering_info": {
+      "method":         "kmeans++",
+      "n_iterations":   15,
+      "total_clusters": 5
+    },
+    "clusters": [
+      {
+        "cluster_id":    0,
+        "cluster_name":  "Cụm 1",
+        "center":       { "lat": 10.75, "lng": 106.67 },
+        "radius":        1200.5,
+        "color":        "#FF6B6B",
+        "avg_features":  { "C1": 5.1, "C2": 3.8, ... },
+        "avg_ahp_score": 6.42,
+        "total_locations": 12,
+        "locations": [
+          {
+            "id":        101,
+            "district":  "Quan 8",
+            "street":    "Pham The Hien",
+            "lat":       10.748,
+            "lng":       106.669,
+            "cluster_id": 0,
+            "ahp_score": 7.21,
+            "rating":    "NÊN MỞ",
+            "criteria_scores": {
+              "C1_revenue_potential": 6.50,
+              "C2_accessibility":     4.10,
+              "C3_cost":              7.80,
+              "C4_competition":       8.00,
+              "C5_risk_stability":    6.20
+            },
+            "raw_data": {
+              "avg_income":           12500000,
+              "population_density":   8500,
+              "rent_cost":            8000000,
+              "traffic":              750,
+              "competitors":          2,
+              "infrastructure":       8,
+              "risk":                 2
+            }
+          }
+          ...
+        ]
+      }
+      ...
+    ],
+    "summary": {
+      "total_locations_found":    45,
+      "total_locations_returned": 45,
+      "filters_applied": { "district": "Quan 8", "street": null, "limit": 50 },
+      "best_location": {
+        "id":         101,
+        "name":       "Quan 8 - Pham The Hien",
+        "ahp_score":  7.21,
+        "cluster_id": 0
+      }
+    }
+  }
+
+FE NÊN LÀM GÌ:
+  - Gọi endpoint này khi người dùng bấm nút "Phân tích địa điểm"
+    (chỉ xuất hiện khi is_valid == true từ bước 3).
+  - Dùng "clusters" để:
+      → Vẽ vòng tròn (circle) trên Leaflet.js tại "center" với "radius".
+      → Tô màu vòng tròn và marker theo "color".
+      → Hiển thị popup khi click marker với ahp_score, rating, criteria_scores.
+  - Dùng "summary.best_location" để highlight địa điểm tốt nhất.
+
+LỖI CÓ THỂ XẢY RA:
+  - 404: Không tìm thấy địa điểm nào phù hợp filter.
+  - 500: Lỗi server (DB, clustering...).
+
+
+================================================================================
+GHI CHÚ CHUNG
+================================================================================
+- Thứ tự gọi API bắt buộc:
+    Bước 1 (column-sums)
+        → Bước 2 (normalize-matrix)
+            → Bước 3 (priority-vector-and-cr)
+                → (Nếu is_valid = true) Bước 4 (execute-final-analysis)
+
+- FE cần lưu trữ tạm (state/localStorage):
+    + raw_matrix             : từ bước nhập liệu
+    + normalized_matrix     : từ Response bước 2
+    + weights (dạng list)   : từ Response bước 3
+
+- Không cần gửi lại ma trận ở Bước 4, chỉ cần gửi weights đã tính.
+================================================================================
