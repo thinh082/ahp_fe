@@ -1126,6 +1126,370 @@
       font-size: 11px;
       color: #94a3b8;
     }
+
+    /* ═══════════════════════════════════════════
+       AHP 3-BƯỚC STEPPER — dashboard.html
+       ═══════════════════════════════════════════ */
+    #dashStepperContainer {
+      margin-top: 20px;
+    }
+
+    .ahp-stepper-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .ahp-stepper-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      flex: 1;
+    }
+
+    .ahp-stepper-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      background: #e2e8f0;
+      color: #94a3b8;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ahp-stepper-step.active .ahp-stepper-circle {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transform: scale(1.1);
+    }
+
+    .ahp-stepper-step.done .ahp-stepper-circle {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      font-size: 0;
+      box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .ahp-stepper-step.done .ahp-stepper-circle::after {
+      content: "✓";
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ahp-stepper-label {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.3;
+      max-width: 68px;
+      transition: color 0.3s;
+    }
+
+    .ahp-stepper-step.active .ahp-stepper-label {
+      color: #4f46e5;
+    }
+
+    .ahp-stepper-step.done .ahp-stepper-label {
+      color: #16a34a;
+    }
+
+    .ahp-stepper-connector {
+      flex: 1;
+      height: 2px;
+      background: #e2e8f0;
+      margin: 0 6px 18px;
+      border-radius: 2px;
+    }
+
+    /* 
+     * CONTAINER: position:relative + overflow:hidden
+     * JS sẽ đo scrollHeight của Step 1 và gán cho container
+     * → tất cả các step đều có cùng chiều cao, không giật layout
+    */
+    .dash-steps-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      /* Chiều cao sẽ được set bằng JS sau khi DOM render */
+    }
+
+    /* Mỗi panel chiếm toàn bộ container, chồng lên nhau */
+    .dash-step-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      /* Chiều cao kế thừa từ container (vì position:absolute không đẩy container) */
+      min-height: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      /* Trạng thái mặc định: ở bên phải, chưa hiện */
+      transform: translateX(100%);
+      transition: transform 0.48s cubic-bezier(0.65, 0, 0.35, 1);
+      will-change: transform;
+    }
+
+    /* Step đang hiện: tại chỗ */
+    .dash-step-panel.active {
+      transform: translateX(0);
+    }
+
+    /* Step đã qua: trượt sang trái */
+    .dash-step-panel.prev {
+      transform: translateX(-100%);
+    }
+
+    /* Step chưa đến: trượt từ phải (mặc định) */
+    .dash-step-panel.next {
+      transform: translateX(100%);
+    }
+
+    .ahp-step-header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid rgba(99, 102, 241, 0.08);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(59, 130, 246, 0.03));
+      border-radius: 20px 20px 0 0;
+    }
+
+    .ahp-step-badge {
+      display: inline-flex;
+      padding: 3px 10px;
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      margin-bottom: 7px;
+    }
+
+    .ahp-step-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 3px;
+      letter-spacing: -0.3px;
+    }
+
+    .ahp-step-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .ahp-step-body {
+      padding: 14px 18px;
+      flex: 1;
+      overflow-y: auto;
+      /* scroll nếu nội dung vượt container */
+    }
+
+    .ahp-step-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      border-top: 1px solid rgba(99, 102, 241, 0.08);
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .ahp-btn-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    }
+
+    .ahp-btn-next:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      filter: brightness(1.05);
+    }
+
+    .ahp-btn-next:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .ahp-btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 15px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      color: #475569;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ahp-btn-back:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .ahp-btn-back:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Step body helpers */
+    .ahp-step-placeholder {
+      text-align: center;
+      padding: 18px 10px;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .ahp-loading {
+      text-align: center;
+      padding: 18px;
+      color: #6366f1;
+      font-size: 13px;
+      font-weight: 600;
+      animation: ahpPulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes ahpPulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .45
+      }
+    }
+
+    /* Result boxes */
+    .ahp-result-box {
+      padding: 11px 13px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .ahp-result-success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+
+    .ahp-result-error {
+      background: #fff1f2;
+      border: 1px solid #fecaca;
+    }
+
+    .ahp-result-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+    }
+
+    .ahp-result-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 3px;
+    }
+
+    .ahp-result-success .ahp-result-title {
+      color: #15803d;
+    }
+
+    .ahp-result-error .ahp-result-title {
+      color: #b91c1c;
+    }
+
+    .ahp-result-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .ahp-result-success .ahp-result-desc {
+      color: #166534;
+    }
+
+    .ahp-result-error .ahp-result-desc {
+      color: #991b1b;
+    }
+
+    /* CR badge + weight list */
+    .ahp-cr-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin: 6px 0;
+    }
+
+    .ahp-step-section-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 10px 0 6px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .ahp-weight-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ahp-weight-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f4ff;
+      font-size: 11.5px;
+    }
+
+    .ahp-weight-key {
+      color: #475569;
+      text-transform: capitalize;
+    }
+
+    .ahp-weight-val {
+      font-weight: 700;
+      color: #6366f1;
+    }
   </style>
 </head>
 
@@ -1331,49 +1695,129 @@
           </div>
         </div>
 
-        <!-- So sánh cặp tiêu chí -->
-        <div class="card">
-          <div class="criteria-head">
-            <div class="section-title" style="margin: 0">
-              So sánh tầm quan trọng tiêu chí
+        <!-- ════════════════════════════════════════════
+             AHP PIPELINE — STEPPER 3 BƯỚC
+             Step 1: Nhập ma trận → API column-sums + normalize
+             Step 2: Xem ma trận chuẩn hóa → API priority-vector + CR
+             Step 3: Xem trọng số & CR → API execute-final-analysis
+             ════════════════════════════════════════════ -->
+        <div id="dashStepperContainer">
+
+          <!-- Thanh tiến trình 3 bước -->
+          <div class="ahp-stepper-track">
+            <div class="ahp-stepper-step active" id="dashTrack1">
+              <div class="ahp-stepper-circle">1</div>
+              <div class="ahp-stepper-label">So sánh tiêu chí</div>
+            </div>
+            <div class="ahp-stepper-connector"></div>
+            <div class="ahp-stepper-step" id="dashTrack2">
+              <div class="ahp-stepper-circle">2</div>
+              <div class="ahp-stepper-label">Ma trận chuẩn hóa</div>
+            </div>
+            <div class="ahp-stepper-connector"></div>
+            <div class="ahp-stepper-step" id="dashTrack3">
+              <div class="ahp-stepper-circle">3</div>
+              <div class="ahp-stepper-label">Trọng số &amp; CR</div>
             </div>
           </div>
 
-          <div id="criteriaList" class="criteria-list"></div>
+          <!-- ═══════════════════════════════════════════════
+               Container vị trí tương đối, JS sẽ set height = Step 1
+               Mỗi panel dùng position:absolute + translateX để slide
+               ═══════════════════════════════════════════════ -->
+          <div class="dash-steps-container" id="dashStepsContainer">
 
-          <div class="criteria-sub">
-            Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
-          </div>
-        </div>
+            <!-- ══ STEP 1: Nhập ma trận so sánh cặp ══ -->
+            <div class="dash-step-panel active" id="dashStep1">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 1 / 3</div>
+                <div class="ahp-step-title">⚖️ So sánh tầm quan trọng tiêu chí</div>
+                <div class="ahp-step-desc">
+                  Nhập giá trị phía trên đường chéo (1–9). Ô đối xứng tự sinh nghịch đảo.
+                </div>
+              </div>
 
-        <!-- Kết quả pipeline AHP (Tổng cột / Chuẩn hóa / Trọng số / CR) -->
-        <div id="ahpPipelineResult"></div>
+              <div class="ahp-step-body" style="padding:12px 16px 4px;">
+                <!-- Bảng ma trận AHP (render bởi renderCriteriaPairs()) -->
+                <div id="criteriaList" class="criteria-list"></div>
+                <div class="criteria-sub" style="margin:8px 0 4px;">
+                  Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
+                </div>
+              </div>
 
-        <!-- So sánh phương án theo từng tiêu chí -->
-        <div class="card" id="alternativesComparisonCard" style="display: none">
-          <div class="criteria-head">
-            <div class="section-title" style="margin: 0">
-              So sánh phương án theo tiêu chí
+              <div class="ahp-step-footer">
+                <div></div>
+                <button class="ahp-btn-next" id="dashStep1NextBtn">Tiếp theo →</button>
+              </div>
             </div>
+            <!-- /Step 1 -->
+
+            <!-- ══ STEP 2: Ma trận chuẩn hóa ══ -->
+            <div class="dash-step-panel next" id="dashStep2">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 2 / 3</div>
+                <div class="ahp-step-title">📋 Ma trận chuẩn hóa</div>
+                <div class="ahp-step-desc">
+                  Mỗi ô ÷ tổng cột. Tổng mỗi cột = 1.0 sau chuẩn hóa.
+                </div>
+              </div>
+
+              <div class="ahp-step-body" id="dashStep2Body">
+                <div class="ahp-step-placeholder">
+                  Nhấn <strong>Tiếp theo</strong> ở Bước 1 để tính toán.
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <button class="ahp-btn-back" id="dashStep2BackBtn">← Quay lại</button>
+                <button class="ahp-btn-next" id="dashStep2NextBtn">Tiếp theo →</button>
+              </div>
+            </div>
+            <!-- /Step 2 -->
+
+            <!-- ══ STEP 3: Trọng số & CR ══ -->
+            <div class="dash-step-panel next" id="dashStep3">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 3 / 3</div>
+                <div class="ahp-step-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
+                <div class="ahp-step-desc">
+                  Kiểm tra Consistency Ratio. CR &lt; 0.1 thì ma trận nhất quán.
+                </div>
+              </div>
+
+              <div class="ahp-step-body" id="dashStep3Body">
+                <div class="ahp-step-placeholder">
+                  Nhấn <strong>Tiếp theo</strong> ở Bước 2 để tính trọng số.
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <button class="ahp-btn-back" id="dashStep3BackBtn">← Quay lại</button>
+                <button class="ahp-btn-next" id="dashStep3AnalyzeBtn" style="display:none;">
+                  🚀 Phân tích địa điểm
+                </button>
+              </div>
+            </div>
+            <!-- /Step 3 -->
+
+          </div><!-- /#dashStepsContainer -->
+
+        </div><!-- /#dashStepperContainer -->
+
+        <!-- So sánh phương án theo từng tiêu chí (ẩn mặc định) -->
+        <div class="card" id="alternativesComparisonCard" style="display: none; margin-top:20px;">
+        </div><!-- /#dashStepperContainer -->
+
+        <!-- So sánh phương án theo từng tiêu chí (ẩn mặc định) -->
+        <div class="card" id="alternativesComparisonCard" style="display: none; margin-top:20px;">
+          <div class="criteria-head">
+            <div class="section-title" style="margin: 0">So sánh phương án theo tiêu chí</div>
             <select class="field" id="selectedCriterion" style="width: auto; padding: 6px 10px; font-size: 12px">
               <option value="">Chọn tiêu chí...</option>
             </select>
           </div>
-
           <div id="alternativesComparisonList" class="criteria-list"></div>
-
-          <div class="criteria-sub">
-            Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)
-          </div>
-        </div>
-
-        <!-- Nút tính toán -->
-        <div class="card">
-          <div class="center">
-            <button class="btn" id="calculateBtn" style="width: 100%">
-              Tính điểm và xếp hạng
-            </button>
-          </div>
+          <div class="criteria-sub">Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)</div>
         </div>
       </div>
 
@@ -1430,7 +1874,8 @@
               <div class="step-content">
                 <div class="step-title">Chọn địa điểm</div>
                 <div class="step-text">Chọn <span class="guide-accent">Quận, Phường</span> và <span
-                    class="guide-accent">Tên đường</span>, sau đó nhấn <span class="guide-accent">Thêm địa điểm</span>
+                    class="guide-accent">Tên
+                    đường</span>, sau đó nhấn <span class="guide-accent">Thêm địa điểm</span>
                   để thêm nhiều phương án cần so sánh.</div>
               </div>
             </div>

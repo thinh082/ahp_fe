@@ -266,29 +266,18 @@ function getFilters() {
 
 
 // =====================================================
-// AHP 4-BƯỚC API PIPELINE (index.html)
+// AHP PIPELINE - GIAO DIỆN 3 BƯỚC TUẦN TỰ (index.html)
 // =====================================================
 
-let appPipelineWeights = null; // [W1..W5] sau bước 3
+// Biến lưu trạng thái pipeline
+let appPipelineWeights = null;   // Trọng số từ Bước 2
+let _pipelineRawMatrix = null;   // Ma trận gốc (dùng qua các bước)
+let _pipelineRes2 = null;        // Kết quả normalize-matrix (dùng ở Bước 2)
+let _currentStep = 0;            // Bước hiện tại: 0 = chưa bắt đầu, 1/2/3 = Step 1/2/3
 
-// Lấy/tạo container hiển thị kết quả pipeline
-function getAppPipelineContainer() {
-  let el = document.getElementById("appPipelineResult");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "appPipelineResult";
-    // Chèn sau card chứa bảng criteria
-    const criteriaCard = listEl?.closest(".card") || listEl?.parentElement;
-    if (criteriaCard) criteriaCard.after(el);
-    else document.querySelector(".content")?.appendChild(el);
-  }
-  return el;
-}
+// ── Hàm tiện ích ────────────────────────────────────────────
 
-function showAppPipelineStep(html) {
-  getAppPipelineContainer().innerHTML = html;
-}
-
+// Xây dựng hàng tổng cột dưới bảng ma trận
 function appRenderColumnSumsRow(colSums) {
   const table = listEl?.querySelector(".ahp-table");
   if (!table) return;
@@ -317,6 +306,7 @@ function appRenderColumnSumsRow(colSums) {
   table.appendChild(tfoot);
 }
 
+// Render bảng ma trận chuẩn hóa
 function appRenderNormalizedMatrix(normMatrix) {
   const rows = normMatrix.map((row, i) =>
     `<tr>
@@ -326,135 +316,370 @@ function appRenderNormalizedMatrix(normMatrix) {
   ).join("");
 
   return `
-    <div class="card" style="margin-top:12px;">
-      <div class="section-title">📋 Ma trận chuẩn hóa</div>
-      <div class="ahp-hint">Mỗi cột tổng bằng 1.0 sau chuẩn hóa.</div>
-      <div class="ahp-table-wrap">
-        <table class="ahp-table">
-          <thead><tr>
-            <th class="ahp-th-label">Tiêu chí</th>
-            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+    <div class="ahp-table-wrap" style="margin-top:10px;">
+      <table class="ahp-table">
+        <thead><tr>
+          <th class="ahp-th-label">Tiêu chí</th>
+          ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
 }
 
-function appRenderWeightsResult(data) {
-  const weights = data.weights || {};
-  const cr = Number(data.consistency_ratio || 0);
-  const isValid = data.is_valid;
-  const weightList = Object.keys(weights).map(k => `
-    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f4ff; font-size:12px;">
-      <span style="color:var(--muted);">${k.replace(/_/g, " ")}</span>
-      <span style="font-weight:700; color:var(--primary);">${(Number(weights[k]) * 100).toFixed(2)}%</span>
-    </div>`).join("");
+// ── STEPPER UI ───────────────────────────────────────────────
 
-  const crColor = isValid ? "#15803d" : "#b91c1c";
-  const crIcon = isValid ? "✅" : "⚠️";
+// Lấy/tạo container chứa toàn bộ stepper (nếu chưa có trong HTML)
+function getStepperContainer() {
+  let el = document.getElementById("ahpStepperContainer");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "ahpStepperContainer";
+    // Chèn sau card chứa bảng criteria
+    const criteriaCard = listEl?.closest(".card") || listEl?.parentElement?.closest(".glass-card") || listEl?.parentElement;
+    if (criteriaCard) criteriaCard.after(el);
+    else document.querySelector(".left-column")?.appendChild(el);
+  }
+  return el;
+}
 
-  return `
-    <div class="card" style="margin-top:12px;">
-      <div class="section-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
-      <div style="margin:8px 0;">${weightList}</div>
-      <div style="margin-top:10px; padding:10px; border-radius:8px; background:${isValid ? "#f0fdf4" : "#fff1f2"}; border:1px solid ${isValid ? "#bbf7d0" : "#fecaca"};">
-        <div style="font-size:12px; color:${crColor}; font-weight:700;">
-          ${crIcon} CHỈ SỐ NHẤT QUÁN (CR): <strong>${cr.toFixed(4)}</strong>
+// Khởi tạo HTML của stepper (3 step divs + thanh tiến trình)
+function initStepperHTML() {
+  const container = getStepperContainer();
+  container.innerHTML = `
+    <!-- ── Thanh tiến trình 3 bước ── -->
+    <div class="ahp-stepper-track">
+      <div class="ahp-stepper-step active" id="stepTrack1">
+        <div class="ahp-stepper-circle">1</div>
+        <div class="ahp-stepper-label">Ma trận &amp; Trọng số</div>
+      </div>
+      <div class="ahp-stepper-connector"></div>
+      <div class="ahp-stepper-step" id="stepTrack2">
+        <div class="ahp-stepper-circle">2</div>
+        <div class="ahp-stepper-label">Kiểm tra CR</div>
+      </div>
+      <div class="ahp-stepper-connector"></div>
+      <div class="ahp-stepper-step" id="stepTrack3">
+        <div class="ahp-stepper-circle">3</div>
+        <div class="ahp-stepper-label">Hiển thị bản đồ</div>
+      </div>
+    </div>
+
+    <!-- ── Viewport trượt chứa 3 step ── -->
+    <div class="ahp-stepper-viewport">
+      <div class="ahp-stepper-slides" id="ahpStepperSlides">
+
+        <!-- Step 1: Tính toán ma trận và trọng số -->
+        <div class="ahp-step-panel" id="ahpStep1">
+          <div class="ahp-step-header">
+            <div class="ahp-step-badge">Bước 1</div>
+            <div class="ahp-step-title">📊 Tính toán Ma trận &amp; Trọng số</div>
+            <div class="ahp-step-desc">Hệ thống tính tổng cột, chuẩn hóa ma trận và tính vector trọng số ưu tiên.</div>
+          </div>
+          <div class="ahp-step-body" id="step1Body">
+            <div class="ahp-step-placeholder">
+              Nhấn <strong>Bắt đầu Bước 1</strong> để tính toán.
+            </div>
+          </div>
+          <div class="ahp-step-footer">
+            <div></div>
+            <button class="ahp-btn-next" id="step1Btn" onclick="runStep1()">
+              Bắt đầu Bước 1 →
+            </button>
+          </div>
         </div>
-        <div style="font-size:11px; color:${crColor}; margin-top:4px;">${data.message || ""}</div>
-      </div>
-      ${isValid
-      ? `<button class="btn" id="appStartAnalysisBtn" style="width:100%; margin-top:12px;">🚀 Phân tích địa điểm</button>`
-      : `<div style="margin-top:10px; padding:10px; border-radius:8px; background:#fff1f2; border:1px solid #fecaca; font-size:12px; color:#b91c1c;">
-             Vui lòng sửa lại bảng so sánh cặp và tính toán lại.
-           </div>`
-    }
-    </div>`;
+
+        <!-- Step 2: Kiểm tra Consistency Ratio -->
+        <div class="ahp-step-panel" id="ahpStep2">
+          <div class="ahp-step-header">
+            <div class="ahp-step-badge">Bước 2</div>
+            <div class="ahp-step-title">✅ Kiểm tra Tính nhất quán (CR)</div>
+            <div class="ahp-step-desc">Kiểm tra Consistency Ratio. CR &lt; 0.1 thì ma trận hợp lệ để tiếp tục.</div>
+          </div>
+          <div class="ahp-step-body" id="step2Body">
+            <div class="ahp-step-placeholder">
+              Nhấn <strong>Tính CR</strong> để kiểm tra tính nhất quán.
+            </div>
+          </div>
+          <div class="ahp-step-footer">
+            <button class="ahp-btn-back" onclick="goToStep(1)">← Quay lại</button>
+            <button class="ahp-btn-next" id="step2Btn" onclick="runStep2()">
+              Tính CR →
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Hiển thị bản đồ kết quả -->
+        <div class="ahp-step-panel" id="ahpStep3">
+          <div class="ahp-step-header">
+            <div class="ahp-step-badge">Bước 3</div>
+            <div class="ahp-step-title">🗺️ Hiển thị bản đồ kết quả</div>
+            <div class="ahp-step-desc">Phân tích tất cả địa điểm theo trọng số AHP và hiển thị lên bản đồ.</div>
+          </div>
+          <div class="ahp-step-body" id="step3Body">
+            <div class="ahp-step-placeholder">
+              Nhấn <strong>Phân tích &amp; Xem bản đồ</strong> để bắt đầu.
+            </div>
+          </div>
+          <div class="ahp-step-footer">
+            <button class="ahp-btn-back" id="step3BackBtn" onclick="goToStep(2)">← Quay lại</button>
+            <button class="ahp-btn-next" id="step3Btn" onclick="runStep3()">
+              🚀 Phân tích &amp; Xem bản đồ
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /.ahp-stepper-slides -->
+    </div><!-- /.ahp-stepper-viewport -->
+  `;
 }
 
-async function runAppAhpPipeline() {
-  if (calcBtn) { calcBtn.disabled = true; calcBtn.textContent = "Đang xử lý..."; }
-  appPipelineWeights = null;
+// Chuyển sang bước `stepNum` (1, 2, hoặc 3) với animation slide
+function goToStep(stepNum) {
+  _currentStep = stepNum;
 
-  // Xóa hàng tổng cũ + kết quả cũ
+  // Trượt slides sang đúng vị trí (0 = bước 1, 1 = bước 2, 2 = bước 3)
+  const slides = document.getElementById("ahpStepperSlides");
+  if (slides) {
+    slides.style.transform = `translateX(-${(stepNum - 1) * 100}%)`;
+  }
+
+  // Cập nhật trạng thái track indicator
+  [1, 2, 3].forEach(n => {
+    const track = document.getElementById(`stepTrack${n}`);
+    if (!track) return;
+    track.classList.remove("active", "done");
+    if (n < stepNum) track.classList.add("done");
+    else if (n === stepNum) track.classList.add("active");
+  });
+}
+
+// ── API CALLS cho từng bước ──────────────────────────────────
+
+/**
+ * Bước 1: Gọi API tính tổng cột + chuẩn hóa ma trận.
+ * Hiển thị kết quả trong Step 1 và cho phép chuyển sang Step 2.
+ */
+async function runStep1() {
+  const btn = document.getElementById("step1Btn");
+  const body = document.getElementById("step1Body");
+  if (!btn || !body) return;
+
+  // Disable nút và hiện trạng thái loading
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang tính toán...";
+  body.innerHTML = `<div class="ahp-loading">⏳ Đang gọi API tính toán...</div>`;
+
+  // Xóa hàng tổng cũ trong bảng input (nếu có)
   listEl?.querySelector(".ahp-table tfoot")?.remove();
-  showAppPipelineStep(`<div style="padding:12px; font-size:12px; color:var(--muted); text-align:center;">⏳ Đang gọi API...</div>`);
-
-  const rawMatrix = buildCriteriaMatrix();
+  _pipelineRawMatrix = buildCriteriaMatrix();
 
   try {
-    // Bước 1: column-sums (hiện tổng cột)
+    // Gọi endpoint tính tổng cột
     const res1 = await apiFetch("/api/ahp/calculate/column-sums", {
       method: "POST",
-      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+      body: JSON.stringify({ criteriaMatrix: _pipelineRawMatrix }),
     });
+    // Hiển thị tổng cột trong bảng ma trận phía trên
     appRenderColumnSumsRow(res1.column_sums || []);
 
-    // Bước 2: normalize-matrix
+    // Gọi endpoint chuẩn hóa ma trận
     const res2 = await apiFetch("/api/ahp/calculate/normalize-matrix", {
       method: "POST",
-      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+      body: JSON.stringify({ criteriaMatrix: _pipelineRawMatrix }),
     });
+    // Lưu kết quả để dùng ở Bước 2
+    _pipelineRes2 = res2;
 
-    // Bước 3: priority-vector-and-cr
-    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
-      method: "POST",
-      body: JSON.stringify({
-        raw_matrix: rawMatrix,
-        normalized_matrix: res2.normalized_matrix,
-      }),
-    });
+    // Hiển thị kết quả bước 1 trong panel
+    body.innerHTML = `
+      <div class="ahp-result-box ahp-result-success">
+        <div class="ahp-result-title">✅ Hoàn thành Bước 1</div>
+        <div class="ahp-result-desc">Đã tính tổng cột (hiển thị trong bảng trên) và chuẩn hóa ma trận thành công.</div>
+      </div>
+      <div class="ahp-step-section-title">📋 Ma trận chuẩn hóa</div>
+      ${appRenderNormalizedMatrix(res2.normalized_matrix || [])}
+      <div style="margin-top:10px; font-size:11px; color:#64748b;">Mỗi cột tổng ≈ 1.0 sau chuẩn hóa.</div>
+    `;
 
-    showAppPipelineStep(
-      appRenderNormalizedMatrix(res2.normalized_matrix) +
-      appRenderWeightsResult(res3)
-    );
+    // Cập nhật nút → chuyển sang bước 2
+    btn.disabled = false;
+    btn.textContent = "Tiếp theo: Kiểm tra CR →";
+    btn.onclick = () => goToStep(2);
 
-    if (res3.is_valid) {
-      appPipelineWeights = Object.values(res3.weights || {});
-      setTimeout(() => {
-        const startBtn = document.getElementById("appStartAnalysisBtn");
-        if (startBtn) startBtn.addEventListener("click", runAppFinalAnalysis);
-      }, 0);
-    }
   } catch (err) {
-    showAppPipelineStep(`<div class="card" style="margin-top:12px; padding:14px;">
-      <div style="color:#b91c1c; font-weight:700;">❌ Lỗi khi tính toán</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:6px;">${err.message}</div>
-    </div>`);
-    console.error("AHP pipeline error:", err);
-  } finally {
-    if (calcBtn) { calcBtn.disabled = false; calcBtn.textContent = "Tính điểm tiêu chí"; }
+    body.innerHTML = `<div class="ahp-result-box ahp-result-error">
+      <div class="ahp-result-title">❌ Lỗi Bước 1</div>
+      <div class="ahp-result-desc">${err.message}</div>
+    </div>`;
+    btn.disabled = false;
+    btn.textContent = "Thử lại →";
+    btn.onclick = runStep1;
+    console.error("Step 1 error:", err);
   }
 }
 
-async function runAppFinalAnalysis() {
-  const btn = document.getElementById("appStartAnalysisBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "Đang phân tích..."; }
+/**
+ * Bước 2: Gọi API tính priority vector và Consistency Ratio (CR).
+ * Dùng kết quả từ Bước 1 (_pipelineRawMatrix, _pipelineRes2).
+ */
+async function runStep2() {
+  const btn = document.getElementById("step2Btn");
+  const body = document.getElementById("step2Body");
+  if (!btn || !body) return;
+
+  // Kiểm tra dữ liệu từ bước 1 có sẵn không
+  if (!_pipelineRawMatrix || !_pipelineRes2) {
+    body.innerHTML = `<div class="ahp-result-box ahp-result-warning">
+      ⚠️ Hãy hoàn thành Bước 1 trước khi tiếp tục.
+    </div>`;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang tính CR...";
+  body.innerHTML = `<div class="ahp-loading">⏳ Đang kiểm tra tính nhất quán...</div>`;
+
+  try {
+    // Gọi endpoint tính priority vector + CR, dựa trên kết quả bước 1
+    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
+      method: "POST",
+      body: JSON.stringify({
+        raw_matrix: _pipelineRawMatrix,
+        normalized_matrix: _pipelineRes2.normalized_matrix,
+      }),
+    });
+
+    const weights = res3.weights || {};
+    const cr = Number(res3.consistency_ratio || 0);
+    const isValid = res3.is_valid;
+
+    // Lưu trọng số để dùng ở Bước 3
+    if (isValid) {
+      appPipelineWeights = Object.values(weights);
+    } else {
+      appPipelineWeights = null;
+    }
+
+    // Render danh sách trọng số
+    const weightListHTML = Object.keys(weights).map(k => `
+      <div class="ahp-weight-row">
+        <span class="ahp-weight-key">${k.replace(/_/g, " ")}</span>
+        <span class="ahp-weight-val">${(Number(weights[k]) * 100).toFixed(2)}%</span>
+      </div>`).join("");
+
+    // Hiển thị kết quả CR và trọng số
+    body.innerHTML = `
+      <div class="ahp-result-box ${isValid ? "ahp-result-success" : "ahp-result-error"}">
+        <div class="ahp-result-title">
+          ${isValid ? "✅ Ma trận hợp lệ (CR &lt; 0.1)" : "⚠️ Ma trận chưa nhất quán (CR ≥ 0.1)"}
+        </div>
+        <div class="ahp-cr-badge" style="background:${isValid ? "#dcfce7" : "#fef2f2"}; color:${isValid ? "#15803d" : "#b91c1c"};">
+          CR = <strong>${cr.toFixed(4)}</strong>
+        </div>
+        <div class="ahp-result-desc">${res3.message || ""}</div>
+      </div>
+      <div class="ahp-step-section-title">⚖️ Trọng số tiêu chí</div>
+      <div class="ahp-weight-list">${weightListHTML}</div>
+      ${!isValid ? `<div class="ahp-result-box ahp-result-warning" style="margin-top:10px;">
+        💡 Vui lòng quay lại <strong>Bước 1</strong> và điều chỉnh lại bảng so sánh cặp để CR &lt; 0.1.
+      </div>` : ""}
+    `;
+
+    btn.disabled = false;
+    if (isValid) {
+      btn.textContent = "Tiếp theo: Xem bản đồ →";
+      btn.onclick = () => goToStep(3);
+    } else {
+      // CR không hợp lệ → không cho next, chỉ cho quay lại
+      btn.textContent = "Tính lại CR";
+      btn.onclick = runStep2;
+    }
+
+  } catch (err) {
+    body.innerHTML = `<div class="ahp-result-box ahp-result-error">
+      <div class="ahp-result-title">❌ Lỗi Bước 2</div>
+      <div class="ahp-result-desc">${err.message}</div>
+    </div>`;
+    btn.disabled = false;
+    btn.textContent = "Thử lại →";
+    btn.onclick = runStep2;
+    console.error("Step 2 error:", err);
+  }
+}
+
+/**
+ * Bước 3: Gọi API phân tích địa điểm cuối cùng với trọng số từ Bước 2.
+ * Sau khi nhận kết quả, lưu vào localStorage và chuyển sang map.html.
+ */
+async function runStep3() {
+  const btn = document.getElementById("step3Btn");
+  const backBtn = document.getElementById("step3BackBtn");
+  const body = document.getElementById("step3Body");
+  if (!btn || !body) return;
+
+  // Kiểm tra trọng số hợp lệ từ bước 2
+  if (!appPipelineWeights || appPipelineWeights.length === 0) {
+    body.innerHTML = `<div class="ahp-result-box ahp-result-warning">
+      ⚠️ Cần hoàn thành Bước 2 (CR hợp lệ) trước khi phân tích địa điểm.
+    </div>`;
+    return;
+  }
+
+  btn.disabled = true;
+  if (backBtn) backBtn.disabled = true;
+  btn.textContent = "⏳ Đang phân tích...";
+  body.innerHTML = `<div class="ahp-loading">🗺️ Đang phân tích địa điểm và chuẩn bị bản đồ...</div>`;
 
   try {
     const filters = getFilters();
     filters.limit = 50;
 
+    // Gọi endpoint phân tích địa điểm với trọng số AHP
     const result = await apiFetch("/api/locations/execute-final-analysis", {
       method: "POST",
       body: JSON.stringify({ weights: appPipelineWeights, filters }),
     });
 
+    // Lưu kết quả vào localStorage để map.html đọc
     localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: appPipelineWeights, filters }));
     localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
 
+    body.innerHTML = `<div class="ahp-result-box ahp-result-success">
+      <div class="ahp-result-title">✅ Phân tích hoàn tất!</div>
+      <div class="ahp-result-desc">Đang chuyển đến bản đồ kết quả...</div>
+    </div>`;
+
+    // Chuyển sang trang bản đồ
     window.location.href = "map.html";
+
   } catch (err) {
-    if (btn) { btn.disabled = false; btn.textContent = "🚀 Phân tích địa điểm"; }
-    alert("❌ Lỗi khi phân tích: " + err.message);
-    console.error("Final analysis error:", err);
+    body.innerHTML = `<div class="ahp-result-box ahp-result-error">
+      <div class="ahp-result-title">❌ Lỗi Bước 3</div>
+      <div class="ahp-result-desc">${err.message}</div>
+    </div>`;
+    btn.disabled = false;
+    if (backBtn) backBtn.disabled = false;
+    btn.textContent = "🚀 Phân tích & Xem bản đồ";
+    btn.onclick = runStep3;
+    console.error("Step 3 error:", err);
   }
 }
 
+// Khởi tạo stepper khi bấm nút "Tính điểm tiêu chí"
 if (calcBtn) {
-  calcBtn.addEventListener("click", runAppAhpPipeline);
+  calcBtn.addEventListener("click", () => {
+    // Khởi tạo giao diện stepper (reset hoàn toàn)
+    initStepperHTML();
+    // Chuyển đến bước 1
+    goToStep(1);
+    // Reset trạng thái pipeline
+    appPipelineWeights = null;
+    _pipelineRawMatrix = null;
+    _pipelineRes2 = null;
+    // Xóa hàng tổng cũ trong bảng
+    listEl?.querySelector(".ahp-table tfoot")?.remove();
+  });
 }
 
 

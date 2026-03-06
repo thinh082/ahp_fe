@@ -350,12 +350,14 @@ function buildComparisonMatrix(pairs, n) {
 }
 
 // =====================================================
-// AHP 4-BƯỚC API PIPELINE
+// AHP PIPELINE — STEPPER 3 BƯỚC
 // =====================================================
 
-// State pipeline
-let ahpPipelineWeights = null; // [W1..W5] sau khi bước 3 thành công
-let ahpPipelineValid = false;  // true nếu CR < 0.1
+// State lưu trung gian giữa các bước
+let ahpPipelineWeights = null; // Trọng số từ bước 2 (dùng ở bước 3)
+let ahpPipelineValid = false; // true nếu CR < 0.1
+let _dashRawMatrix = null;  // Ma trận gốc (lưu từ bước 1, dùng ở bước 2)
+let _dashRes1Norm = null;  // normalized_matrix từ bước 1 (gửi lên bước 2)
 
 // Xây dựng ma trận từ bảng nhập (criteriaMatrixValues)
 function getRawMatrix() {
@@ -366,58 +368,42 @@ function getRawMatrix() {
   );
 }
 
-// Hiển thị kết quả pipeline bên dưới bảng ma trận
-function getPipelineContainer() {
-  let el = document.getElementById("ahpPipelineResult");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "ahpPipelineResult";
-    // Chèn sau card chứa criteriaList
-    const criteriaCard = criteriaListEl?.closest(".card");
-    if (criteriaCard) criteriaCard.after(el);
-    else document.querySelector(".left")?.appendChild(el);
-  }
-  return el;
-}
+// ── Hàm chuyển bước: gán class prev/active/next cho từng panel ─
+function dashGoToStep(stepNum) {
+  const panels = document.querySelectorAll("#dashStepsContainer .dash-step-panel");
 
-function showPipelineStep(html) {
-  const container = getPipelineContainer();
-  container.innerHTML = html;
-}
-
-function renderColumnSumsRow(colSums) {
-  // Cập nhật hàng "Tổng cột" trong bảng AHP nếu có
-  const tbody = criteriaListEl?.querySelector("#ahpCriteriaTbody");
-  if (!tbody) return;
-  // Xóa hàng cũ nếu có
-  const old = criteriaListEl.querySelector("#ahpColSumRow");
-  if (old) old.remove();
-
-  const tfoot = document.createElement("tfoot");
-  tfoot.id = "ahpColSumRow";
-  const tr = document.createElement("tr");
-  tr.style.cssText = "background:#eaf1ff; font-weight:700;";
-
-  const th = document.createElement("th");
-  th.textContent = "Σ Tổng";
-  th.className = "ahp-row-label";
-  th.style.color = "var(--text)";
-  tr.appendChild(th);
-
-  colSums.forEach(s => {
-    const td = document.createElement("td");
-    td.className = "ahp-cell";
-    td.textContent = Number(s).toFixed(4);
-    td.style.color = "var(--primary)";
-    tr.appendChild(td);
+  panels.forEach((panel, i) => {
+    const panelStep = i + 1;
+    panel.classList.remove("active", "prev", "next");
+    if (panelStep < stepNum) panel.classList.add("prev");
+    else if (panelStep === stepNum) panel.classList.add("active");
+    else panel.classList.add("next");
   });
 
-  tfoot.appendChild(tr);
-  criteriaListEl.querySelector(".ahp-table")?.appendChild(tfoot);
+  // Cập nhật track indicator
+  [1, 2, 3].forEach(n => {
+    const track = document.getElementById(`dashTrack${n}`);
+    if (!track) return;
+    track.classList.remove("active", "done");
+    if (n < stepNum) track.classList.add("done");
+    else if (n === stepNum) track.classList.add("active");
+  });
 }
 
+// ── Đặt chiều cao container = scrollHeight của Step 1 ────────
+// Tất cả panel dùng position:absolute nên container không tự cao
+// JS đo Step 1 một lần và gán cố định → không giật layout khi chuyển step
+function initDashContainerHeight() {
+  requestAnimationFrame(() => {
+    const container = document.getElementById("dashStepsContainer");
+    const step1 = document.getElementById("dashStep1");
+    if (!container || !step1) return;
+    container.style.height = step1.scrollHeight + "px";
+  });
+}
+
+// ── Helper render bảng ma trận chuẩn hóa ─────────────────────
 function renderNormalizedMatrix(normMatrix) {
-  const n = criteria.length;
   const rows = normMatrix.map((row, i) =>
     `<tr>
       <th class="ahp-row-label" style="background:#f0f4ff;">C${i + 1}</th>
@@ -426,128 +412,232 @@ function renderNormalizedMatrix(normMatrix) {
   ).join("");
 
   return `
-    <div class="card" style="margin-top:12px;">
-      <div class="section-title">📋 Ma trận chuẩn hóa</div>
-      <div class="ahp-hint">Mỗi cột tổng đồng bằng 1.0 sau chuẩn hóa.</div>
-      <div class="ahp-table-wrap">
-        <table class="ahp-table">
-          <thead><tr>
-            <th class="ahp-th-label">Tiêu chí</th>
-            ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+    <div class="ahp-table-wrap">
+      <table class="ahp-table">
+        <thead><tr>
+          <th class="ahp-th-label">Tiêu chí</th>
+          ${criteria.map((_, i) => `<th>C${i + 1}</th>`).join("")}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
 }
 
-function renderWeightsResult(data) {
-  const weights = data.weights || {};
-  const cr = Number(data.consistency_ratio || 0);
-  const isValid = data.is_valid;
-  const weightKeys = Object.keys(weights);
-  const weightList = weightKeys.map(k => `
-    <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #f0f4ff; font-size:12px;">
-      <span style="color:var(--muted);">${k.replace(/_/g, " ")}</span>
-      <span style="font-weight:700; color:var(--primary);">${(Number(weights[k]) * 100).toFixed(2)}%</span>
-    </div>`).join("");
-
-  const crColor = isValid ? "#15803d" : "#b91c1c";
-  const crIcon = isValid ? "✅" : "⚠️";
-
-  return `
-    <div class="card" style="margin-top:12px;">
-      <div class="section-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
-      <div style="margin:8px 0;">${weightList}</div>
-      <div style="margin-top:10px; padding:10px; border-radius:8px; background:${isValid ? "#f0fdf4" : "#fff1f2"}; border:1px solid ${isValid ? "#bbf7d0" : "#fecaca"};">
-        <div style="font-size:12px; color:${crColor}; font-weight:700;">
-          ${crIcon} CHỄ SỐ NHẤT QUÁN (CR): <strong>${cr.toFixed(4)}</strong>
-        </div>
-        <div style="font-size:11px; color:${crColor}; margin-top:4px;">${data.message || ""}</div>
-      </div>
-      ${isValid
-      ? `<button class="btn" id="startAnalysisBtn" style="width:100%; margin-top:12px;">🚀 Phân tích địa điểm</button>`
-      : `<div style="margin-top:10px; padding:10px; border-radius:8px; background:#fff1f2; border:1px solid #fecaca; font-size:12px; color:#b91c1c;">
-             Vui lòng sửa lại bảng so sánh cặp và tính toán lại.
-           </div>`
-    }
-    </div>`;
+// ── Helper render tổng cột dưới bảng ma trận gốc ─────────────
+function renderColumnSumsRow(colSums) {
+  const old = criteriaListEl?.querySelector("#ahpColSumRow");
+  if (old) old.remove();
+  const tfoot = document.createElement("tfoot");
+  tfoot.id = "ahpColSumRow";
+  const tr = document.createElement("tr");
+  tr.style.cssText = "background:#eaf1ff; font-weight:700;";
+  const th = document.createElement("th");
+  th.textContent = "Σ Tổng"; th.className = "ahp-row-label";
+  th.style.color = "var(--text)";
+  tr.appendChild(th);
+  (colSums || []).forEach(s => {
+    const td = document.createElement("td");
+    td.className = "ahp-cell";
+    td.textContent = Number(s).toFixed(4);
+    td.style.color = "var(--primary)";
+    tr.appendChild(td);
+  });
+  tfoot.appendChild(tr);
+  criteriaListEl?.querySelector(".ahp-table")?.appendChild(tfoot);
 }
 
-async function runAhpPipeline() {
-  const calculateBtn = document.getElementById("calculateBtn");
-  if (calculateBtn) { calculateBtn.disabled = true; calculateBtn.textContent = "Đang xử lý..."; }
+// ──────────────────────────────────────────────────────────────
+// BƯỚC 1 — Next: Gọi API column-sums + normalize-matrix
+// Khi thành công → hiện bảng chuẩn hóa vào Step 2 rồi slide sang
+// ──────────────────────────────────────────────────────────────
+async function dashStep1Next() {
+  const btn = document.getElementById("dashStep1NextBtn");
+  const body = document.getElementById("dashStep2Body");
+  if (!btn) return;
 
-  ahpPipelineWeights = null;
-  ahpPipelineValid = false;
+  // Loading state
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang tính toán...";
+  if (body) body.innerHTML = `<div class="ahp-loading">⏳ Đang tính tổng cột và chuẩn hóa...</div>`;
 
-  // Xóa kết quả cũ
-  const container = getPipelineContainer();
-  container.innerHTML = `<div style="padding:12px; font-size:12px; color:var(--muted); text-align:center;">⏳ Đang gọi API...</div>`;
-
-  // Xóa hàng tổng cũ
-  document.getElementById("ahpColSumRow")?.remove();
-
-  const rawMatrix = getRawMatrix();
+  // Xóa hàng tổng cột cũ (nếu có)
+  criteriaListEl?.querySelector("#ahpColSumRow")?.remove();
+  _dashRawMatrix = getRawMatrix();
 
   try {
-    // ── BƯỚC 1: column-sums ────────────────────────────
+    // Gọi API 1: column-sums — lấy tổng cột, hiện dưới bảng ma trận
     const res1 = await apiFetch("/api/ahp/calculate/column-sums", {
       method: "POST",
-      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+      body: JSON.stringify({ criteriaMatrix: _dashRawMatrix }),
     });
     renderColumnSumsRow(res1.column_sums || []);
 
-    // ── BƯỚC 2: normalize-matrix ─────────────────────
+    // Gọi API 2: normalize-matrix — chuẩn hóa ma trận
     const res2 = await apiFetch("/api/ahp/calculate/normalize-matrix", {
       method: "POST",
-      body: JSON.stringify({ criteriaMatrix: rawMatrix }),
+      body: JSON.stringify({ criteriaMatrix: _dashRawMatrix }),
     });
 
-    // ── BƯỚC 3: priority-vector-and-cr ───────────────
-    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
-      method: "POST",
-      body: JSON.stringify({
-        raw_matrix: rawMatrix,
-        normalized_matrix: res2.normalized_matrix,
-      }),
-    });
+    // Lưu kết quả để dùng ở Bước 2
+    _dashRes1Norm = res2;
 
-    // Hiển thị kết quả
-    showPipelineStep(
-      renderNormalizedMatrix(res2.normalized_matrix) +
-      renderWeightsResult(res3)
-    );
-
-    if (res3.is_valid) {
-      // Lưu weights dạng list [W1..W5]
-      const wObj = res3.weights || {};
-      ahpPipelineWeights = Object.values(wObj);
-      ahpPipelineValid = true;
-
-      // Gắn sự kiện cho nút Phân tích
-      setTimeout(() => {
-        const startBtn = document.getElementById("startAnalysisBtn");
-        if (startBtn) startBtn.addEventListener("click", runFinalAnalysis);
-      }, 0);
+    // Inject kết quả vào body Step 2
+    if (body) {
+      body.innerHTML = `
+        <div class="ahp-result-box ahp-result-success">
+          <div class="ahp-result-title">✅ Hoàn thành — Tổng cột đã hiện trong bảng trên</div>
+          <div class="ahp-result-desc">Ma trận đã được chuẩn hóa. Bấm <strong>Tiếp theo</strong> để tính trọng số.</div>
+        </div>
+        <div class="ahp-step-section-title">📋 Ma trận chuẩn hóa</div>
+        ${renderNormalizedMatrix(res2.normalized_matrix || [])}
+        <div style="margin-top:8px; font-size:10.5px; color:#64748b;">Tổng mỗi cột ≈ 1.0</div>
+      `;
     }
+
+    // Slide sang Step 2
+    dashGoToStep(2);
+
+    btn.disabled = false;
+    btn.textContent = "Tiếp theo →";
+
   } catch (err) {
-    showPipelineStep(`<div class="card" style="margin-top:12px; padding:14px;">
-      <div style="color:#b91c1c; font-weight:700;">❌ Lỗi khi tính toán</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:6px;">${err.message}</div>
-    </div>`);
-    console.error("AHP pipeline error:", err);
-  } finally {
-    if (calculateBtn) { calculateBtn.disabled = false; calculateBtn.textContent = "Tính điểm và xếp hạng"; }
+    if (body) body.innerHTML = `
+      <div class="ahp-result-box ahp-result-error">
+        <div class="ahp-result-title">❌ Lỗi Bước 1</div>
+        <div class="ahp-result-desc">${err.message}</div>
+      </div>`;
+    btn.disabled = false;
+    btn.textContent = "Tiếp theo →";
+    console.error("dashStep1 error:", err);
   }
 }
 
-async function runFinalAnalysis() {
-  const btn = document.getElementById("startAnalysisBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "Đang phân tích..."; }
+// ──────────────────────────────────────────────────────────────
+// BƯỚC 2 — Next: Gọi API priority-vector-and-cr
+// Khi thành công → hiện trọng số + CR vào Step 3 rồi slide sang
+// ──────────────────────────────────────────────────────────────
+async function dashStep2Next() {
+  const btn = document.getElementById("dashStep2NextBtn");
+  const body = document.getElementById("dashStep3Body");
+  if (!btn) return;
+
+  // Kiểm tra dữ liệu từ bước 1
+  if (!_dashRawMatrix || !_dashRes1Norm) {
+    if (body) body.innerHTML = `
+      <div class="ahp-result-box ahp-result-warning">
+        <div class="ahp-result-title">⚠️ Chưa có dữ liệu</div>
+        <div class="ahp-result-desc">Hãy hoàn thành Bước 1 trước.</div>
+      </div>`;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang tính CR...";
+  if (body) body.innerHTML = `<div class="ahp-loading">⏳ Đang tính trọng số và kiểm tra nhất quán...</div>`;
+
+  // Disable nút back khi đang call
+  const backBtn = document.getElementById("dashStep2BackBtn");
+  if (backBtn) backBtn.disabled = true;
 
   try {
-    // Lấy filters
+    // Gọi API 3: priority-vector-and-cr dựa trên kết quả bước 1
+    const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
+      method: "POST",
+      body: JSON.stringify({
+        raw_matrix: _dashRawMatrix,
+        normalized_matrix: _dashRes1Norm.normalized_matrix,
+      }),
+    });
+
+    const weights = res3.weights || {};
+    const cr = Number(res3.consistency_ratio || 0);
+    const isValid = res3.is_valid;
+
+    // Lưu trọng số để dùng ở Bước 3
+    ahpPipelineWeights = isValid ? Object.values(weights) : null;
+    ahpPipelineValid = isValid;
+
+    // Render danh sách trọng số
+    const weightListHTML = Object.keys(weights).map(k => `
+      <div class="ahp-weight-row">
+        <span class="ahp-weight-key">${k.replace(/_/g, " ")}</span>
+        <span class="ahp-weight-val">${(Number(weights[k]) * 100).toFixed(2)}%</span>
+      </div>`).join("");
+
+    if (body) {
+      body.innerHTML = `
+        <div class="ahp-result-box ${isValid ? "ahp-result-success" : "ahp-result-error"}">
+          <div class="ahp-result-title">
+            ${isValid ? "✅ Ma trận hợp lệ (CR < 0.1)" : "⚠️ Chưa nhất quán (CR ≥ 0.1)"}
+          </div>
+          <div class="ahp-cr-badge"
+            style="background:${isValid ? "#dcfce7" : "#fef2f2"}; color:${isValid ? "#15803d" : "#b91c1c"};">
+            CR = <strong>${cr.toFixed(4)}</strong>
+          </div>
+          <div class="ahp-result-desc">${res3.message || ""}</div>
+        </div>
+        <div class="ahp-step-section-title">⚖️ Trọng số tiêu chí</div>
+        <div class="ahp-weight-list">${weightListHTML}</div>
+        ${!isValid ? `
+        <div class="ahp-result-box ahp-result-warning" style="margin-top:10px;">
+          <div class="ahp-result-title">💡 Gợi ý</div>
+          <div class="ahp-result-desc">Quay lại Bước 1 và điều chỉnh bảng so sánh để CR &lt; 0.1.</div>
+        </div>` : ""}
+      `;
+    }
+
+    // Hiện/ẩn nút Phân tích địa điểm tùy CR
+    const analyzeBtn = document.getElementById("dashStep3AnalyzeBtn");
+    if (analyzeBtn) analyzeBtn.style.display = isValid ? "inline-flex" : "none";
+
+    // Slide sang Step 3
+    dashGoToStep(3);
+
+    btn.disabled = false;
+    btn.textContent = "Tiếp theo →";
+
+  } catch (err) {
+    if (body) body.innerHTML = `
+      <div class="ahp-result-box ahp-result-error">
+        <div class="ahp-result-title">❌ Lỗi Bước 2</div>
+        <div class="ahp-result-desc">${err.message}</div>
+      </div>`;
+    btn.disabled = false;
+    btn.textContent = "Tiếp theo →";
+    console.error("dashStep2 error:", err);
+  } finally {
+    if (backBtn) backBtn.disabled = false;
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// BƯỚC 3 — Phân tích: Gọi API execute-final-analysis
+// Lưu vào localStorage rồi chuyển sang map.html
+// ──────────────────────────────────────────────────────────────
+async function dashStep3Analyze() {
+  const btn = document.getElementById("dashStep3AnalyzeBtn");
+  const backBtn = document.getElementById("dashStep3BackBtn");
+  const body = document.getElementById("dashStep3Body");
+  if (!btn) return;
+
+  if (!ahpPipelineWeights || !ahpPipelineValid) {
+    alert("Vui lòng hoàn thành Bước 2 với CR hợp lệ trước khi phân tích.");
+    return;
+  }
+
+  btn.disabled = true;
+  if (backBtn) backBtn.disabled = true;
+  btn.textContent = "⏳ Đang phân tích...";
+
+  // Thêm loading vào đầu body step 3
+  const existingBody = body?.innerHTML || "";
+  if (body) body.insertAdjacentHTML("afterbegin", `
+    <div id="dashAnalyzeLoading" class="ahp-loading" style="margin-bottom:12px;">
+      🗺️ Đang phân tích địa điểm, vui lòng chờ...
+    </div>`);
+
+  try {
+    // Lấy filters từ dropdown quận/phường/đường
     const districtEl = document.getElementById("district");
     const wardEl = document.getElementById("ward");
     const street = document.getElementById("street")?.value.trim() || "";
@@ -568,41 +658,65 @@ async function runFinalAnalysis() {
     if (street) filters.street = normalizeForFilter(street);
     filters.limit = 50;
 
+    // Gọi API phân tích địa điểm với trọng số AHP đã tính
     const result = await apiFetch("/api/locations/execute-final-analysis", {
       method: "POST",
       body: JSON.stringify({ weights: ahpPipelineWeights, filters }),
     });
 
-    // Lưu vào localStorage để map.html dùng
+    // Lưu kết quả vào localStorage để map.html đọc
     localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: ahpPipelineWeights, filters }));
     localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
 
+    // Chuyển sang trang bản đồ
     window.location.href = "map.html";
+
   } catch (err) {
-    if (btn) { btn.disabled = false; btn.textContent = "🚀 Phân tích địa điểm"; }
+    document.getElementById("dashAnalyzeLoading")?.remove();
     alert("❌ Lỗi khi phân tích: " + err.message);
-    console.error("Final analysis error:", err);
+    btn.disabled = false;
+    if (backBtn) backBtn.disabled = false;
+    btn.textContent = "🚀 Phân tích địa điểm";
+    console.error("dashStep3 analyze error:", err);
   }
 }
 
-// Hiển thị ma trận để debug (sẽ được gửi cho BE)
-function displayMatrixForDebugging(matrixData) {
-  console.log("=== MA TRẬN GỬI CHO BE ===");
-  console.log("\n📊 Criteria Matrix:");
-  console.log("Tiêu chí:", matrixData.criteria);
-  console.table(matrixData.criteriaMatrix);
+// ── Gắn sự kiện cho các nút stepper ──────────────────────────
+(function initDashStepperEvents() {
+  // Bước 1 → Next
+  const step1Btn = document.getElementById("dashStep1NextBtn");
+  if (step1Btn) step1Btn.addEventListener("click", dashStep1Next);
 
-  console.log("\n📍 Alternatives:", matrixData.alternatives);
+  // Bước 2 → Back
+  const step2BackBtn = document.getElementById("dashStep2BackBtn");
+  if (step2BackBtn) step2BackBtn.addEventListener("click", () => dashGoToStep(1));
 
-  console.log("\n✅ Dữ liệu sẵn sàng gửi cho BE:");
-  console.log(JSON.stringify(matrixData, null, 2));
-}
+  // Bước 2 → Next
+  const step2Btn = document.getElementById("dashStep2NextBtn");
+  if (step2Btn) step2Btn.addEventListener("click", dashStep2Next);
 
-// Nút tính toán - chạy AHP pipeline 4 bước qua API
-const calculateBtn = document.getElementById("calculateBtn");
-if (calculateBtn) {
-  calculateBtn.addEventListener("click", runAhpPipeline);
-}
+  // Bước 3 → Back
+  const step3BackBtn = document.getElementById("dashStep3BackBtn");
+  if (step3BackBtn) step3BackBtn.addEventListener("click", () => dashGoToStep(2));
+
+  // Bước 3 → Phân tích
+  const step3AnalyzeBtn = document.getElementById("dashStep3AnalyzeBtn");
+  if (step3AnalyzeBtn) step3AnalyzeBtn.addEventListener("click", dashStep3Analyze);
+
+  // Set chiều cao container = Step 1 (position:absolute panels cần height cố định)
+  initDashContainerHeight();
+
+  // Re-measure khi resize cửa sổ để giữ chiều cao khớp Step 1
+  window.addEventListener("resize", () => {
+    const container = document.getElementById("dashStepsContainer");
+    const step1 = document.getElementById("dashStep1");
+    if (!container || !step1) return;
+    container.style.height = step1.scrollHeight + "px";
+  });
+})();
+
+
+
 
 
 // Hiển thị modal kết quả (sẽ dùng khi BE trả kết quả)
