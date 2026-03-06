@@ -55,14 +55,6 @@
       </div>
     </div>
 
-    <!-- Compare overlay -->
-    <div id="compare-overlay" class="map-compare-panel" style="display:none">
-      <div class="map-compare-header">
-        <span class="map-compare-title">🔁 So sánh địa điểm</span>
-        <button type="button" class="map-panel-close" id="compareCloseBtn">×</button>
-      </div>
-      <div id="locationCompareResult"></div>
-    </div>
 
     <!-- Legend -->
     <div class="map-legend">
@@ -152,7 +144,6 @@
     const sidebar = document.getElementById('mapSidebar');
     const toggleBtn = document.getElementById('sidebarToggle');
     const openBtn = document.getElementById('sidebarOpenBtn');
-    const compareCloseBtn = document.getElementById('compareCloseBtn');
 
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.add('hidden');
@@ -163,11 +154,6 @@
       openBtn.classList.add('hidden');
     });
 
-    if (compareCloseBtn) {
-      compareCloseBtn.addEventListener('click', () => {
-        document.getElementById('compare-overlay').style.display = 'none';
-      });
-    }
   </script>
 </body>
 

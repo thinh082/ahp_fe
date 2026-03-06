@@ -306,13 +306,6 @@ function showLocationCompareMessage(html) {
         window.openCompareModal();
     }
 
-    // Vẫn render vào sidebar nếu phần tử đó tồn tại (optional fallback)
-    const sidebarEl = document.getElementById('locationCompareResult');
-    if (sidebarEl) {
-        sidebarEl.innerHTML = html;
-        const overlay = document.getElementById('compare-overlay');
-        if (overlay) overlay.style.display = 'block';
-    }
 }
 
 function renderLocationCompare(base, target) {
@@ -880,17 +873,7 @@ function initSatelliteMap(lat, lng) {
     }
 }
 
-// Event listeners
 document.addEventListener('DOMContentLoaded', function () {
-    const compareClose = document.querySelector('#compare-overlay .compare-close');
-    if (compareClose) {
-        compareClose.addEventListener('click', function () {
-            const overlay = document.getElementById('compare-overlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-            }
-        });
-    }
     // Đóng modal khi click vào nút close
     const closeBtn = document.getElementById('streetview-close');
     if (closeBtn) {
