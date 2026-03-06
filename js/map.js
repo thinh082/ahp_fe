@@ -266,30 +266,25 @@ function updateLegendFromClusters(clusters) {
     if (!container) return;
     container.innerHTML = '';
 
-    container.innerHTML += `<div style="font-weight: 600; margin-bottom: 6px; font-size: 0.85rem; color: #334155;">Cụm (cluster)</div>`;
-    (clusters || []).forEach(c => {
-        container.innerHTML += `
-            <div class="legend-item">
-                <div class="color-box" style="background:${c.color}; opacity: 0.3; border: 1px dashed ${c.color}"></div>
-                <span>${c.cluster_name || ('Cluster ' + c.cluster_id)}</span>
-            </div>
-        `;
-    });
+    // ── Clusters as chips ──
+    container.innerHTML += `<div class="legend-section-label">🔵 Cụm (Cluster)</div>`;
+    const clusterChipsHtml = (clusters || []).map(c => `
+        <span class="legend-chip" style="background:${c.color}18; color:${c.color}; border-color:${c.color}44;">
+            <span class="legend-dot" style="background:${c.color};"></span>
+            ${c.cluster_name || ('Cụm ' + c.cluster_id)}
+        </span>
+    `).join('');
+    container.innerHTML += `<div class="legend-chips">${clusterChipsHtml}</div>`;
 
-    container.innerHTML += `<div style="font-weight: 600; margin: 12px 0 6px 0; font-size: 0.85rem; color: #334155;">Đánh giá (rating)</div>`;
-    const ratingGrades = [
-        { label: 'NÊN', color: '#22c55e' },
-        { label: 'CÂN NHẮC', color: '#f59e0b' },
-        { label: 'KHÔNG NÊN', color: '#ef4444' }
-    ];
-    ratingGrades.forEach(g => {
-        container.innerHTML += `
-            <div class="legend-item">
-                <div class="color-box" style="background:${g.color}"></div>
-                <span>${g.label}</span>
-            </div>
-        `;
-    });
+    // ── Rating as chips ──
+    container.innerHTML += `<div class="legend-section-label" style="margin-top:14px;">⭐ Đánh giá</div>`;
+    container.innerHTML += `
+        <div class="legend-chips">
+            <span class="legend-chip chip-nen">✅ NÊN</span>
+            <span class="legend-chip chip-cannhac">⚖️ CÂN NHẮC</span>
+            <span class="legend-chip chip-khongnen">⛔ KHÔNG NÊN</span>
+        </div>
+    `;
 }
 
 function ratingToColor(rating) {
@@ -394,26 +389,34 @@ function renderAHPResponse(resp) {
 
             const popupTitle = `${loc.district || ''} - ${loc.street || ''}`.trim().replace(/^\-\s*/, '');
             const rating = loc.rating || '';
+            const isFav = favoriteLocationIds.has(Number(loc.id));
+
+            // Build rating badge style
+            const ratingColor = ratingToColor(rating);
+            const ratingEmoji = ratingToEmoji(rating);
+            let ratingBadgeClass = '';
+            if (rating.includes('NÊN') && !rating.includes('KHÔNG')) ratingBadgeClass = 'chip-nen';
+            else if (rating.includes('CÂN NHẮC')) ratingBadgeClass = 'chip-cannhac';
+            else ratingBadgeClass = 'chip-khongnen';
 
             const popupContent = `
-                <div class="popup-name">${popupTitle || ('Location #' + loc.id)}</div>
-                <div style="margin-top:4px; font-size: 0.8rem;">
-                    AHP score: <strong>${formatAHP(loc.ahp_score)}</strong>
-                    <span style="margin-left:6px; color:${ratingToColor(rating)}; font-weight:700;">
-                        ${ratingToEmoji(rating)} ${rating}
-                    </span>
+                <div class="pp-header">
+                    <div class="pp-rating-badge ${ratingBadgeClass}">${ratingEmoji} ${rating || 'Chưa xếp loại'}</div>
+                    <div class="pp-title">${popupTitle || ('Địa điểm #' + loc.id)}</div>
+                    <div class="pp-score">AHP score: <strong>${formatAHP(loc.ahp_score)}</strong></div>
+                    <div class="pp-cluster">Cụm: ${cluster.cluster_name || cluster.cluster_id}</div>
+                    <button class="pp-fav-btn btn-favorite" data-location-id="${loc.id}" title="${isFav ? 'Bỏ yêu thích' : 'Yêu thích'}">${isFav ? '❤️' : '🤍'}</button>
                 </div>
-                <div style="margin-top:6px; font-size: 0.75rem; color:#334155;">
-                    Cluster: <b>${cluster.cluster_name || cluster.cluster_id}</b>
-                </div>
-
-                <div style="text-align:center; margin-top: 10px; display:flex; gap: 6px; justify-content:center;">
-                    <button onclick="showCriteriaPanel()" class="btn-criteria" style="flex:1;">📊 Tiêu chí</button>
-                    <button class="btn-compare" style="flex:1;">🔁 So sánh</button>
-                    <a href="#" class="btn-streetview" data-lat="${lat}" data-lng="${lng}" data-name="${popupTitle}" style="flex:1;">🛰️ 3D</a>
-                </div>
-                <div style="text-align:center; margin-top: 8px;">
-                    <button class="btn-favorite" data-location-id="${loc.id}" style="width: 100%;">${favoriteLocationIds.has(Number(loc.id)) ? '❤️ Đã yêu thích' : '❤️ Yêu thích'}</button>
+                <div class="pp-body">
+                    <button onclick="showCriteriaPanel()" class="pp-action-btn pp-btn-criteria">
+                        <span class="pp-btn-icon">📊</span>Tiêu chí
+                    </button>
+                    <button class="pp-action-btn pp-btn-compare btn-compare">
+                        <span class="pp-btn-icon">🔁</span>So sánh
+                    </button>
+                    <a href="#" class="pp-action-btn pp-btn-3d btn-streetview" data-lat="${lat}" data-lng="${lng}" data-name="${popupTitle}">
+                        <span class="pp-btn-icon">🛰️</span>3D
+                    </a>
                 </div>
             `;
 
