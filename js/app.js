@@ -343,7 +343,7 @@ if (googleBtn) {
     const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
     const CLIENT_ID =
       "596598398379-in2t43evk7clm9pffdjrvm8jg5mit72d.apps.googleusercontent.com";
-    const REDIRECT_URI = "https://thinh082.github.io/ahp_fe/google-callback.html";
+    const REDIRECT_URI = "http://127.0.0.1:5500/google-callback.html";
     const SCOPE = "email profile";
 
     const url =
@@ -404,7 +404,7 @@ async function handleRegister() {
     fullname,
     email,
     password,
-    ...(sodienthoai ? { sodienthoai } : {}),
+    ...(sodienthoai ? { phone: sodienthoai } : {}),
   };
 
   try {

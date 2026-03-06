@@ -694,8 +694,8 @@ async function loadPersonalInfo() {
       personalInfoEls.email.textContent = data.email || "--";
     }
     if (personalInfoEls.phone) {
-      // Only use sodienthoai — do NOT fall back to data.phone which may contain email
-      personalInfoEls.phone.value = data.sodienthoai || "";
+      // Use phone (new) or sodienthoai (legacy)
+      personalInfoEls.phone.value = data.phone || data.sodienthoai || "";
     }
   } catch (err) {
     console.error("Không thể tải thông tin cá nhân:", err);
@@ -743,7 +743,7 @@ async function updatePersonalInfo() {
 
   const payload = {
     fullname,
-    sodienthoai,
+    phone: sodienthoai, // Using 'phone' to match new API structure
     password: password || undefined,
   };
 

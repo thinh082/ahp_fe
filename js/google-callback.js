@@ -12,8 +12,8 @@
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get("code");
 
-  // Redirect URI phải khớp y hệt lúc gọi Google
-  const redirectUri = "https://thinh082.github.io/ahp_fe/google-callback.html";
+  // Redirect URI phải khớp y hệt lúc gọi Google https://thinh082.github.io/ahp_fe
+  const redirectUri = "http://127.0.0.1:5500/google-callback.html";
 
   if (!code) {
     setMsg("Không tìm thấy mã xác thực (code).", "#b45309");
