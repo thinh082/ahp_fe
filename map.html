@@ -84,17 +84,28 @@
   <!-- ── Criteria Panel (floating center) ── -->
   <div id="criteriaPanel" class="criteria-float-panel hidden" style="display:none">
     <div class="criteria-form-header">
-      <h4>📊 Tiêu chí đánh giá</h4>
+      <div class="cfp-header-left">
+        <div class="cfp-icon">📊</div>
+        <div>
+          <h4 class="cfp-title">Tiêu chí AHP</h4>
+          <p class="cfp-subtitle">Điều chỉnh mức quan trọng của từng tiêu chí</p>
+        </div>
+      </div>
       <span onclick="closeCriteriaPanel()" class="criteria-close">&times;</span>
     </div>
     <div class="criteria-form-body">
-      <div style="font-size:12px; color:#64748b; margin-bottom:10px;">
-        Kéo thanh để so sánh mức quan trọng (1–9). Bấm <b>Áp dụng</b> để cập nhật bản đồ.
+      <div class="cfp-hint">
+        <span class="cfp-hint-icon">💡</span>
+        Kéo thanh trượt (1–9), sau đó bấm <strong>Áp dụng</strong> để tính toán lại.
       </div>
       <div id="criteriaListAHP" class="criteria-list"></div>
-      <div class="center" style="margin-top:12px">
-        <button class="btn" id="applyAHPBtn" style="width:100%; background: linear-gradient(135deg,#6366f1,#3b82f6);">
-          ✅ Áp dụng tiêu chí
+      <div style="margin-top:14px">
+        <button class="cfp-apply-btn" id="applyAHPBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Áp dụng tiêu chí
         </button>
       </div>
       <div id="criteriaCompareResult" style="margin-top:12px"></div>

@@ -970,12 +970,169 @@
       color: #475569;
       line-height: 1.4;
     }
+
+    /* ── NEW Guide Overlay ──────────────────── */
+    .guide-container-new {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid rgba(99, 102, 241, 0.12);
+      box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22);
+      padding: 0;
+      max-width: 480px;
+      width: 94vw;
+      overflow: hidden;
+      animation: guideSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Inter', sans-serif;
+    }
+
+    @keyframes guideSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.93) translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .guide-header-new {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .guide-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .guide-logo-text {
+      font-size: 14px;
+    }
+
+    .guide-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      background: rgba(99, 102, 241, 0.1);
+      color: #6366f1;
+      border-radius: 999px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .guide-title-new {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 18px 20px 6px;
+      letter-spacing: -0.4px;
+    }
+
+    .guide-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0 20px 12px;
+      line-height: 1.6;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 14px;
+    }
+
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .guide-step:hover {
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .guide-step-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .guide-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+
+    .guide-step-desc {
+      font-size: 11.5px;
+      color: #64748b;
+      line-height: 1.55;
+    }
+
+    .guide-step-desc strong {
+      color: #4f46e5;
+    }
+
+    .guide-footer-new {
+      padding: 16px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid rgba(99, 102, 241, 0.08);
+      margin-top: 10px;
+    }
+
+    .guide-understood-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .guide-understood-btn:hover {
+      background: linear-gradient(135deg, #4f46e5, #2563eb);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    }
+
+    .guide-dismiss-note {
+      font-size: 11px;
+      color: #94a3b8;
+    }
   </style>
 </head>
 
 <body>
   <!-- Video Guide Overlay -->
   <div id="video-guide-overlay">
+    <!-- OLD guide-container (commented out)
     <div class="guide-container">
       <h2 class="guide-title">Chào mừng đến với AHP Location</h2>
       <div class="video-wrapper">
@@ -987,6 +1144,78 @@
       </div>
       <div class="guide-footer">
         <button id="btn-understood" class="btn-understood">Đã hiểu</button>
+      </div>
+    </div>
+    -->
+
+    <!-- NEW guide-container -->
+    <div class="guide-container guide-container-new">
+      <div class="guide-header-new">
+        <div class="guide-logo">
+          <span>📍</span>
+          <span class="guide-logo-text"><strong>AHP</strong> Location</span>
+        </div>
+        <div class="guide-badge">Hướng dẫn sử dụng</div>
+      </div>
+
+      <h2 class="guide-title-new">Chào mừng bạn đến với AHP Location! 👋</h2>
+      <p class="guide-desc">Hệ thống hỗ trợ bạn chọn địa điểm kinh doanh thông minh qua phương pháp AHP. Dưới đây là các
+        bước cơ bản:
+      </p>
+
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-step-icon">1️⃣</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">Tạo dự án</div>
+            <div class="guide-step-desc">Nhấn <strong>+ Dự án mới</strong> ở cột bên trái để tạo một dự án phân tích.
+            </div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">2️⃣</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">Chọn và cấu hình tiêu chí</div>
+            <div class="guide-step-desc">Di chuyển thanh trượt ở cột <strong>Tiêu chí đánh giá</strong> để điều chỉnh
+              mức ưu tiên giữa các yếu tố (doanh thu, chi phí, vị trí...).</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">3️⃣</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">Xem kết quả trên bản đồ</div>
+            <div class="guide-step-desc">Hệ thống tính điểm AHP và tô màu địa điểm theo mức độ: <strong
+                style="color:#16a34a">✅ Nên</strong>, <strong style="color:#d97706">⚖️ Cân nhắc</strong>, <strong
+                style="color:#dc2626">⛔ Không nên</strong>.</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">4️⃣</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">So sánh địa điểm</div>
+            <div class="guide-step-desc">Click vào marker trên bản đồ, nhấn <strong>🔁 So sánh</strong> rồi click marker
+              khác để xem chi tiết điểm số từng địa điểm.</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">❤️</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">Yêu thích địa điểm</div>
+            <div class="guide-step-desc">Nhấn nút <strong>Tim</strong> trong popup bản đồ để lưu địa điểm yêu thích vào
+              dự án hiện tại.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-footer-new">
+        <button id="btn-understood" class="guide-understood-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Đã hiểu, bắt đầu nào!
+        </button>
+        <div class="guide-dismiss-note">Đoạn này sẽ không hiện lại trong 30 phút.</div>
       </div>
     </div>
   </div>
@@ -1296,21 +1525,36 @@
   <script src="js/dashboard.js" defer></script>
   <script src="js/chatbot.js"></script>
   <script>
-    // Video Guide Overlay Logic
-    const guideOverlay = document.getElementById('video-guide-overlay');
-    const guideIframe = document.getElementById('guide-iframe');
-    const YT_SRC = 'https://www.youtube.com/embed/grQib3MYno8?autoplay=1&mute=1';
+    // ── Guide Overlay: 30-minute dismissal logic ──
+    const GUIDE_KEY = 'ahp_guide_dismissed_at';
+    const GUIDE_DURATION = 30 * 60 * 1000; // 30 minutes in ms
 
-    document.getElementById('btn-understood').addEventListener('click', function () {
+    const guideOverlay = document.getElementById('video-guide-overlay');
+
+    function checkGuide() {
+      const dismissedAt = localStorage.getItem(GUIDE_KEY);
+      if (dismissedAt && (Date.now() - Number(dismissedAt)) < GUIDE_DURATION) {
+        guideOverlay.classList.add('hidden');
+      } else {
+        guideOverlay.classList.remove('hidden');
+      }
+    }
+
+    function dismissGuide() {
+      localStorage.setItem(GUIDE_KEY, Date.now());
       guideOverlay.classList.add('hidden');
-      guideIframe.src = '';
-    });
+    }
+
+    checkGuide();
+
+    const understoodBtn = document.getElementById('btn-understood');
+    if (understoodBtn) understoodBtn.addEventListener('click', dismissGuide);
 
     const rewatchBtn = document.getElementById('btn-rewatch');
     if (rewatchBtn) {
       rewatchBtn.addEventListener('click', function () {
+        localStorage.removeItem(GUIDE_KEY);
         guideOverlay.classList.remove('hidden');
-        guideIframe.src = YT_SRC;
       });
     }
   </script>

@@ -405,7 +405,6 @@ function renderAHPResponse(resp) {
                     <div class="pp-title">${popupTitle || ('Địa điểm #' + loc.id)}</div>
                     <div class="pp-score">AHP score: <strong>${formatAHP(loc.ahp_score)}</strong></div>
                     <div class="pp-cluster">Cụm: ${cluster.cluster_name || cluster.cluster_id}</div>
-                    <button class="pp-fav-btn btn-favorite" data-location-id="${loc.id}" title="${isFav ? 'Bỏ yêu thích' : 'Yêu thích'}">${isFav ? '❤️' : '🤍'}</button>
                 </div>
                 <div class="pp-body">
                     <button onclick="showCriteriaPanel()" class="pp-action-btn pp-btn-criteria">
@@ -414,9 +413,9 @@ function renderAHPResponse(resp) {
                     <button class="pp-action-btn pp-btn-compare btn-compare">
                         <span class="pp-btn-icon">🔁</span>So sánh
                     </button>
-                    <a href="#" class="pp-action-btn pp-btn-3d btn-streetview" data-lat="${lat}" data-lng="${lng}" data-name="${popupTitle}">
-                        <span class="pp-btn-icon">🛰️</span>3D
-                    </a>
+                    <button class="pp-action-btn pp-btn-fav btn-favorite" data-location-id="${loc.id}">
+                        <span class="pp-btn-icon">${isFav ? '❤️' : '🤍'}</span>${isFav ? 'Yêu thích' : 'Yêu thích'}
+                    </button>
                 </div>
             `;
 
