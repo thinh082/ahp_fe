@@ -87,9 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Render summary
         const totalFound = data.summary?.total_locations_found || allLocations.length;
         summaryInfo.innerHTML = `
-      <div style="display: flex; gap: 12px; align-items: center;">
+      <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
         <div style="font-size: 24px;">🎯</div>
-        <div>
+        <div style="flex: 1; min-width: 250px;">
           <div style="font-weight: 600; color: #0f172a; margin-bottom: 4px;">Phân tích thành công! Trả về ${totalFound} địa điểm ưu tiên cao nhất</div>
           <div style="color: #64748b; font-size: 13px;">Danh sách dưới đây được sắp xếp theo mức độ phù hợp nhất dựa trên API trả về.</div>
         </div>

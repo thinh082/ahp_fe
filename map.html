@@ -154,6 +154,27 @@
       openBtn.classList.add('hidden');
     });
 
+    // Auto-collapse sidebar on smaller screens
+    function checkSidebarResponsive() {
+      if (window.innerWidth <= 768) {
+        if (!sidebar.classList.contains('hidden')) {
+          sidebar.classList.add('hidden');
+          openBtn.classList.remove('hidden');
+        }
+      } else {
+        if (sidebar.classList.contains('hidden')) {
+          sidebar.classList.remove('hidden');
+          openBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    // Check on load
+    checkSidebarResponsive();
+
+    // Check on resize
+    window.addEventListener('resize', checkSidebarResponsive);
+
   </script>
 </body>
 

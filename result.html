@@ -9,12 +9,23 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        /* Bảng kết quả styles */
+        body,
+        html {
+            width: 100%;
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
         .result-container {
+            width: 100%;
             max-width: 1200px;
             margin: 40px auto;
-            padding: 0 24px;
+            padding: 0 16px;
             font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .result-header {
@@ -22,6 +33,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .result-title {
@@ -65,7 +78,10 @@
             border-radius: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border: 1px solid #e2e8f0;
-            overflow: hidden;
+            overflow-x: auto;
+            width: 100%;
+            display: block;
+            -webkit-overflow-scrolling: touch;
         }
 
         .result-table {
@@ -139,11 +155,13 @@
 
         .criteria-score-item {
             font-size: 11px;
-            background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 6px;
+            background: #ffffff;
+            padding: 5px 10px;
+            border-radius: 8px;
             color: #475569;
             border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            white-space: normal;
         }
 
         .criteria-score-item strong {
@@ -166,6 +184,57 @@
             font-size: 18px;
             font-weight: 800;
             color: #4f46e5;
+        }
+
+        /* Responsive Improvements */
+        @media screen and (max-width: 1024px) {
+
+            .result-table th,
+            .result-table td {
+                padding: 12px 14px;
+            }
+
+            .criteria-scores {
+                min-width: 280px;
+            }
+        }
+
+        @media screen and (max-width: 640px) {
+            .result-container {
+                padding: 0 16px;
+                margin: 24px auto;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .result-header>div {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .result-title {
+                font-size: 20px;
+            }
+
+            .result-table th,
+            .result-table td {
+                font-size: 13px;
+                white-space: normal;
+                padding: 10px 8px;
+            }
+
+            .criteria-scores {
+                white-space: normal;
+                min-width: 120px;
+            }
+
+            .location-name {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
