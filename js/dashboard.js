@@ -668,8 +668,8 @@ async function dashStep3Analyze() {
     localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: ahpPipelineWeights, filters }));
     localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
 
-    // Chuyển sang trang bản đồ
-    window.location.href = "map.html";
+    // Chuyển sang trang bảng kết quả
+    window.location.href = "result.html";
 
   } catch (err) {
     document.getElementById("dashAnalyzeLoading")?.remove();
@@ -934,7 +934,7 @@ if (confirmBtn) {
         console.warn("Không thể lưu localStorage trước khi mở map:", e);
       }
 
-      window.location.href = "map.html";
+      window.location.href = "result.html";
     } catch (error) {
       console.error("Lỗi khi tạo dự án:", error);
       alert("Lỗi kết nối tới backend.");
@@ -1225,7 +1225,7 @@ function openProjectOnMap(item) {
     console.warn("Không thể lưu localStorage:", err);
   }
 
-  window.location.href = "map.html";
+  window.location.href = "result.html";
 }
 
 

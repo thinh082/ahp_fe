@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hệ hỗ trợ chọn địa điểm kinh doanh - Kết quả</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        /* Bảng kết quả styles */
+        .result-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+
+        .result-title span {
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #334155;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .result-table-wrap {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .result-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 13px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-table td {
+            font-size: 14px;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+
+        .result-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .result-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .rating-good {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .rating-medium {
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fef08a;
+        }
+
+        .rating-bad {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .criteria-scores {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .criteria-score-item {
+            font-size: 11px;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .criteria-score-item strong {
+            color: #3b82f6;
+        }
+
+        .location-name {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .location-address {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .score-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #4f46e5;
+        }
+    </style>
+</head>
+
+<body style="background-color: #f0f4ff;">
+
+    <div class="result-container">
+        <div class="result-header">
+            <h1 class="result-title">Kết quả xếp hạng <span>Địa điểm</span></h1>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <a href="map.html" class="back-btn" style="color: #4f46e5; border-color: #c7d2fe; background: #eef2ff;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7l6-3 5.447 2.724A1 1 0 0121 7.618v10.764a1 1 0 01-1.447.894L15 17l-6 3z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7v13"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 4v13"></path>
+                    </svg>
+                    Xem trên bản đồ
+                </a>
+                <a href="dashboard.html" class="back-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                    Quay lại
+                </a>
+            </div>
+        </div>
+
+        <div id="summary-info" class="glass-card"
+            style="margin-bottom: 24px; padding: 16px 20px; font-size: 14px; color: #334155;">
+            <!-- Summary info loaded from JS -->
+            Đang tải dữ liệu...
+        </div>
+
+        <div class="result-table-wrap">
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th width="8%">Top</th>
+                        <th width="27%">Địa điểm / Khu vực</th>
+                        <th width="15%">Điểm AHP</th>
+                        <th width="15%">Đánh giá</th>
+                        <th width="35%">Điểm Tiêu chí (1-10)</th>
+                    </tr>
+                </thead>
+                <tbody id="result-tbody">
+                    <!-- Data goes here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/result.js"></script>
+</body>
+
+</html>

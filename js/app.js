@@ -650,8 +650,8 @@ async function runStep3() {
       <div class="ahp-result-desc">Đang chuyển đến bản đồ kết quả...</div>
     </div>`;
 
-    // Chuyển sang trang bản đồ
-    window.location.href = "map.html";
+    // Chuyển sang trang bảng kết quả
+    window.location.href = "result.html";
 
   } catch (err) {
     body.innerHTML = `<div class="ahp-result-box ahp-result-error">
