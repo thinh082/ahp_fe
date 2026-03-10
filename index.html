@@ -16,8 +16,176 @@
   <meta name="referrer" content="no-referrer-when-downgrade" />
   <script src="js/lib/tom-select.complete.min.js"></script>
   <style>
+    /* ════════════════════════════════════════════════
+       TYPOGRAPHY SCALE SYSTEM
+       H1 hero   : 45px  | Section H2: 30px
+       H3 card   : 24px  | Subtitle  : 20px
+       Body      : 16px  | Small     : 14px
+    ════════════════════════════════════════════════ */
+    :root {
+      --fs-h1: 45px;
+      /* Hero heading */
+      --fs-h2: 30px;
+      /* Section heading */
+      --fs-h3: 24px;
+      /* Card / section sub-heading */
+      --fs-subtitle: 20px;
+      /* Intro / description */
+      --fs-body: 16px;
+      /* Default body text */
+      --fs-small: 14px;
+      /* Labels, notes, footer */
+
+      --lh-heading: 1.2;
+      --lh-body: 1.65;
+    }
+
+    /* Semantic tags */
+    h1 {
+      font-size: var(--fs-h1);
+      line-height: var(--lh-heading);
+      font-weight: 900;
+    }
+
+    h2 {
+      font-size: var(--fs-h2);
+      line-height: var(--lh-heading);
+      font-weight: 800;
+    }
+
+    h3 {
+      font-size: var(--fs-h3);
+      line-height: var(--lh-heading);
+      font-weight: 700;
+    }
+
+    /* Base body */
+    body,
+    .index-page {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+    }
+
+    /* ── Hero section ─────────────────────────────── */
+    .hero-title {
+      font-size: var(--fs-h1);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-size: var(--fs-subtitle);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .gradient-text {
+      font-size: inherit;
+    }
+
+    /* ── Section headings ─────────────────────────── */
+    .section-title {
+      font-size: var(--fs-h3);
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      font-size: var(--fs-subtitle);
+    }
+
+    .card-title {
+      font-size: var(--fs-h3);
+      font-weight: 700;
+    }
+
+    .result-title {
+      font-size: var(--fs-h3);
+      font-weight: 700;
+    }
+
+    /* ── Body / description text ──────────────────── */
+    p,
+    .description,
+    .card-desc,
+    .result-desc,
+    .guide-step-desc {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+    }
+
+    /* ── Small / label text ───────────────────────── */
+    .label,
+    .tag,
+    small,
+    .small-text,
+    .note,
+    .guide-dismiss-note,
+    .badge-text,
+    .criteria-sub,
+    .ahp-stepper-label {
+      font-size: var(--fs-small);
+    }
+
+    /* ── Reapply to stepper elements ─────────────── */
+    .ahp-step-title {
+      font-size: var(--fs-h3) !important;
+    }
+
+    .ahp-step-desc {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-step-badge {
+      font-size: var(--fs-small) !important;
+    }
+
+    .ahp-btn-next,
+    .ahp-btn-back {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-result-title {
+      font-size: var(--fs-body) !important;
+      font-weight: 700;
+    }
+
+    .ahp-result-desc,
+    .ahp-weight-row,
+    .ahp-step-section-title,
+    .ahp-step-placeholder,
+    .ahp-loading {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-cr-badge {
+      font-size: var(--fs-body) !important;
+    }
+
+    /* ── Navigation / badge ───────────────────────── */
+    .nav-link,
+    .dash-nav a {
+      font-size: var(--fs-body);
+    }
+
+    .hero-badge {
+      font-size: var(--fs-small);
+    }
+
+    .features-strip .f-text {
+      font-size: var(--fs-body);
+    }
+
+    /* ── Inputs / selects follow body size ────────── */
+    input,
+    select,
+    textarea,
+    .field {
+      font-size: var(--fs-body);
+    }
+
     /* ===== Index Page Premium Light Styles ===== */
     .index-page {
+
       min-height: 100vh;
       background: linear-gradient(160deg,
           #f8faff 0%,
@@ -1140,28 +1308,28 @@
 
     .ahp-step-badge {
       display: inline-flex;
-      padding: 3px 10px;
+      padding: 4px 12px;
       background: rgba(99, 102, 241, 0.1);
       color: #6366f1;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       border: 1px solid rgba(99, 102, 241, 0.2);
       margin-bottom: 8px;
     }
 
     .ahp-step-title {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 800;
       color: #1e293b;
       letter-spacing: -0.3px;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
 
     .ahp-step-desc {
-      font-size: 11.5px;
+      font-size: 16px;
       color: #64748b;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     /* Body của step */
@@ -1186,14 +1354,14 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 10px 20px;
+      padding: 10px 22px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(135deg, #3b82f6, #6366f1);
       color: #fff;
       font-family: 'Inter', sans-serif;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.25s ease;
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);

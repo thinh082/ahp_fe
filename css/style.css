@@ -121,7 +121,7 @@ body {
 
 .criteria-sub {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 14px;
   text-align: center;
   margin-top: 10px;
 }
@@ -136,7 +136,7 @@ body {
    ===================================================== */
 
 .ahp-hint {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   background: #f0f4ff;
   border: 1px solid rgba(47, 109, 246, 0.18);
@@ -162,7 +162,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 14px;
 }
 
 .ahp-legend-code {
@@ -179,7 +179,7 @@ body {
 
 .ahp-legend-desc {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 14px;
 }
 
 /* Table wrapper: allow horizontal scroll on small screens */
@@ -192,7 +192,7 @@ body {
 .ahp-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12.5px;
+  font-size: 14px;
 }
 
 /* Header row */
@@ -217,7 +217,7 @@ body {
 .ahp-th-label {
   text-align: left !important;
   color: var(--text) !important;
-  font-size: 11.5px;
+  font-size: 14px;
   min-width: 60px;
 }
 
@@ -263,7 +263,7 @@ body {
   background: #e9eef5;
   font-weight: 700;
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Editable input cell (upper triangle) */
@@ -277,7 +277,7 @@ body {
   border: 1.5px solid #d1d5db;
   border-radius: 7px;
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   background: #fff;
@@ -301,7 +301,7 @@ body {
 .ahp-recip {
   color: var(--primary);
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
   background: #f8faff;
 }
 
