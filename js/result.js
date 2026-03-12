@@ -27,7 +27,7 @@ async function apiFetch(path, options = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const tbody = document.getElementById("result-tbody");
+    const criteriaRankingsContainer = document.getElementById("criteria-rankings-container");
     const summaryInfo = document.getElementById("summary-info");
 
     // Read payload from localStorage
@@ -96,65 +96,105 @@ document.addEventListener("DOMContentLoaded", async () => {
       </div>
     `;
 
-        // Render table
-        if (allLocations.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: #64748b;">Không có địa điểm nào phù hợp với đánh giá này.</td></tr>`;
+        // Render multiple criteria tables
+        const criteriaAnalysis = data.summary?.criteria_analysis;
+
+        if (!criteriaAnalysis || criteriaAnalysis.length === 0) {
+            criteriaRankingsContainer.innerHTML = `<div style="text-align: center; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; color: #64748b;">Chưa có dữ liệu bảng xếp hạng tiêu chí từ hệ thống (hoặc backend chưa hỗ trợ).</div>`;
             return;
         }
 
-        let html = "";
-        allLocations.forEach((loc, index) => {
-            // Determine rating style
-            let ratingClass = "rating-medium";
-            let ratingText = loc.rating || "CÂN NHẮC";
-            let ratingIcon = "⚖️";
+        let tabsHtml = `<div class="ahp-tabs">`;
+        let panelsHtml = ``;
 
-            if (ratingText === "NÊN MỞ") {
-                ratingClass = "rating-good";
-                ratingIcon = "✅";
-            } else if (ratingText === "KHÔNG NÊN") {
-                ratingClass = "rating-bad";
-                ratingIcon = "🚫";
+        criteriaAnalysis.forEach((criteria, index) => {
+            const isActive = index === 0 ? "active" : "";
+            const tabId = `tab-criteria-${index}`;
+
+            // 1. Build Tab Button
+            tabsHtml += `
+                <button class="ahp-tab-btn ${isActive}" data-target="${tabId}">
+                    ${criteria.display_name}
+                </button>
+            `;
+
+            // 2. Build Tab Panel
+            panelsHtml += `
+            <div class="ahp-tab-panel ${isActive}" id="${tabId}">
+              <div style="font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🏆</span> 
+                Top 10 địa điểm tốt nhất về: <span style="color: #4f46e5;">${criteria.display_name}</span>
+              </div>
+              <div class="result-table-wrap">
+                  <table class="result-table">
+                      <thead>
+                          <tr>
+                              <th width="15%" style="text-align: center;">Thứ hạng</th>
+                              <th width="65%">Tên địa điểm / Khu vực</th>
+                              <th width="20%">Điểm Tiêu chí</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+            `;
+
+            if (!criteria.top_locations || criteria.top_locations.length === 0) {
+                panelsHtml += `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b;">Chưa có dữ liệu địa điểm cho tiêu chí này.</td></tr>`;
+            } else {
+                criteria.top_locations.forEach((loc) => {
+                    let rankColor = "#64748b";
+                    let rankSize = "15px";
+                    let rankIcon = "";
+                    if (loc.rank === 1) { rankColor = "#eab308"; rankSize = "18px"; rankIcon = "🥇"; }
+                    else if (loc.rank === 2) { rankColor = "#94a3b8"; rankSize = "17px"; rankIcon = "🥈"; }
+                    else if (loc.rank === 3) { rankColor = "#b45309"; rankSize = "16px"; rankIcon = "🥉"; }
+
+                    panelsHtml += `
+                    <tr>
+                      <td>
+                          <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                              <strong style="color: ${rankColor}; font-size: ${rankSize};">${rankIcon || '#'} ${loc.rank}</strong>
+                          </div>
+                      </td>
+                      <td>
+                        <div class="location-name">${loc.name || "Chưa xác định"}</div>
+                      </td>
+                      <td>
+                          <span class="score-value" style="font-size: 16px;">${(loc.score || 0).toFixed(2)}</span>
+                      </td>
+                    </tr>
+                  `;
+                });
             }
 
-            // Render criteria scores
-            let criteriaHtml = "";
-            if (loc.criteria_scores) {
-                const cNames = {
-                    "C1_revenue_potential": "Doanh thu",
-                    "C2_accessibility": "Tiếp cận",
-                    "C3_cost": "Chi phí rẻ",
-                    "C4_competition": "Ít cạnh tranh",
-                    "C5_risk_stability": "Độ ổn định"
-                };
-
-                for (const [key, val] of Object.entries(loc.criteria_scores)) {
-                    const shortName = cNames[key] || key;
-                    criteriaHtml += `<span class="criteria-score-item">${shortName}: <strong>${val.toFixed(2)}</strong></span>`;
-                }
-            }
-
-            let rankColor = "#64748b";
-            let rankSize = "15px";
-            if (index === 0) { rankColor = "#eab308"; rankSize = "20px"; }
-            else if (index === 1) { rankColor = "#94a3b8"; rankSize = "18px"; }
-            else if (index === 2) { rankColor = "#b45309"; rankSize = "16px"; }
-
-            html += `
-        <tr>
-          <td><strong style="color: ${rankColor}; font-size: ${rankSize}; display: block; text-align: center;">#${index + 1}</strong></td>
-          <td>
-            <div class="location-name">${loc.street || "Đường chưa xác định"}</div>
-            <div class="location-address">${loc.district || "Quận chưa xác định"}</div>
-          </td>
-          <td><span class="score-value">${(loc.ahp_score || 0).toFixed(2)}</span></td>
-          <td><span class="rating-badge ${ratingClass}">${ratingIcon} ${ratingText}</span></td>
-          <td><div class="criteria-scores">${criteriaHtml}</div></td>
-        </tr>
-      `;
+            panelsHtml += `
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+            `;
         });
 
-        tbody.innerHTML = html;
+        tabsHtml += `</div>`; // Đóng .ahp-tabs
+
+        // Gắn vào DOM: Nút Tabs nằm trên, Panels nằm dưới
+        criteriaRankingsContainer.innerHTML = tabsHtml + panelsHtml;
+
+        // 3. Setup Events cho việc chuyển Tab
+        const tabBtns = criteriaRankingsContainer.querySelectorAll('.ahp-tab-btn');
+        const tabPanels = criteriaRankingsContainer.querySelectorAll('.ahp-tab-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Xóa active khỏi tất cả
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(p => p.classList.remove('active'));
+
+                // Thêm active vào nút được click
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
 
     } catch (err) {
         console.error("Lỗi khi fetch API:", err);
