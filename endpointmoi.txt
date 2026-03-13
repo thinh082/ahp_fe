@@ -1,0 +1,75 @@
+Input / Output của POST /api/locations/criteria-evaluation
+📥 Input (Request Body)
+json
+{
+  "weights": [0.2977, 0.0886, 0.1580, 0.2977, 0.1580],
+  "filters": {
+    "district": "Quan 8",
+    "street": null,
+    "limit": 5
+  }
+}
+Field	Type	Bắt buộc	Mô tả
+
+weights
+float[5]	✅	Vector trọng số 5 tiêu chí [W1, W2, W3, W4, W5]
+filters	object	❌	Bộ lọc địa điểm (nếu null → lấy tất cả, tối đa 1000)
+filters.district	string	❌	Lọc theo quận (LIKE)
+filters.street	string	❌	Lọc theo đường (LIKE)
+filters.limit	int (1–10000)	❌	Giới hạn số địa điểm (default: 1000)
+📤 Output (Response Body)
+json
+{
+  "success": true,
+  "total_locations": 5,
+  "tabs": [
+    {
+      "criteria_id": "C1",
+      "criteria_name": "Tiềm năng doanh thu",
+      "raw_column": "avg_income",
+      "locations_header": [
+        { "id": 12, "name": "Quận 8 - Bến Bình Đông" },
+        { "id": 47, "name": "Quận 8 - Phạm Hùng" },
+        { "id": 83, "name": "Quận 8 - Tùng Thiện Vương" }
+      ],
+      "matrix_rows": [
+        ["1",   "3",   "1/2"],
+        ["1/3", "1",   "1/4"],
+        ["2",   "4",   "1"  ]
+      ],
+      "local_weights": [0.3043, 0.1304, 0.5652]
+    },
+    {
+      "criteria_id": "C2",
+      "criteria_name": "Khả năng tiếp cận",
+      "raw_column": "traffic",
+      "locations_header": [ "..." ],
+      "matrix_rows": [ ["..."] ],
+      "local_weights": [ "..." ]
+    },
+    "... (C3, C4, C5 tương tự)"
+  ]
+}
+Cấu trúc từng tab
+Field	Type	Mô tả
+criteria_id	string	"C1" → "C5"
+criteria_name	string	Tên tiêu chí tiếng Việt
+raw_column	string	Cột DB được dùng: avg_income, traffic, rent_cost, competitors, risk
+locations_header	{id, name}[]	Header hàng & cột của bảng (N địa điểm)
+matrix_rows	string[][]	Ma trận NxN — ô [i][j] là chuỗi AHP địa điểm i so với j
+local_weights	float[]	Local Weight của mỗi địa điểm (tổng ≈ 1.0)
+Giải thích ô trong matrix_rows
+Giá trị	Ý nghĩa
+"1"	Hai địa điểm tương đương
+"3"	Địa điểm hàng tốt hơn 3 lần
+"1/3"	Địa điểm hàng kém hơn 3 lần
+Lưu ý: C3 (Chi phí), C4 (Cạnh tranh), C5 (Rủi ro) là tiêu chí cost → đảo ngược (val[j] / val[i]), tức là địa điểm có giá trị thô nhỏ hơn sẽ có Local Weight cao hơn.
+
+Lỗi trả về
+HTTP Code	Khi nào
+400	Không tìm thấy địa điểm, hoặc không địa điểm nào đạt AHP ≥ 5.0
+422	
+
+weights
+ không phải 5 phần tử, hoặc có giá trị âm
+500	Lỗi server nội bộ

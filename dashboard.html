@@ -1851,6 +1851,11 @@
               <div class="ahp-stepper-circle">3</div>
               <div class="ahp-stepper-label">Trọng số &amp; CR</div>
             </div>
+            <div class="ahp-stepper-connector"></div>
+            <div class="ahp-stepper-step" id="dashTrack4">
+              <div class="ahp-stepper-circle">4</div>
+              <div class="ahp-stepper-label">Đánh giá tiêu chí</div>
+            </div>
           </div>
 
           <!-- ═══════════════════════════════════════════════
@@ -1862,7 +1867,7 @@
             <!-- ══ STEP 1: Nhập ma trận so sánh cặp ══ -->
             <div class="dash-step-panel active" id="dashStep1">
               <div class="ahp-step-header">
-                <div class="ahp-step-badge">Bước 1 / 3</div>
+                <div class="ahp-step-badge">Bước 1 / 4</div>
                 <div class="ahp-step-title">⚖️ So sánh tầm quan trọng tiêu chí</div>
                 <div class="ahp-step-desc">
                   Nhập giá trị phía trên đường chéo (1–9). Ô đối xứng tự sinh nghịch đảo.
@@ -1887,7 +1892,7 @@
             <!-- ══ STEP 2: Ma trận chuẩn hóa ══ -->
             <div class="dash-step-panel next" id="dashStep2">
               <div class="ahp-step-header">
-                <div class="ahp-step-badge">Bước 2 / 3</div>
+                <div class="ahp-step-badge">Bước 2 / 4</div>
                 <div class="ahp-step-title">📋 Ma trận chuẩn hóa</div>
                 <div class="ahp-step-desc">
                   Mỗi ô ÷ tổng cột. Tổng mỗi cột = 1.0 sau chuẩn hóa.
@@ -1910,7 +1915,7 @@
             <!-- ══ STEP 3: Trọng số & CR ══ -->
             <div class="dash-step-panel next" id="dashStep3">
               <div class="ahp-step-header">
-                <div class="ahp-step-badge">Bước 3 / 3</div>
+                <div class="ahp-step-badge">Bước 3 / 4</div>
                 <div class="ahp-step-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
                 <div class="ahp-step-desc">
                   Kiểm tra Consistency Ratio. CR &lt; 0.1 thì ma trận nhất quán.
@@ -1926,11 +1931,36 @@
               <div class="ahp-step-footer">
                 <button class="ahp-btn-back" id="dashStep3BackBtn">← Quay lại</button>
                 <button class="ahp-btn-next" id="dashStep3AnalyzeBtn" style="display:none;">
-                  🚀 Phân tích địa điểm
+                  ⚡ Đánh giá điểm theo phương án
                 </button>
               </div>
             </div>
             <!-- /Step 3 -->
+
+            <!-- ══ STEP 4: Đánh giá tiêu chí ══ -->
+            <div class="dash-step-panel next" id="dashStep4">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 4 / 4</div>
+                <div class="ahp-step-title">🏢 Đánh giá Tiêu chí</div>
+                <div class="ahp-step-desc">
+                  Kiểm tra ma trận đánh giá các địa điểm với từng tiêu chí cụ thể.
+                </div>
+              </div>
+
+              <div class="ahp-step-body" id="dashStep4Body">
+                <div class="ahp-step-placeholder">
+                  Nhấn <strong>Đánh giá điểm theo phương án</strong> ở Bước 3 để hiển thị ma trận.
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <button class="ahp-btn-back" id="dashStep4BackBtn">← Quay lại</button>
+                <button class="ahp-btn-next" id="dashStep4AnalyzeBtn" style="display:none; background: #166534;">
+                  🚀 Xếp hạng và phân tích
+                </button>
+              </div>
+            </div>
+            <!-- /Step 4 -->
 
           </div><!-- /#dashStepsContainer -->
 
