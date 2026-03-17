@@ -668,15 +668,15 @@ async function dashStep3Analyze() {
     localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: ahpPipelineWeights, filters }));
     localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
 
-    // Chuyển sang trang bảng kết quả
-    window.location.href = "result.html";
+    // Chuyển sang trang đánh giá tiêu chí theo phương án
+    window.location.href = "criteria-evaluation.html";
 
   } catch (err) {
     document.getElementById("dashAnalyzeLoading")?.remove();
     alert("❌ Lỗi khi phân tích: " + err.message);
     btn.disabled = false;
     if (backBtn) backBtn.disabled = false;
-    btn.textContent = "🚀 Phân tích địa điểm";
+    btn.textContent = "Đánh giá tiêu chí theo phương án";
     console.error("dashStep3 analyze error:", err);
   }
 }
