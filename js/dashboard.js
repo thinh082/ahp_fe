@@ -390,17 +390,34 @@ function dashGoToStep(stepNum) {
   });
 }
 
-// ── Đặt chiều cao container = scrollHeight của Step 1 ────────
-// Tất cả panel dùng position:absolute nên container không tự cao
-// JS đo Step 1 một lần và gán cố định → không giật layout khi chuyển step
-function initDashContainerHeight() {
-  requestAnimationFrame(() => {
-    const container = document.getElementById("dashStepsContainer");
-    const step1 = document.getElementById("dashStep1");
-    if (!container || !step1) return;
-    container.style.height = step1.scrollHeight + "px";
-  });
+// ── Cập nhật chiều cao container theo Step 1 ─────────────────
+// Tạm set position:relative để browser tính đúng offsetHeight,
+// rồi gán cho container (xóa height cũ, set minHeight chính xác + 8px buffer)
+function updateDashContainerHeight() {
+  const container = document.getElementById("dashStepsContainer");
+  const step1 = document.getElementById("dashStep1");
+  if (!container || !step1) return;
+
+  // Tạm đưa step1 về flow bình thường để đo đúng
+  const prev = step1.style.position;
+  step1.style.position = "relative";
+  const h = step1.offsetHeight;
+  step1.style.position = prev;
+
+  if (h > 10) {
+    container.style.height = ""; // xóa height cũ nếu có
+    container.style.minHeight = (h + 8) + "px";  // +8px buffer
+  }
 }
+
+function initDashContainerHeight() {
+  // Đo nhiều lần để đảm bảo bắt được sau khi font/table render xong
+  setTimeout(updateDashContainerHeight, 50);
+  setTimeout(updateDashContainerHeight, 300);
+  setTimeout(updateDashContainerHeight, 800);
+  window.addEventListener("load", updateDashContainerHeight, { once: true });
+}
+
 
 // ── Helper render bảng ma trận chuẩn hóa ─────────────────────
 function renderNormalizedMatrix(normMatrix) {
@@ -444,77 +461,75 @@ function renderColumnSumsRow(colSums) {
   });
   tfoot.appendChild(tr);
   criteriaListEl?.querySelector(".ahp-table")?.appendChild(tfoot);
+
+  // Σ row vừa được thêm → chiều cao Step 1 tăng → cập nhật container
+  updateDashContainerHeight();
 }
 
+
 // ──────────────────────────────────────────────────────────────
-// BƯỚC 1 — Next: Gọi API column-sums + normalize-matrix
-// Khi thành công → hiện bảng chuẩn hóa vào Step 2 rồi slide sang
+// BƯỚC 1 — Next:
+// 1. Slide NGAY sang Step 2 (với loading spinner)
+// 2. Gọi API column-sums + normalize ở background
+// 3. Cập nhật body Step 2 khi API xong
 // ──────────────────────────────────────────────────────────────
 async function dashStep1Next() {
   const btn = document.getElementById("dashStep1NextBtn");
   const body = document.getElementById("dashStep2Body");
   if (!btn) return;
 
-  // Loading state
-  btn.disabled = true;
-  btn.textContent = "⏳ Đang tính toán...";
-  if (body) body.innerHTML = `<div class="ahp-loading">⏳ Đang tính tổng cột và chuẩn hóa...</div>`;
-
-  // Xóa hàng tổng cột cũ (nếu có)
+  // Validate: lấy ma trận ngay
   criteriaListEl?.querySelector("#ahpColSumRow")?.remove();
   _dashRawMatrix = getRawMatrix();
 
+  // ── SLIDE NGAY — không chờ API ──
+  body.innerHTML = `<div class="ahp-loading">⏳ Đang tính tổng cột và chuẩn hóa...</div>`;
+  dashGoToStep(2);
+  btn.disabled = true;
+
   try {
-    // Gọi API 1: column-sums — lấy tổng cột, hiện dưới bảng ma trận
+    // Gọi API 1: column-sums
     const res1 = await apiFetch("/api/ahp/calculate/column-sums", {
       method: "POST",
       body: JSON.stringify({ criteriaMatrix: _dashRawMatrix }),
     });
     renderColumnSumsRow(res1.column_sums || []);
 
-    // Gọi API 2: normalize-matrix — chuẩn hóa ma trận
+    // Gọi API 2: normalize-matrix
     const res2 = await apiFetch("/api/ahp/calculate/normalize-matrix", {
       method: "POST",
       body: JSON.stringify({ criteriaMatrix: _dashRawMatrix }),
     });
-
-    // Lưu kết quả để dùng ở Bước 2
     _dashRes1Norm = res2;
 
-    // Inject kết quả vào body Step 2
-    if (body) {
-      body.innerHTML = `
-        <div class="ahp-result-box ahp-result-success">
-          <div class="ahp-result-title">✅ Hoàn thành — Tổng cột đã hiện trong bảng trên</div>
-          <div class="ahp-result-desc">Ma trận đã được chuẩn hóa. Bấm <strong>Tiếp theo</strong> để tính trọng số.</div>
-        </div>
-        <div class="ahp-step-section-title">📋 Ma trận chuẩn hóa</div>
-        ${renderNormalizedMatrix(res2.normalized_matrix || [])}
-        <div style="margin-top:8px; font-size:10.5px; color:#64748b;">Tổng mỗi cột ≈ 1.0</div>
-      `;
-    }
-
-    // Slide sang Step 2
-    dashGoToStep(2);
-
-    btn.disabled = false;
-    btn.textContent = "Tiếp theo →";
+    // Hiện kết quả vào Step 2
+    body.innerHTML = `
+      <div class="ahp-result-box ahp-result-success">
+        <div class="ahp-result-title">✅ Tổng cột đã hiện trong bảng Bước 1</div>
+        <div class="ahp-result-desc">Ma trận đã chuẩn hóa. Bấm <strong>Tiếp theo</strong> để tính trọng số.</div>
+      </div>
+      <div class="ahp-step-section-title">📋 Ma trận chuẩn hóa</div>
+      ${renderNormalizedMatrix(res2.normalized_matrix || [])}
+      <div style="margin-top:8px; font-size:14px; color:#64748b;">Tổng mỗi cột ≈ 1.0</div>
+    `;
 
   } catch (err) {
-    if (body) body.innerHTML = `
+    body.innerHTML = `
       <div class="ahp-result-box ahp-result-error">
         <div class="ahp-result-title">❌ Lỗi Bước 1</div>
         <div class="ahp-result-desc">${err.message}</div>
       </div>`;
-    btn.disabled = false;
-    btn.textContent = "Tiếp theo →";
     console.error("dashStep1 error:", err);
+  } finally {
+    btn.disabled = false;
   }
 }
 
 // ──────────────────────────────────────────────────────────────
-// BƯỚC 2 — Next: Gọi API priority-vector-and-cr
-// Khi thành công → hiện trọng số + CR vào Step 3 rồi slide sang
+// BƯỚC 2 — Next:
+// 1. Slide NGAY sang Step 3 (với loading spinner)
+// 2. Gọi API priority-vector-and-cr ở background
+// 3. Cập nhật body Step 3 khi API xong
 // ──────────────────────────────────────────────────────────────
 async function dashStep2Next() {
   const btn = document.getElementById("dashStep2NextBtn");
@@ -523,7 +538,7 @@ async function dashStep2Next() {
 
   // Kiểm tra dữ liệu từ bước 1
   if (!_dashRawMatrix || !_dashRes1Norm) {
-    if (body) body.innerHTML = `
+    body.innerHTML = `
       <div class="ahp-result-box ahp-result-warning">
         <div class="ahp-result-title">⚠️ Chưa có dữ liệu</div>
         <div class="ahp-result-desc">Hãy hoàn thành Bước 1 trước.</div>
@@ -531,16 +546,16 @@ async function dashStep2Next() {
     return;
   }
 
+  // ── SLIDE NGAY — không chờ API ──
+  body.innerHTML = `<div class="ahp-loading">⏳ Đang tính trọng số và kiểm tra nhất quán...</div>`;
+  dashGoToStep(3);
   btn.disabled = true;
-  btn.textContent = "⏳ Đang tính CR...";
-  if (body) body.innerHTML = `<div class="ahp-loading">⏳ Đang tính trọng số và kiểm tra nhất quán...</div>`;
 
-  // Disable nút back khi đang call
   const backBtn = document.getElementById("dashStep2BackBtn");
   if (backBtn) backBtn.disabled = true;
 
   try {
-    // Gọi API 3: priority-vector-and-cr dựa trên kết quả bước 1
+    // Gọi API: priority-vector-and-cr
     const res3 = await apiFetch("/api/ahp/calculate/priority-vector-and-cr", {
       method: "POST",
       body: JSON.stringify({
@@ -553,62 +568,52 @@ async function dashStep2Next() {
     const cr = Number(res3.consistency_ratio || 0);
     const isValid = res3.is_valid;
 
-    // Lưu trọng số để dùng ở Bước 3
     ahpPipelineWeights = isValid ? Object.values(weights) : null;
     ahpPipelineValid = isValid;
 
-    // Render danh sách trọng số
     const weightListHTML = Object.keys(weights).map(k => `
       <div class="ahp-weight-row">
         <span class="ahp-weight-key">${k.replace(/_/g, " ")}</span>
         <span class="ahp-weight-val">${(Number(weights[k]) * 100).toFixed(2)}%</span>
       </div>`).join("");
 
-    if (body) {
-      body.innerHTML = `
-        <div class="ahp-result-box ${isValid ? "ahp-result-success" : "ahp-result-error"}">
-          <div class="ahp-result-title">
-            ${isValid ? "✅ Ma trận hợp lệ (CR < 0.1)" : "⚠️ Chưa nhất quán (CR ≥ 0.1)"}
-          </div>
-          <div class="ahp-cr-badge"
-            style="background:${isValid ? "#dcfce7" : "#fef2f2"}; color:${isValid ? "#15803d" : "#b91c1c"};">
-            CR = <strong>${cr.toFixed(4)}</strong>
-          </div>
-          <div class="ahp-result-desc">${res3.message || ""}</div>
+    body.innerHTML = `
+      <div class="ahp-result-box ${isValid ? "ahp-result-success" : "ahp-result-error"}">
+        <div class="ahp-result-title">
+          ${isValid ? "✅ Ma trận hợp lệ (CR < 0.1)" : "⚠️ Chưa nhất quán (CR ≥ 0.1)"}
         </div>
-        <div class="ahp-step-section-title">⚖️ Trọng số tiêu chí</div>
-        <div class="ahp-weight-list">${weightListHTML}</div>
-        ${!isValid ? `
-        <div class="ahp-result-box ahp-result-warning" style="margin-top:10px;">
-          <div class="ahp-result-title">💡 Gợi ý</div>
-          <div class="ahp-result-desc">Quay lại Bước 1 và điều chỉnh bảng so sánh để CR &lt; 0.1.</div>
-        </div>` : ""}
-      `;
-    }
+        <div class="ahp-cr-badge"
+          style="background:${isValid ? "#dcfce7" : "#fef2f2"}; color:${isValid ? "#15803d" : "#b91c1c"};">
+          CR = <strong>${cr.toFixed(4)}</strong>
+        </div>
+        <div class="ahp-result-desc">${res3.message || ""}</div>
+      </div>
+      <div class="ahp-step-section-title">⚖️ Trọng số tiêu chí</div>
+      <div class="ahp-weight-list">${weightListHTML}</div>
+      ${!isValid ? `
+      <div class="ahp-result-box ahp-result-warning" style="margin-top:10px;">
+        <div class="ahp-result-title">💡 Gợi ý</div>
+        <div class="ahp-result-desc">Quay lại Bước 1 và điều chỉnh bảng so sánh để CR &lt; 0.1.</div>
+      </div>` : ""}
+    `;
 
-    // Hiện/ẩn nút Phân tích địa điểm tùy CR
+    // Hiện/ẩn nút Phân tích
     const analyzeBtn = document.getElementById("dashStep3AnalyzeBtn");
     if (analyzeBtn) analyzeBtn.style.display = isValid ? "inline-flex" : "none";
 
-    // Slide sang Step 3
-    dashGoToStep(3);
-
-    btn.disabled = false;
-    btn.textContent = "Tiếp theo →";
-
   } catch (err) {
-    if (body) body.innerHTML = `
+    body.innerHTML = `
       <div class="ahp-result-box ahp-result-error">
         <div class="ahp-result-title">❌ Lỗi Bước 2</div>
         <div class="ahp-result-desc">${err.message}</div>
       </div>`;
-    btn.disabled = false;
-    btn.textContent = "Tiếp theo →";
     console.error("dashStep2 error:", err);
   } finally {
+    btn.disabled = false;
     if (backBtn) backBtn.disabled = false;
   }
 }
+
 
 // ──────────────────────────────────────────────────────────────
 // BƯỚC 3 — Phân tích: Gọi API execute-final-analysis

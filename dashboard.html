@@ -13,7 +13,140 @@
   <script src="js/lib/tom-select.complete.min.js"></script>
   <link rel="stylesheet" href="css/style.css" />
   <style>
+    :root {
+      --fs-h1: 45px;
+      --fs-h2: 30px;
+      --fs-h3: 24px;
+      --fs-subtitle: 20px;
+      --fs-body: 16px;
+      --fs-small: 14px;
+      --lh-heading: 1.2;
+      --lh-body: 1.65;
+    }
+
+    h1 {
+      font-size: var(--fs-h1);
+      line-height: var(--lh-heading);
+      font-weight: 900;
+    }
+
+    h2 {
+      font-size: var(--fs-h2);
+      line-height: var(--lh-heading);
+      font-weight: 800;
+    }
+
+    h3 {
+      font-size: var(--fs-h3);
+      line-height: var(--lh-heading);
+      font-weight: 700;
+    }
+
+    body {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+    }
+
+    /* ── Hero / page title ────────────────────────── */
+    .hero-title {
+      font-size: var(--fs-h1) !important;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .hero-subtitle {
+      font-size: var(--fs-subtitle) !important;
+      line-height: 1.6;
+    }
+
+    /* ── Section & card headings ──────────────────── */
+    .section-title {
+      font-size: var(--fs-h3) !important;
+      font-weight: 700;
+    }
+
+    .card-title {
+      font-size: var(--fs-h3) !important;
+      font-weight: 700;
+    }
+
+    .criteria-head .section-title {
+      font-size: var(--fs-h3) !important;
+    }
+
+    /* ── Body / description ───────────────────────── */
+    p,
+    .description,
+    .card-desc {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+    }
+
+    /* ── Small / label ────────────────────────────── */
+    small,
+    .small-text,
+    .note,
+    .criteria-sub,
+    .ahp-stepper-label,
+    .hero-badge {
+      font-size: var(--fs-small);
+    }
+
+    /* ── Stepper elements ─────────────────────────── */
+    .ahp-step-title {
+      font-size: var(--fs-h3) !important;
+    }
+
+    .ahp-step-desc {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-step-badge {
+      font-size: var(--fs-small) !important;
+    }
+
+    .ahp-btn-next,
+    .ahp-btn-back {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-result-title {
+      font-size: var(--fs-body) !important;
+      font-weight: 700;
+    }
+
+    .ahp-result-desc,
+    .ahp-weight-row,
+    .ahp-step-section-title,
+    .ahp-step-placeholder,
+    .ahp-loading {
+      font-size: var(--fs-body) !important;
+    }
+
+    .ahp-cr-badge {
+      font-size: var(--fs-body) !important;
+    }
+
+    /* ── Inputs / selects ─────────────────────────── */
+    input,
+    select,
+    textarea,
+    .field {
+      font-size: var(--fs-body);
+    }
+
+    /* ── Nav ──────────────────────────────────────── */
+    .dash-nav a,
+    .logo-text {
+      font-size: var(--fs-body);
+    }
+
+    .features-strip .f-text {
+      font-size: var(--fs-body);
+    }
+
     /* ===== Dashboard Premium Light Styles (matching index.html) ===== */
+
     *,
     *::before,
     *::after {
@@ -742,7 +875,7 @@
       color: #6366f1;
       cursor: pointer;
       padding: 0;
-      font-size: 12px;
+      font-size: 16px;
       text-decoration: underline;
       font-family: 'Inter', sans-serif;
     }
@@ -859,7 +992,7 @@
       border: 1px solid rgba(99, 102, 241, 0.18);
       border-radius: 999px;
       color: #4f46e5;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 600;
       margin-bottom: 20px;
       font-family: 'Inter', sans-serif;
@@ -965,7 +1098,7 @@
 
     .feature-item .f-text {
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 600;
       color: #475569;
       line-height: 1.4;
@@ -1071,14 +1204,14 @@
     }
 
     .guide-step-title {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       color: #1e293b;
       margin-bottom: 2px;
     }
 
     .guide-step-desc {
-      font-size: 11.5px;
+      font-size: 13.5px;
       color: #64748b;
       line-height: 1.55;
     }
@@ -1190,7 +1323,7 @@
     }
 
     .ahp-stepper-label {
-      font-size: 9.5px;
+      font-size: 12px;
       font-weight: 600;
       color: #94a3b8;
       text-align: center;
@@ -1272,28 +1405,28 @@
 
     .ahp-step-badge {
       display: inline-flex;
-      padding: 3px 10px;
+      padding: 4px 12px;
       background: rgba(99, 102, 241, 0.1);
       color: #6366f1;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       border: 1px solid rgba(99, 102, 241, 0.2);
-      margin-bottom: 7px;
+      margin-bottom: 8px;
     }
 
     .ahp-step-title {
-      font-size: 13px;
-      font-weight: 800;
+      font-size: 12px;
+      font-weight: 700;
       color: #1e293b;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       letter-spacing: -0.3px;
     }
 
     .ahp-step-desc {
-      font-size: 11px;
+      font-size: 16px;
       color: #64748b;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .ahp-step-body {
@@ -1317,14 +1450,14 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 18px;
+      padding: 10px 20px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(135deg, #3b82f6, #6366f1);
       color: #fff;
       font-family: 'Inter', sans-serif;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.25s;
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
@@ -1346,14 +1479,14 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 15px;
+      padding: 10px 17px;
       border: 1.5px solid #e2e8f0;
       border-radius: 12px;
       background: #fff;
       color: #475569;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -1372,17 +1505,17 @@
     /* Step body helpers */
     .ahp-step-placeholder {
       text-align: center;
-      padding: 18px 10px;
+      padding: 28px 14px;
       color: #94a3b8;
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.7;
     }
 
     .ahp-loading {
       text-align: center;
-      padding: 18px;
+      padding: 24px;
       color: #6366f1;
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 600;
       animation: ahpPulse 1.4s ease-in-out infinite;
     }
@@ -1399,11 +1532,10 @@
       }
     }
 
-    /* Result boxes */
     .ahp-result-box {
-      padding: 11px 13px;
+      padding: 13px 16px;
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .ahp-result-success {
@@ -1422,10 +1554,10 @@
     }
 
     .ahp-result-title {
-      font-size: 12.5px;
+      font-size: 16px;
       font-weight: 700;
       color: #1e293b;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
 
     .ahp-result-success .ahp-result-title {
@@ -1437,9 +1569,9 @@
     }
 
     .ahp-result-desc {
-      font-size: 11px;
+      font-size: 16px;
       color: #64748b;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .ahp-result-success .ahp-result-desc {
@@ -1453,18 +1585,18 @@
     /* CR badge + weight list */
     .ahp-cr-badge {
       display: inline-block;
-      padding: 3px 12px;
+      padding: 4px 14px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 16px;
       margin: 6px 0;
     }
 
     .ahp-step-section-title {
-      font-size: 11.5px;
+      font-size: 16px;
       font-weight: 700;
       color: #1e293b;
-      margin: 10px 0 6px;
-      padding-bottom: 5px;
+      margin: 12px 0 7px;
+      padding-bottom: 6px;
       border-bottom: 1px solid #f1f5f9;
     }
 
@@ -1476,9 +1608,9 @@
     .ahp-weight-row {
       display: flex;
       justify-content: space-between;
-      padding: 5px 0;
+      padding: 7px 0;
       border-bottom: 1px solid #f0f4ff;
-      font-size: 11.5px;
+      font-size: 16px;
     }
 
     .ahp-weight-key {
@@ -1846,16 +1978,6 @@
               </svg>
             </div>
           </div>
-
-          <!-- Search Bar -->
-          <div class="search-section">
-            <input type="text" class="search-input" id="searchInput" placeholder="Tìm kiếm..." />
-            <button class="btn-search" id="searchBtn">Tìm</button>
-          </div>
-
-          <!-- Danh sách dự án cũ -->
-          <div class="projects-list-title">Danh sách dự án cũ</div>
-          <div id="projectsList" style="margin-top: 12px"></div>
 
           <!-- AHP Guide Card -->
           <div class="card" style="margin-top: 20px;">
