@@ -1,4 +1,4 @@
-﻿// API Config (same as result.js)
+// API Config (same as result.js)
 const API_BASE_URL = 'https://audrina-subultimate-ghostily.ngrok-free.dev';
 
 async function apiFetch(path, options = {}) {
@@ -105,7 +105,7 @@ function renderPanel(tab) {
           <span>Equal ("1")</span>
         </div>
         <div class="legend-item" style="margin-left:auto;">
-          <div class="legend-dot" style="background:#eef2ff; border:1px solid #c7d2fe;"></div>
+          <div class="legend-dot" style="background:#e0f2fe; border:1px solid #bae6fd;"></div>
           <span>Local Weight = priority of location for this criterion</span>
         </div>
       </div>

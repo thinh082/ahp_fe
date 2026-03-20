@@ -134,6 +134,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             }
 
+            const primaryColor = '#0284c7';
+            const secondaryColor = '#0ea5e9';
             let rankColor = "#64748b";
             let rankSize = "15px";
             if (index === 0) { rankColor = "#eab308"; rankSize = "20px"; }

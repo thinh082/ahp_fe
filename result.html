@@ -60,7 +60,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 18px;
             color: #334155;
             text-decoration: none;
             transition: all 0.2s;
@@ -99,14 +99,14 @@
         .result-table th {
             background: #f8fafc;
             font-weight: 600;
-            font-size: 13px;
+            font-size: var(--fs-sm);
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .result-table td {
-            font-size: 14px;
+            font-size: 18px;
             color: #1e293b;
             vertical-align: middle;
         }
@@ -125,7 +125,7 @@
             gap: 4px;
             padding: 6px 12px;
             border-radius: 999px;
-            font-size: 12px;
+            font-size: 20px;
             font-weight: 700;
         }
 
@@ -154,7 +154,7 @@
         }
 
         .criteria-score-item {
-            font-size: 11px;
+            font-size: var(--fs-sm);
             background: #ffffff;
             padding: 5px 10px;
             border-radius: 8px;
@@ -172,18 +172,18 @@
             font-weight: 600;
             color: #0f172a;
             margin-bottom: 4px;
-            font-size: 15px;
+            font-size: var(--fs-body);
         }
 
         .location-address {
-            font-size: 13px;
+            font-size: var(--fs-sm);
             color: #64748b;
         }
 
         .score-value {
             font-size: 18px;
             font-weight: 800;
-            color: #4f46e5;
+            color: #0284c7;
         }
 
         /* Responsive Improvements */
@@ -222,7 +222,7 @@
 
             .result-table th,
             .result-table td {
-                font-size: 13px;
+                font-size: var(--fs-sm);
                 white-space: normal;
                 padding: 10px 8px;
             }
@@ -233,13 +233,13 @@
             }
 
             .location-name {
-                font-size: 14px;
+                font-size: 18px;
             }
         }
     </style>
 </head>
 
-<body style="background-color: #f0f4ff;">
+<body style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); min-height: 100vh;">
 
     <div class="result-container">
         <div class="result-header">
@@ -266,7 +266,7 @@
         </div>
 
         <div id="summary-info" class="glass-card"
-            style="margin-bottom: 24px; padding: 16px 20px; font-size: 14px; color: #334155;">
+            style="margin-bottom: 24px; padding: 16px 20px; font-size: var(--fs-sm); color: #334155;">
             <!-- Summary info loaded from JS -->
             Đang tải dữ liệu...
         </div>

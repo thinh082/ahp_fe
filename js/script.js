@@ -563,8 +563,9 @@ function initSatelliteMap(lat, lng) {
         }), 'bottom-left');
 
         // Thêm marker tại vị trí
+        const primaryColor = '#0284c7';
         const marker = new maplibregl.Marker({
-            color: '#ef4444'
+            color: primaryColor
         })
             .setLngLat([lng, lat])
             .addTo(satelliteMap);
