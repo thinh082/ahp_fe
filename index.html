@@ -4,24 +4,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hỗ trợ chọn địa điểm kinh doanh</title>
-  <meta name="description"
-    content="Hệ thống hỗ trợ phân tích và đánh giá địa điểm kinh doanh tối ưu bằng phương pháp AHP" />
+  <title>Dashboard - Hệ thống chấm điểm dự án</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="css/lib/tom-select.css" />
-  <link rel="stylesheet" href="css/style.css" />
-  <meta name="referrer" content="no-referrer-when-downgrade" />
   <script src="js/lib/tom-select.complete.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
   <style>
-    /* ════════════════════════════════════════════════
-       TYPOGRAPHY SCALE SYSTEM
-       H1 hero   : 45px  | Section H2: 30px
-       H3 card   : 24px  | Subtitle  : 20px
-       Body      : 16px  | Small     : 14px
-    ════════════════════════════════════════════════ */
     :root {
       --fs-h1: 48px;
       --fs-h2: 34px;
@@ -29,12 +20,10 @@
       --fs-subtitle: 24px;
       --fs-body: 20px;
       --fs-small: 18px;
-
       --lh-heading: 1.2;
       --lh-body: 1.7;
     }
 
-    /* Semantic tags */
     h1 {
       font-size: var(--fs-h1);
       line-height: var(--lh-heading);
@@ -53,74 +42,57 @@
       font-weight: 700;
     }
 
-    /* Base body */
-    body,
-    .index-page {
+    body {
       font-size: var(--fs-body);
       line-height: var(--lh-body);
     }
 
-    /* ── Hero section ─────────────────────────────── */
+    /* ── Hero / page title ────────────────────────── */
     .hero-title {
-      font-size: var(--fs-h1);
+      font-size: var(--fs-h1) !important;
       font-weight: 900;
       line-height: 1.1;
     }
 
     .hero-subtitle {
-      font-size: var(--fs-subtitle);
-      font-weight: 400;
+      font-size: var(--fs-subtitle) !important;
       line-height: 1.6;
     }
 
-    .gradient-text {
-      font-size: inherit;
-    }
-
-    /* ── Section headings ─────────────────────────── */
+    /* ── Section & card headings ──────────────────── */
     .section-title {
-      font-size: var(--fs-h3);
+      font-size: var(--fs-h3) !important;
       font-weight: 700;
-    }
-
-    .section-subtitle {
-      font-size: var(--fs-subtitle);
     }
 
     .card-title {
-      font-size: var(--fs-h3);
+      font-size: var(--fs-h3) !important;
       font-weight: 700;
     }
 
-    .result-title {
-      font-size: var(--fs-h3);
-      font-weight: 700;
+    .criteria-head .section-title {
+      font-size: var(--fs-h3) !important;
     }
 
-    /* ── Body / description text ──────────────────── */
+    /* ── Body / description ───────────────────────── */
     p,
     .description,
-    .card-desc,
-    .result-desc,
-    .guide-step-desc {
+    .card-desc {
       font-size: var(--fs-body);
       line-height: var(--lh-body);
     }
 
-    /* ── Small / label text ───────────────────────── */
-    .label,
-    .tag,
+    /* ── Small / label ────────────────────────────── */
     small,
     .small-text,
     .note,
-    .guide-dismiss-note,
-    .badge-text,
     .criteria-sub,
-    .ahp-stepper-label {
+    .ahp-stepper-label,
+    .hero-badge {
       font-size: var(--fs-small);
     }
 
-    /* ── Reapply to stepper elements ─────────────── */
+    /* ── Stepper elements ─────────────────────────── */
     .ahp-step-title {
       font-size: var(--fs-h3) !important;
     }
@@ -155,21 +127,7 @@
       font-size: var(--fs-body) !important;
     }
 
-    /* ── Navigation / badge ───────────────────────── */
-    .nav-link,
-    .dash-nav a {
-      font-size: var(--fs-body);
-    }
-
-    .hero-badge {
-      font-size: var(--fs-sm);
-    }
-
-    .features-strip .f-text {
-      font-size: var(--fs-body);
-    }
-
-    /* ── Inputs / selects follow body size ────────── */
+    /* ── Inputs / selects ─────────────────────────── */
     input,
     select,
     textarea,
@@ -177,18 +135,39 @@
       font-size: var(--fs-body);
     }
 
-    /* ===== Index Page Premium Light Styles ===== */
-    .index-page {
+    /* ── Nav ──────────────────────────────────────── */
+    .dash-nav a,
+    .logo-text {
+      font-size: var(--fs-body);
+    }
+
+    .features-strip .f-text {
+      font-size: var(--fs-body);
+    }
+
+    /* ===== Dashboard Premium Light Styles (matching index.html) ===== */
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
       background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      color: #1e293b;
     }
 
     /* Animated background mesh */
-    .index-page::before {
+    body::before {
       content: "";
-      position: absolute;
+      position: fixed;
       top: -50%;
       left: -50%;
       width: 200%;
@@ -205,6 +184,7 @@
           transparent 50%);
       animation: meshFloat 20s ease-in-out infinite;
       pointer-events: none;
+      z-index: 0;
     }
 
     @keyframes meshFloat {
@@ -227,12 +207,461 @@
       }
     }
 
-    /* Floating particles */
-    .particles {
+    /* ── Layout frame ─────────────────────────── */
+    .frame {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Glass card ────────────────────────────── */
+    .card {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(2, 132, 199, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.18);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* ── Section title ─────────────────────────── */
+    .section-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: var(--fs-h3);
+      color: #1e293b;
+      letter-spacing: -0.3px;
+      margin-bottom: 20px;
+    }
+
+    .card-header .card-title {
+      font-family: "Inter", sans-serif;
+      font-size: var(--fs-h3);
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.3px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Form fields ───────────────────────────── */
+    .field,
+    .modal-input {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      background: #fff;
+      color: #1e293b;
+      font-size: var(--fs-body);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .field::placeholder,
+    .modal-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .field:focus,
+    .modal-input:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    }
+
+    /* ── Select wrap ───────────────────────────── */
+    .select-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .select-wrap .icon {
       position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .select-wrap select {
+      width: 100%;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px 14px 48px;
+      background: #fff;
+      color: #1e293b;
+      font-size: var(--fs-body);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+    }
+
+    .select-wrap select:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Buttons ───────────────────────────────── */
+    .btn,
+    .btn-confirm,
+    .btn-search {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6, #0284c7);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: var(--fs-sm);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn:hover,
+    .btn-confirm:hover,
+    .btn-search:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      filter: brightness(1.05);
+    }
+
+    .btn:active,
+    .btn-confirm:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      color: #334155;
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      filter: none;
+    }
+
+    /* ── Criteria list ─────────────────────────── */
+    .criteria-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .criteria-list {
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .c-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .c-left,
+    .c-right {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: #334155;
+      flex: 1;
+    }
+
+    .c-right {
+      text-align: right;
+    }
+
+    .c-score {
+      font-size: var(--fs-sm);
+      font-weight: 800;
+      color: #0284c7;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #0284c7;
+      height: 4px;
+      border-radius: 4px;
+    }
+
+    .criteria-sub {
+      margin-top: 10px;
+      font-size: var(--fs-sm);
+      color: #94a3b8;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── User profile / Icons ──────────────────── */
+    .user-profile {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .user-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .user-icon:hover {
+      background: rgba(99, 102, 241, 0.14);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .logout-icon {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.07);
+      border-color: rgba(239, 68, 68, 0.15);
+    }
+
+    .logout-icon:hover {
+      background: rgba(239, 68, 68, 0.13);
+      border-color: rgba(239, 68, 68, 0.28);
+    }
+
+    /* ── Search section ────────────────────────── */
+    .search-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #fff;
+      color: #1e293b;
+      font-size: var(--fs-sm);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .search-input:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    }
+
+    .btn-search {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: var(--fs-sm);
+    }
+
+    /* ── Project list ──────────────────────────── */
+    .projects-list-title {
+      font-weight: 700;
+      font-size: var(--fs-sm);
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    .card-header .card-desc {
+      font-size: var(--fs-body);
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .project-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.04);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      font-size: var(--fs-sm);
+      color: #475569;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .project-item:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.18);
+      color: #1e293b;
+      transform: translateX(2px);
+    }
+
+    /* ── Alternatives list ─────────────────────── */
+    .alternative-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(99, 102, 241, 0.04);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      font-size: var(--fs-sm);
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .alternative-item button {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: var(--fs-body);
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .alternative-item button:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* ── Modals ────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.12);
+      border-radius: 20px;
+      padding: 32px;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
+    }
+
+    .modal-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: var(--fs-body);
+      color: #1e293b;
+      margin-bottom: 20px;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-input {
+      margin-bottom: 14px;
+    }
+
+    /* ── Personal info modal ───────────────────── */
+    .personal-info-modal {
+      max-width: 440px;
+    }
+
+    .info-item {
+      margin-bottom: 14px;
+    }
+
+    .info-label {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 8px;
+      font-size: var(--fs-sm);
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ── Login message ─────────────────────────── */
+    .login-msg {
+      font-size: var(--fs-sm);
+      color: #64748b;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Center helper ─────────────────────────── */
+    .center {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── Floating particles ─────────────────── */
+    .particles {
+      position: fixed;
       inset: 0;
       overflow: hidden;
       pointer-events: none;
+      z-index: 0;
     }
 
     .particle {
@@ -323,31 +752,85 @@
       }
     }
 
-    /* Top navigation bar */
-    .index-nav {
-      position: relative;
-      z-index: 10;
+    /* ── AHP Guide Card ────────────────────── */
+    .guide-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #0284c7, #3b82f6);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: var(--fs-body);
+      margin-bottom: 4px;
+    }
+
+    .step-text {
+      font-size: var(--fs-body);
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .guide-accent {
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    .guide-img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ── Top Navigation Bar ───────────────────── */
+    .dash-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 18px 40px;
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(99, 102, 241, 0.08);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      margin-bottom: 0;
     }
 
-    .index-nav .logo {
+    .dash-nav .logo {
       display: flex;
       align-items: center;
       gap: 10px;
       text-decoration: none;
     }
 
-    .index-nav .logo-icon {
+    .dash-nav .logo-icon {
       width: 38px;
       height: 38px;
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -356,30 +839,22 @@
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
     }
 
-    .index-nav .logo-text {
-      font-family: "Inter", sans-serif;
+    .dash-nav .logo-text {
+      font-family: 'Inter', sans-serif;
       font-weight: 800;
       font-size: var(--fs-body);
       color: #1e293b;
       letter-spacing: -0.5px;
     }
 
-    .index-nav .logo-text span {
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    .dash-nav .logo-text span {
+      background: linear-gradient(135deg, #3b82f6, #7c3aed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    /* Hero section */
-    .hero-section {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      padding: 50px 20px 30px;
-    }
-
-    .hero-badge {
+    .nav-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -390,15 +865,14 @@
       color: #4f46e5;
       font-size: var(--fs-sm);
       font-weight: 600;
-      margin-bottom: 20px;
-      font-family: "Inter", sans-serif;
+      font-family: 'Inter', sans-serif;
       animation: badgePulse 3s ease-in-out infinite;
     }
 
-    .hero-badge .dot {
+    .nav-badge .dot {
       width: 6px;
       height: 6px;
-      background: #6366f1;
+      background: #0284c7;
       border-radius: 50%;
       box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
     }
@@ -415,8 +889,147 @@
       }
     }
 
+    .rewatch-btn {
+      background: none;
+      border: none;
+      font-weight: 700;
+      color: #0284c7;
+      cursor: pointer;
+      padding: 0;
+      font-size: var(--fs-body);
+      text-decoration: underline;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Video Guide Overlay ──────────────────── */
+    #video-guide-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+    }
+
+    #video-guide-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .guide-container {
+      width: 90%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transform: scale(1);
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #video-guide-overlay.hidden .guide-container {
+      transform: scale(0.9);
+    }
+
+    .guide-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #3b82f6, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto 24px;
+      aspect-ratio: 9 / 16;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .guide-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .guide-footer {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .btn-understood {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7, #3b82f6);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: var(--fs-body);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-understood:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ── Hero section ────────────────────── */
+    .hero-section {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 50px 20px 30px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 999px;
+      color: #4f46e5;
+      font-size: var(--fs-body);
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: #0284c7;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+    }
+
     .hero-title {
-      font-family: "Inter", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: clamp(28px, 5vw, 44px);
       font-weight: 900;
       color: #1e293b;
@@ -426,310 +1039,22 @@
     }
 
     .hero-title .gradient-text {
-      background: linear-gradient(135deg, #0284c7, #0ea5e9, #38bdf8);
+      background: linear-gradient(135deg, #3b82f6, #7c3aed, #0284c7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .hero-subtitle {
-      font-family: "Inter", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: var(--fs-subtitle);
       color: #64748b;
-      max-width: 800px;
-      margin: 0 auto 40px;
+      max-width: 560px;
+      margin: 0 auto 32px;
       line-height: 1.7;
     }
 
-    /* Main content grid */
-    .index-content {
-      position: relative;
-      z-index: 5;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 20px 40px;
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 24px;
-      align-items: start;
-    }
-
-    /* Glass cards — light version */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(99, 102, 241, 0.1);
-      border-radius: 20px;
-      padding: 28px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-    }
-
-    .glass-card:hover {
-      border-color: rgba(99, 102, 241, 0.18);
-      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.08);
-      transform: translateY(-2px);
-    }
-
-    .glass-card+.glass-card {
-      margin-top: 20px;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .card-header .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .card-icon.location {
-      background: linear-gradient(135deg,
-          rgba(59, 130, 246, 0.1),
-          rgba(37, 99, 235, 0.1));
-      border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
-    .card-icon.criteria {
-      background: linear-gradient(135deg,
-          rgba(139, 92, 246, 0.1),
-          rgba(168, 85, 247, 0.1));
-      border: 1px solid rgba(139, 92, 246, 0.2);
-    }
-
-    .card-icon.login-icon {
-      background: linear-gradient(135deg,
-          rgba(34, 197, 94, 0.1),
-          rgba(16, 185, 129, 0.1));
-      border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .card-header .card-title {
-      font-family: "Inter", sans-serif;
-      font-size: var(--fs-h3);
-      font-weight: 700;
-      color: #1e293b;
-      letter-spacing: -0.3px;
-    }
-
-    .card-header .card-desc {
-      font-size: var(--fs-body);
-      color: #94a3b8;
-      margin-top: 4px;
-    }
-
-    /* Form fields — light style */
-    .glass-field {
-      width: 100%;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px 18px;
-      background: #fff;
-      color: #1e293b;
-      font-size: var(--fs-body);
-      font-family: "Inter", sans-serif;
-      outline: none;
-      transition: all 0.25s ease;
-      box-sizing: border-box;
-    }
-
-    .glass-field::placeholder {
-      color: #94a3b8;
-    }
-
-    .glass-field:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-      background: #fff;
-    }
-
-    /* Select — light */
-    .glass-select-wrap {
-      position: relative;
-    }
-
-    .glass-select-wrap .g-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 20px;
-      pointer-events: none;
-      z-index: 2;
-    }
-
-    .glass-select-wrap select {
-      width: 100%;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px 18px 14px 44px;
-      background: #fff;
-      color: #1e293b;
-      font-size: var(--fs-body);
-      font-family: "Inter", sans-serif;
-      outline: none;
-      appearance: none;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 18px center;
-    }
-
-    .glass-select-wrap select:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .glass-select-wrap select option {
-      background: #fff;
-      color: #1e293b;
-    }
-
-    .glass-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    /* Criteria list styles (override for light) */
-    .glass-card .criteria-list {
-      margin-top: 8px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .glass-card .c-row {
-      border-bottom-color: #f1f5f9;
-    }
-
-    .glass-card .c-left,
-    .glass-card .c-right {
-      color: #334155;
-    }
-
-    .glass-card .c-score {
-      color: #6366f1;
-    }
-
-    .glass-card .criteria-sub {
-      color: #94a3b8;
-    }
-
-    /* Button */
-    .glass-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      color: #fff;
-      font-family: "Inter", sans-serif;
-      font-weight: 700;
-      font-size: var(--fs-sm);
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
-    }
-
-    .glass-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-      filter: brightness(1.05);
-    }
-
-    .glass-btn:active {
-      transform: translateY(0);
-    }
-
-    .glass-btn-outline {
-      background: #fff;
-      border: 1.5px solid #e2e8f0;
-      color: #334155;
-      box-shadow: none;
-    }
-
-    .glass-btn-outline:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .glass-btn-full {
-      width: 100%;
-    }
-
-    /* Login section */
-    .login-section .glass-card {
-      background: rgba(255, 255, 255, 0.8);
-      border-color: rgba(99, 102, 241, 0.12);
-    }
-
-    .login-section .login-title {
-      font-family: "Inter", sans-serif;
-      font-weight: 800;
-      font-size: var(--fs-body);
-      color: #1e293b;
-      margin: 0;
-    }
-
-    .glass-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 16px 0;
-      color: #94a3b8;
-      font-size: var(--fs-sm);
-      font-family: "Inter", sans-serif;
-    }
-
-    .glass-divider::before,
-    .glass-divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: #e2e8f0;
-    }
-
-    .register-link-glass {
-      margin-top: 14px;
-      font-size: var(--fs-sm);
-      color: #64748b;
-      text-align: center;
-      cursor: pointer;
-      font-family: "Inter", sans-serif;
-    }
-
-    .register-link-glass span {
-      color: #6366f1;
-      font-weight: 700;
-      transition: color 0.2s;
-    }
-
-    .register-link-glass:hover span {
-      color: #4f46e5;
-      text-decoration: underline;
-    }
-
-    .login-msg-glass {
-      margin-top: 12px;
-      font-size: var(--fs-sm);
-      color: #64748b;
-      font-family: "Inter", sans-serif;
-    }
-
-    /* Features strip */
+    /* ── Features strip ───────────────────── */
     .features-strip {
       position: relative;
       z-index: 5;
@@ -741,16 +1066,26 @@
       gap: 16px;
     }
 
+    @media (max-width: 900px) {
+      .features-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-section {
+        padding: 30px 20px 20px;
+      }
+    }
+
     .feature-item {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
+      gap: 12px;
+      padding: 14px 18px;
       background: rgba(255, 255, 255, 0.6);
-      border: 1px solid rgba(2, 132, 199, 0.1);
-      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      border-radius: 14px;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
 
     .feature-item:hover {
@@ -771,237 +1106,23 @@
     }
 
     .feature-item:nth-child(1) .f-icon {
-      background: linear-gradient(135deg,
-          rgba(59, 130, 246, 0.1),
-          rgba(37, 99, 235, 0.1));
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
     }
 
     .feature-item:nth-child(2) .f-icon {
-      background: linear-gradient(135deg,
-          rgba(139, 92, 246, 0.1),
-          rgba(168, 85, 247, 0.1));
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
     }
 
     .feature-item:nth-child(3) .f-icon {
-      background: linear-gradient(135deg,
-          rgba(14, 165, 233, 0.1),
-          rgba(6, 182, 212, 0.1));
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.1));
     }
 
     .feature-item .f-text {
-      font-family: "Inter", sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: var(--fs-body);
       font-weight: 600;
       color: #475569;
       line-height: 1.4;
-    }
-
-    /* Footer */
-    .index-footer {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      padding: 24px;
-      color: #94a3b8;
-      font-size: var(--fs-sm);
-      font-family: "Inter", sans-serif;
-      border-top: 1px solid rgba(99, 102, 241, 0.06);
-    }
-
-    /* Responsive */
-    @media (max-width: 900px) {
-      .index-content {
-        grid-template-columns: 1fr;
-      }
-
-      .features-strip {
-        grid-template-columns: 1fr;
-      }
-
-      .index-nav {
-        padding: 14px 20px;
-      }
-
-      .hero-section {
-        padding: 30px 20px 20px;
-      }
-    }
-
-    /* Google button — light */
-    .google-glass {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      background: #fff;
-      border: 1.5px solid #e2e8f0;
-      color: #334155;
-      font-family: "Inter", sans-serif;
-      font-weight: 600;
-      font-size: var(--fs-body);
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .google-glass svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .google-glass:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    /* Video Guide Overlay */
-    #video-guide-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition:
-        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 0.6s;
-    }
-
-    #video-guide-overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .guide-container {
-      width: 90%;
-      max-width: 800px;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      transform: scale(1);
-      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    #video-guide-overlay.hidden .guide-container {
-      transform: scale(0.9);
-    }
-
-    .guide-title {
-      font-family: "Inter", sans-serif;
-      font-size: 24px;
-      font-weight: 800;
-      color: #1e293b;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #3b82f6, #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 360px;
-      margin: 0 auto 24px;
-      aspect-ratio: 9 / 16;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #000;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      margin-bottom: 24px;
-    }
-
-    .guide-video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .guide-footer {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    .btn-understood {
-      padding: 14px 40px;
-      font-size: var(--fs-body);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #6366f1, #3b82f6);
-      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-    }
-
-    .btn-understood:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
-    }
-
-    /* AHP Guide Card Styles */
-    .guide-card {
-      margin-top: 24px;
-      background: rgba(255, 255, 255, 0.85);
-    }
-
-    .guide-step {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .step-number {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, #6366f1, #3b82f6);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: var(--fs-sm);
-      flex-shrink: 0;
-      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-    }
-
-    .step-content {
-      flex: 1;
-    }
-
-    .step-title {
-      font-weight: 700;
-      color: #1e293b;
-      font-size: var(--fs-sm);
-      margin-bottom: 4px;
-    }
-
-    .step-text {
-      font-size: var(--fs-sm);
-      color: #64748b;
-      line-height: 1.5;
-    }
-
-    .guide-accent {
-      color: #4f46e5;
-      font-weight: 600;
-    }
-
-    .guide-img {
-      width: 100%;
-      border-radius: 12px;
-      margin-top: 12px;
-      border: 1px solid rgba(99, 102, 241, 0.15);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     /* ── NEW Guide Overlay ──────────────────── */
@@ -1036,14 +1157,14 @@
       justify-content: space-between;
       padding: 14px 20px;
       background: linear-gradient(135deg, #eef2ff, #f0fdf4);
-      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+      border-bottom: 1px solid rgba(2, 132, 199, 0.1);
     }
 
     .guide-logo {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: var(--fs-body);
+      font-size: 17px;
       font-weight: 800;
       color: #1e293b;
     }
@@ -1056,8 +1177,8 @@
       font-size: var(--fs-sm);
       font-weight: 700;
       padding: 4px 12px;
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
+      background: rgba(2, 132, 199, 0.1);
+      color: #0284c7;
       border-radius: 999px;
       border: 1px solid rgba(99, 102, 241, 0.2);
     }
@@ -1098,22 +1219,22 @@
     }
 
     .guide-step-icon {
-      font-size: 20px;
+      font-size: 24px;
       flex-shrink: 0;
       margin-top: 2px;
     }
 
     .guide-step-title {
-      font-size: var(--fs-sm);
+      font-size: var(--fs-body);
       font-weight: 700;
       color: #1e293b;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .guide-step-desc {
       font-size: var(--fs-sm);
       color: #64748b;
-      line-height: 1.55;
+      line-height: 1.6;
     }
 
     .guide-step-desc strong {
@@ -1137,7 +1258,7 @@
       gap: 8px;
       width: 100%;
       padding: 12px 20px;
-      background: linear-gradient(135deg, #6366f1, #3b82f6);
+      background: linear-gradient(135deg, #0284c7, #3b82f6);
       color: white;
       border: none;
       border-radius: 14px;
@@ -1160,26 +1281,22 @@
       color: #94a3b8;
     }
 
-    /* ═══════════════════════════════════════════════════
-       AHP 3-BƯỚC STEPPER
-       ═══════════════════════════════════════════════════ */
-
-    /* Wrapper toàn bộ stepper */
-    #ahpStepperContainer {
+    /* ═══════════════════════════════════════════
+       AHP 3-BƯỚC STEPPER — dashboard.html
+       ═══════════════════════════════════════════ */
+    #dashStepperContainer {
       margin-top: 20px;
     }
 
-    /* ── Thanh tiến trình (track) ── */
     .ahp-stepper-track {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0;
-      margin-bottom: 18px;
-      padding: 16px 20px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
       background: rgba(255, 255, 255, 0.78);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(2, 132, 199, 0.1);
       border-radius: 16px;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
     }
@@ -1188,14 +1305,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      cursor: default;
+      gap: 5px;
       flex: 1;
     }
 
     .ahp-stepper-circle {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -1208,7 +1324,7 @@
     }
 
     .ahp-stepper-step.active .ahp-stepper-circle {
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #3b82f6, #0284c7);
       color: #fff;
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
       transform: scale(1.1);
@@ -1217,19 +1333,14 @@
     .ahp-stepper-step.done .ahp-stepper-circle {
       background: linear-gradient(135deg, #22c55e, #16a34a);
       color: #fff;
+      font-size: 0;
       box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
     }
 
-    /* Checkmark cho bước đã xong */
     .ahp-stepper-step.done .ahp-stepper-circle::after {
       content: "✓";
       font-size: var(--fs-sm);
       font-weight: 800;
-    }
-
-    .ahp-stepper-step.done .ahp-stepper-circle {
-      font-size: 0;
-      /* ẩn chữ số */
     }
 
     .ahp-stepper-label {
@@ -1238,8 +1349,8 @@
       color: #94a3b8;
       text-align: center;
       line-height: 1.3;
-      transition: color 0.3s ease;
-      max-width: 70px;
+      max-width: 68px;
+      transition: color 0.3s;
     }
 
     .ahp-stepper-step.active .ahp-stepper-label {
@@ -1250,46 +1361,64 @@
       color: #16a34a;
     }
 
-    /* Đường nối giữa các bước */
     .ahp-stepper-connector {
       flex: 1;
       height: 2px;
-      background: linear-gradient(90deg, #e2e8f0, #e2e8f0);
-      margin: 0 6px;
-      margin-bottom: 20px;
+      background: #e2e8f0;
+      margin: 0 6px 18px;
       border-radius: 2px;
-      transition: background 0.4s ease;
     }
 
-    /* ── Viewport + Slides animation ── */
-    .ahp-stepper-viewport {
+    /*
+     * CONTAINER: position:relative + overflow:hidden
+     * JS sẽ đo scrollHeight của Step 1 và gán cho container
+     * → tất cả các step đều có cùng chiều cao, không giật layout
+    */
+    .dash-steps-container {
+      position: relative;
       overflow: hidden;
       border-radius: 20px;
+      /* Chiều cao sẽ được set bằng JS sau khi DOM render */
     }
 
-    .ahp-stepper-slides {
-      display: flex;
+    /* Mỗi panel chiếm toàn bộ container, chồng lên nhau */
+    .dash-step-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      /* Chiều cao kế thừa từ container (vì position:absolute không đẩy container) */
+      min-height: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      /* Trạng thái mặc định: ở bên phải, chưa hiện */
+      transform: translateX(100%);
+      transition: transform 0.48s cubic-bezier(0.65, 0, 0.35, 1);
       will-change: transform;
     }
 
-    /* ── Từng step panel ── */
-    .ahp-step-panel {
-      min-width: 100%;
-      background: rgba(255, 255, 255, 0.78);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(99, 102, 241, 0.1);
-      border-radius: 20px;
-      padding: 0;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-      display: flex;
-      flex-direction: column;
+    /* Step đang hiện: tại chỗ */
+    .dash-step-panel.active {
+      transform: translateX(0);
     }
 
-    /* Header của step */
+    /* Step đã qua: trượt sang trái */
+    .dash-step-panel.prev {
+      transform: translateX(-100%);
+    }
+
+    /* Step chưa đến: trượt từ phải (mặc định) */
+    .dash-step-panel.next {
+      transform: translateX(100%);
+    }
+
     .ahp-step-header {
-      padding: 18px 20px 14px;
+      padding: 16px 18px 12px;
       border-bottom: 1px solid rgba(99, 102, 241, 0.08);
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(59, 130, 246, 0.03));
       border-radius: 20px 20px 0 0;
@@ -1298,8 +1427,8 @@
     .ahp-step-badge {
       display: inline-flex;
       padding: 4px 12px;
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
+      background: rgba(2, 132, 199, 0.1);
+      color: #0284c7;
       border-radius: 999px;
       font-size: var(--fs-sm);
       font-weight: 700;
@@ -1308,11 +1437,11 @@
     }
 
     .ahp-step-title {
-      font-size: var(--fs-body);
+      font-size: var(--fs-h3);
       font-weight: 800;
       color: #1e293b;
+      margin-bottom: 6px;
       letter-spacing: -0.3px;
-      margin-bottom: 5px;
     }
 
     .ahp-step-desc {
@@ -1321,38 +1450,37 @@
       line-height: 1.55;
     }
 
-    /* Body của step */
     .ahp-step-body {
-      padding: 16px 20px;
+      padding: 14px 18px;
       flex: 1;
-      min-height: 80px;
+      overflow-y: auto;
+      /* scroll nếu nội dung vượt container */
     }
 
-    /* Footer với nút Back/Next */
     .ahp-step-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-top: 1px solid rgba(99, 102, 241, 0.08);
       gap: 10px;
     }
 
-    /* Nút Next (chính) */
+    /* Buttons */
     .ahp-btn-next {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 10px 22px;
+      padding: 10px 20px;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #3b82f6, #0284c7);
       color: #fff;
       font-family: 'Inter', sans-serif;
       font-weight: 700;
       font-size: var(--fs-sm);
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.25s;
       box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
     }
 
@@ -1368,12 +1496,11 @@
       filter: none;
     }
 
-    /* Nút Back (phụ) */
     .ahp-btn-back {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 10px 16px;
+      padding: 10px 17px;
       border: 1.5px solid #e2e8f0;
       border-radius: 12px;
       background: #fff;
@@ -1382,7 +1509,7 @@
       font-weight: 600;
       font-size: var(--fs-sm);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
 
     .ahp-btn-back:hover:not(:disabled) {
@@ -1396,44 +1523,40 @@
       cursor: not-allowed;
     }
 
-    /* ── Nội dung bên trong step body ── */
-
-    /* Placeholder khi chưa có dữ liệu */
+    /* Step body helpers */
     .ahp-step-placeholder {
       text-align: center;
-      padding: 20px 10px;
+      padding: 28px 14px;
       color: #94a3b8;
-      font-size: var(--fs-sm);
-      line-height: 1.6;
+      font-size: var(--fs-body);
+      line-height: 1.7;
     }
 
-    /* Trạng thái loading */
     .ahp-loading {
       text-align: center;
-      padding: 20px 10px;
-      color: #6366f1;
-      font-size: var(--fs-sm);
+      padding: 24px;
+      color: #0284c7;
+      font-size: var(--fs-body);
       font-weight: 600;
-      animation: ahpLoadingPulse 1.4s ease-in-out infinite;
+      animation: ahpPulse 1.4s ease-in-out infinite;
     }
 
-    @keyframes ahpLoadingPulse {
+    @keyframes ahpPulse {
 
       0%,
       100% {
-        opacity: 1;
+        opacity: 1
       }
 
       50% {
-        opacity: 0.5;
+        opacity: .45
       }
     }
 
-    /* Hộp kết quả (success / error / warning) */
     .ahp-result-box {
-      padding: 16px 20px;
+      padding: 13px 16px;
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .ahp-result-success {
@@ -1452,10 +1575,10 @@
     }
 
     .ahp-result-title {
-      font-size: var(--fs-sm);
+      font-size: var(--fs-h3);
       font-weight: 700;
       color: #1e293b;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .ahp-result-success .ahp-result-title {
@@ -1466,14 +1589,10 @@
       color: #b91c1c;
     }
 
-    .ahp-result-warning .ahp-result-title {
-      color: #92400e;
-    }
-
     .ahp-result-desc {
-      font-size: 11.5px;
+      font-size: var(--fs-body);
       color: #64748b;
-      line-height: 1.5;
+      line-height: 1.7;
     }
 
     .ahp-result-success .ahp-result-desc {
@@ -1484,39 +1603,35 @@
       color: #991b1b;
     }
 
-    /* CR Badge */
+    /* CR badge + weight list */
     .ahp-cr-badge {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-size: var(--fs-sm);
+      padding: 6px 16px;
+      border-radius: 10px;
+      font-size: var(--fs-body);
       margin: 8px 0;
     }
 
-    /* Tiêu đề section bên trong step */
     .ahp-step-section-title {
-      font-size: var(--fs-sm);
+      font-size: var(--fs-subtitle);
       font-weight: 700;
       color: #1e293b;
-      margin: 12px 0 8px;
-      padding-bottom: 6px;
+      margin: 16px 0 10px;
+      padding-bottom: 8px;
       border-bottom: 1px solid #f1f5f9;
     }
 
-    /* Danh sách trọng số */
     .ahp-weight-list {
       display: flex;
       flex-direction: column;
-      gap: 0;
     }
 
     .ahp-weight-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
+      padding: 10px 0;
       border-bottom: 1px solid #f0f4ff;
-      font-size: var(--fs-sm);
+      font-size: var(--fs-body);
     }
 
     .ahp-weight-key {
@@ -1526,7 +1641,7 @@
 
     .ahp-weight-val {
       font-weight: 700;
-      color: #6366f1;
+      color: #0284c7;
     }
   </style>
 </head>
@@ -1536,24 +1651,16 @@
   <div id="video-guide-overlay">
     <!-- OLD guide-container (commented out)
     <div class="guide-container">
-      <h2 class="guide-title">Chào mừng bạn đến với AHP Location</h2>
+      <h2 class="guide-title">Chào mừng đến với AHP Location</h2>
       <div class="video-wrapper">
         <iframe id="guide-iframe" class="guide-video" src="https://www.youtube.com/embed/grQib3MYno8?autoplay=1&mute=1"
-          title="YouTube video player" frameborder="0" allow="
-              accelerometer;
-              autoplay;
-              clipboard-write;
-              encrypted-media;
-              gyroscope;
-              picture-in-picture;
-              web-share;
-            " referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
+          title="YouTube video player" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
         </iframe>
       </div>
       <div class="guide-footer">
-        <button id="btn-understood" class="glass-btn btn-understood">
-          Đã hiểu
-        </button>
+        <button id="btn-understood" class="btn-understood">Đã hiểu</button>
       </div>
     </div>
     -->
@@ -1577,17 +1684,17 @@
         <div class="guide-step">
           <div class="guide-step-icon">1️⃣</div>
           <div class="guide-step-content">
-            <div class="guide-step-title">Đăng ký / Đăng nhập</div>
-            <div class="guide-step-desc">Tạo tài khoản mới hoặc đăng nhập bằng <strong>Google</strong> để bắt đầu phân
-              tích.</div>
+            <div class="guide-step-title">Tạo dự án</div>
+            <div class="guide-step-desc">Nhấn <strong>+ Dự án mới</strong> ở cột bên trái để tạo một dự án phân tích.
+            </div>
           </div>
         </div>
         <div class="guide-step">
           <div class="guide-step-icon">2️⃣</div>
           <div class="guide-step-content">
-            <div class="guide-step-title">Chọn tiêu chí AHP</div>
-            <div class="guide-step-desc">Sau khi đăng nhập, điếu chỉnh 5 tiêu chí (Doanh thu, Vị trí, Chi phí, Cạnh
-              tranh, Rủi ro) theo mức quan trọng của bạn.</div>
+            <div class="guide-step-title">Chọn và cấu hình tiêu chí</div>
+            <div class="guide-step-desc">Di chuyển thanh trượt ở cột <strong>Tiêu chí đánh giá</strong> để điều chỉnh
+              mức ưu tiên giữa các yếu tố (doanh thu, chi phí, vị trí...).</div>
           </div>
         </div>
         <div class="guide-step">
@@ -1602,9 +1709,17 @@
         <div class="guide-step">
           <div class="guide-step-icon">4️⃣</div>
           <div class="guide-step-content">
-            <div class="guide-step-title">So sánh và lưu yêu thích</div>
-            <div class="guide-step-desc">Click marker trên bản đồ để xem chi tiết, so sánh 2 địa điểm, hoặc lưu vào danh
-              sách yêu thích.</div>
+            <div class="guide-step-title">So sánh địa điểm</div>
+            <div class="guide-step-desc">Click vào marker trên bản đồ, nhấn <strong>🔁 So sánh</strong> rồi click marker
+              khác để xem chi tiết điểm số từng địa điểm.</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-icon">❤️</div>
+          <div class="guide-step-content">
+            <div class="guide-step-title">Yêu thích địa điểm</div>
+            <div class="guide-step-desc">Nhấn nút <strong>Tim</strong> trong popup bản đồ để lưu địa điểm yêu thích vào
+              dự án hiện tại.</div>
           </div>
         </div>
       </div>
@@ -1622,119 +1737,99 @@
     </div>
   </div>
 
-  <div class="index-page">
-    <!-- Animated particles background -->
-    <div class="particles">
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
+  <!-- Top Navigation Bar -->
+  <nav class="dash-nav">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">📍</div>
+      <div class="logo-text"><span>AHP</span> Location</div>
+    </a>
+  </nav>
+
+  <!-- Floating Particles -->
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Hệ thống phân tích thông minh
+      <button id="btn-rewatch" class="rewatch-btn">Xem hướng dẫn</button>
     </div>
+    <h1 class="hero-title">
+      Dashboard — Đánh giá<br />
+      <span class="gradient-text">Địa điểm kinh doanh</span>
+    </h1>
+    <p class="hero-subtitle">
+      So sánh các địa điểm, điều chỉnh trọng số tiêu chí và nhận kết quả AHP chính xác ngay tức khắc.
+    </p>
+  </section>
 
-    <!-- Navigation -->
-    <nav class="index-nav">
-      <a href="#" class="logo">
-        <div class="logo-icon">📍</div>
-        <div class="logo-text"><span>AHP</span> Location</div>
-      </a>
-    </nav>
-
-    <!-- Hero section -->
-    <section class="hero-section">
-      <div class="hero-badge">
-        <span class="dot"></span>
-        Hệ thống phân tích thông minh
-        <button id="btn-rewatch" class="rewatch-link" style="
-              margin-left: 10px;
-              background: none;
-              border: none;
-              font-weight: 700;
-              color: #6366f1;
-              cursor: pointer;
-              padding: 0;
-              font-size: var(--fs-sm);
-              text-decoration: underline;
-            ">
-          Xem hướng dẫn
-        </button>
-      </div>
-      <h1 class="hero-title">
-        Hỗ trợ chọn<br />
-        <span class="gradient-text">Địa điểm kinh doanh</span>
-      </h1>
-      <p class="hero-subtitle">
-        Đánh giá và so sánh các địa điểm kinh doanh tiềm năng dựa trên phương
-        pháp phân tích thứ bậc AHP — giúp bạn ra quyết định chính xác và hiệu
-        quả nhất.
-      </p>
-    </section>
-
-    <!-- Features strip -->
-    <div class="features-strip">
-      <div class="feature-item">
-        <div class="f-icon">🗺️</div>
-        <div class="f-text">
-          Bản đồ trực quan với dữ liệu giá bất động sản
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="f-icon">📊</div>
-        <div class="f-text">Phân tích đa tiêu chí theo phương pháp AHP</div>
-      </div>
-      <div class="feature-item">
-        <div class="f-icon">🤖</div>
-        <div class="f-text">Chatbot AI hỗ trợ tư vấn địa điểm phù hợp</div>
-      </div>
+  <!-- Features Strip -->
+  <div class="features-strip">
+    <div class="feature-item">
+      <div class="f-icon">🗺️</div>
+      <div class="f-text">Bản đồ trực quan với dữ liệu giá bất động sản</div>
     </div>
+    <div class="feature-item">
+      <div class="f-icon">📊</div>
+      <div class="f-text">Phân tích đa tiêu chí theo phương pháp AHP</div>
+    </div>
+    <div class="feature-item">
+      <div class="f-icon">🤖</div>
+      <div class="f-text">Chatbot AI hỗ trợ tư vấn địa điểm phù hợp</div>
+    </div>
+  </div>
 
-    <!-- Main content -->
-    <div class="index-content">
-      <!-- Left side: Business location + Criteria -->
-      <div class="left-column">
-        <div class="glass-card">
-          <div class="card-header">
-            <div class="card-icon location">📍</div>
-            <div>
-              <div class="card-title">Địa điểm kinh doanh</div>
-              <div class="card-desc">Chọn khu vực bạn muốn phân tích</div>
+  <div class="frame">
+    <div class="app">
+      <!-- LEFT -->
+      <div class="left">
+        <!--
+          <div class="card">
+            <div class="section-title">Loại hình kinh doanh</div>
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
+              <select id="businessType">
+                <option value="">Chọn loại hình kinh doanh</option>
+                <option value="trasua">Trà sữa</option>
+                <option value="cafe">Cà phê</option>
+                <option value="nhahang">Nhà hàng</option>
+                <option value="tienloi">Cửa hàng tiện lợi</option>
+                <option value="quanao">Quần áo</option>
+                <option value="khac">Khác</option>
+              </select>
             </div>
           </div>
-          <div class="glass-stack">
-            <div class="glass-select-wrap">
-              <span class="g-icon">🏢</span>
+          -->
+
+        <!-- Phương án địa điểm -->
+        <div class="card">
+          <div class="section-title">Địa điểm kinh doanh</div>
+          <div class="stack" id="alternativesContainer">
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
               <select id="district">
-                <option value="Chọn Quận" selected disabled>Chọn Quận</option>
-                <option>Quận 1</option>
-                <option>Quận 2</option>
-                <option>Quận 3</option>
-                <option>Quận 4</option>
-                <option>Quận 5</option>
-                <option>Quận 6</option>
-                <option>Quận 7</option>
-                <option>Quận 8</option>
-                <option>Quận 10</option>
-                <option>Quận 11</option>
-                <option>Quận 12</option>
-                <option>Gò Vấp</option>
-                <option>Bình Thạnh</option>
-                <option>Phú Nhuận</option>
-                <option>Tân Bình</option>
-                <option>Tân Phú</option>
-                <option>Thủ Đức</option>
-                <option>Cần Giờ</option>
-                <option>Củ Chi</option>
-                <option>Hóc Môn</option>
-                <option>Bình Chánh</option>
-                <option>Nhà Bè</option>
+                <option value="" selected disabled>
+                  Chọn Tỉnh / Thành phố
+                </option>
+                <option>Hà Nội</option>
+                <option>TP. Hồ Chí Minh</option>
+                <option>Đà Nẵng</option>
+                <option>Hải Phòng</option>
               </select>
             </div>
 
-            <div class="glass-select-wrap">
-              <span class="g-icon">🏘️</span>
+            <div class="select-wrap">
+              <span class="icon">🏢</span>
               <select id="ward">
                 <option value="" selected disabled>Chọn Phường / Xã</option>
                 <option>Phường 1</option>
@@ -1743,103 +1838,188 @@
               </select>
             </div>
 
-            <input class="glass-field" id="street" placeholder="🔍 Chọn Tên đường" />
+            <input class="field" id="street" placeholder="Chọn Tên đường" />
+
+            <button id="addAlternativeBtn" class="btn" style="width: 100%; margin-top: 8px">
+              Thêm địa điểm
+            </button>
+
+            <div id="alternativesList" style="margin-top: 8px"></div>
           </div>
         </div>
 
-        <div class="glass-card">
-          <div class="card-header">
-            <div class="card-icon criteria">⚖️</div>
-            <div>
-              <div class="card-title">Chấm điểm tiêu chí</div>
-              <div class="card-desc">Điều chỉnh mức độ ưu tiên của bạn</div>
+        <!-- ════════════════════════════════════════════
+             AHP PIPELINE — STEPPER 3 BƯỚC
+             Step 1: Nhập ma trận → API column-sums + normalize
+             Step 2: Xem ma trận chuẩn hóa → API priority-vector + CR
+             Step 3: Xem trọng số & CR → API execute-final-analysis
+             ════════════════════════════════════════════ -->
+        <div id="dashStepperContainer">
+
+          <!-- Thanh tiến trình 3 bước -->
+          <div class="ahp-stepper-track">
+            <div class="ahp-stepper-step active" id="dashTrack1">
+              <div class="ahp-stepper-circle">1</div>
+              <div class="ahp-stepper-label">So sánh tiêu chí</div>
+            </div>
+            <div class="ahp-stepper-connector"></div>
+            <div class="ahp-stepper-step" id="dashTrack2">
+              <div class="ahp-stepper-circle">2</div>
+              <div class="ahp-stepper-label">Ma trận chuẩn hóa</div>
+            </div>
+            <div class="ahp-stepper-connector"></div>
+            <div class="ahp-stepper-step" id="dashTrack3">
+              <div class="ahp-stepper-circle">3</div>
+              <div class="ahp-stepper-label">Trọng số &amp; CR</div>
             </div>
           </div>
 
-          <div id="criteriaList" class="criteria-list"></div>
+          <!-- ═══════════════════════════════════════════════
+               Container vị trí tương đối, JS sẽ set height = Step 1
+               Mỗi panel dùng position:absolute + translateX để slide
+               ═══════════════════════════════════════════════ -->
+          <div class="dash-steps-container" id="dashStepsContainer">
 
-          <div class="criteria-sub">
-            Tiêu chí được xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
-          </div>
+            <!-- ══ STEP 1: Nhập ma trận so sánh cặp ══ -->
+            <div class="dash-step-panel active" id="dashStep1">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 1 / 3</div>
+                <div class="ahp-step-title">⚖️ So sánh tầm quan trọng tiêu chí</div>
+                <div class="ahp-step-desc">
+                  Nhập giá trị phía trên đường chéo (1–9). Ô đối xứng tự sinh nghịch đảo.
+                </div>
+              </div>
 
-          <div style="text-align: center; margin-top: 16px">
-            <button class="glass-btn" id="calcBtn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
-              Tính điểm tiêu chí
-            </button>
+              <div class="ahp-step-body" style="padding:12px 16px 4px;">
+                <!-- Bảng ma trận AHP (render bởi renderCriteriaPairs()) -->
+                <div id="criteriaList" class="criteria-list"></div>
+                <div class="criteria-sub" style="margin:8px 0 4px;">
+                  Xếp hạng từ 1 (bình thường) đến 9 (quan trọng)
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <div></div>
+                <button class="ahp-btn-next" id="dashStep1NextBtn">Tiếp theo →</button>
+              </div>
+            </div>
+            <!-- /Step 1 -->
+
+            <!-- ══ STEP 2: Ma trận chuẩn hóa ══ -->
+            <div class="dash-step-panel next" id="dashStep2">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 2 / 3</div>
+                <div class="ahp-step-title">📋 Ma trận chuẩn hóa</div>
+                <div class="ahp-step-desc">
+                  Mỗi ô ÷ tổng cột. Tổng mỗi cột = 1.0 sau chuẩn hóa.
+                </div>
+              </div>
+
+              <div class="ahp-step-body" id="dashStep2Body">
+                <div class="ahp-step-placeholder">
+                  Nhấn <strong>Tiếp theo</strong> ở Bước 1 để tính toán.
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <button class="ahp-btn-back" id="dashStep2BackBtn">← Quay lại</button>
+                <button class="ahp-btn-next" id="dashStep2NextBtn">Tiếp theo →</button>
+              </div>
+            </div>
+            <!-- /Step 2 -->
+
+            <!-- ══ STEP 3: Trọng số & CR ══ -->
+            <div class="dash-step-panel next" id="dashStep3">
+              <div class="ahp-step-header">
+                <div class="ahp-step-badge">Bước 3 / 3</div>
+                <div class="ahp-step-title">⚖️ Trọng số tiêu chí (Priority Vector)</div>
+                <div class="ahp-step-desc">
+                  Kiểm tra Consistency Ratio. CR &lt; 0.1 thì ma trận nhất quán.
+                </div>
+              </div>
+
+              <div class="ahp-step-body" id="dashStep3Body">
+                <div class="ahp-step-placeholder">
+                  Nhấn <strong>Tiếp theo</strong> ở Bước 2 để tính trọng số.
+                </div>
+              </div>
+
+              <div class="ahp-step-footer">
+                <button class="ahp-btn-back" id="dashStep3BackBtn">← Quay lại</button>
+                <button class="ahp-btn-next" id="dashStep3AnalyzeBtn" style="display:none;">
+                  Đánh giá tiêu chí theo phương án
+                </button>
+              </div>
+            </div>
+            <!-- /Step 3 -->
+
+          </div><!-- /#dashStepsContainer -->
+
+        </div><!-- /#dashStepperContainer -->
+
+        <!-- So sánh phương án theo từng tiêu chí (ẩn mặc định) -->
+        <div class="card" id="alternativesComparisonCard" style="display: none; margin-top:20px;">
+        </div><!-- /#dashStepperContainer -->
+
+        <!-- So sánh phương án theo từng tiêu chí (ẩn mặc định) -->
+        <div class="card" id="alternativesComparisonCard" style="display: none; margin-top:20px;">
+          <div class="criteria-head">
+            <div class="section-title" style="margin: 0">So sánh phương án theo tiêu chí</div>
+            <select class="field" id="selectedCriterion" style="width: auto; padding: 6px 10px; font-size: var(--fs-sm)">
+              <option value="">Chọn tiêu chí...</option>
+            </select>
           </div>
+          <div id="alternativesComparisonList" class="criteria-list"></div>
+          <div class="criteria-sub">Xếp hạng từ 1 (kém hơn) đến 9 (tốt hơn)</div>
         </div>
-
-        <!-- Container stepper AHP 3 bước (được JS khởi tạo khi bấm "Tính điểm tiêu chí") -->
-        <div id="ahpStepperContainer"></div>
       </div>
 
-      <!-- Right side: Login -->
-      <div class="login-section">
-        <div class="glass-card">
-          <div class="card-header">
-            <div class="card-icon login-icon">🔐</div>
-            <div>
-              <div class="card-title">Đăng nhập</div>
-              <div class="card-desc">Đăng nhập để sử dụng hệ thống</div>
+      <!-- RIGHT -->
+      <div class="right">
+        <div class="card">
+          <!-- User Profile Icon -->
+          <div class="user-profile">
+            <div class="user-icon" id="userIcon" title="Thông tin cá nhân">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                  fill="currentColor" />
+                <path
+                  d="M12.0002 14.5C7.99016 14.5 4.75016 17.15 4.75016 20.5C4.75016 20.78 4.97016 21 5.25016 21H18.7502C19.0302 21 19.2502 20.78 19.2502 20.5C19.2502 17.15 16.0102 14.5 12.0002 14.5Z"
+                  fill="currentColor" />
+              </svg>
+            </div>
+            <div class="user-icon logout-icon" id="logoutBtn" title="Đăng xuất">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M10 6C10 5.44772 10.4477 5 11 5H18C18.5523 5 19 5.44772 19 6V18C19 18.5523 18.5523 19 18 19H11C10.4477 19 10 18.5523 10 18"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M15 12H5M5 12L8 9M5 12L8 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
             </div>
           </div>
 
-          <div class="glass-stack">
-            <input class="glass-field" id="emailInput" type="email" placeholder="Email đăng nhập" />
-
-            <input class="glass-field" id="password" type="password" placeholder="•••••" value="12345" />
-          </div>
-
-          <div style="height: 14px"></div>
-
-          <button class="glass-btn glass-btn-full" id="loginBtn">
-            Đăng nhập
-          </button>
-
-          <div class="glass-divider">hoặc</div>
-
-          <button class="google-glass" id="googleBtn">
-            <svg viewBox="0 0 48 48" aria-hidden="true">
-              <path fill="#FFC107"
-                d="M43.611 20.083H42V20H24v8h11.303C33.651 32.657 29.215 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
-              <path fill="#FF3D00"
-                d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.842 1.154 7.957 3.043l5.657-5.657C34.046 6.053 29.268 4 24 4c-7.682 0-14.354 4.315-17.694 10.691z" />
-              <path fill="#4CAF50"
-                d="M24 44c5.115 0 9.805-1.969 13.332-5.18l-6.157-5.207C29.104 35.091 26.673 36 24 36c-5.195 0-9.621-3.317-11.287-7.946l-6.52 5.025C9.505 39.556 16.227 44 24 44z" />
-              <path fill="#1976D2"
-                d="M43.611 20.083H42V20H24v8h11.303c-.79 2.247-2.231 4.16-4.128 5.613l.003-.002 6.157 5.207C36.9 39.2 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
-            </svg>
-            Đăng nhập với Google
-          </button>
-
-          <div class="register-link-glass" id="openRegister">
-            Nếu bạn chưa có tài khoản! <span>Đăng ký</span>
-          </div>
-
-          <div id="loginMsg" class="login-msg-glass"></div>
-        </div>
-
-        <!-- AHP Guide Card -->
-        <div class="glass-card guide-card">
-          <div class="card-header">
-            <div class="card-icon criteria">📖</div>
-            <div>
-              <div class="card-title">Hướng dẫn đánh giá AHP</div>
-              <div class="card-desc">Cách sử dụng hệ thống hiệu quả</div>
+          <!-- AHP Guide Card -->
+          <div class="card" style="margin-top: 20px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+              <div
+                style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));border:1px solid rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                📖</div>
+              <div>
+                <div style="font-weight:700;font-size:15px;color:#1e293b;">Hướng dẫn đánh giá AHP</div>
+                <div style="font-size:12px;color:#94a3b8;margin-top:2px;">Cách sử dụng hệ thống hiệu quả</div>
+              </div>
             </div>
-          </div>
 
-          <div class="guide-steps">
             <div class="guide-step">
               <div class="step-number">1</div>
               <div class="step-content">
                 <div class="step-title">Chọn địa điểm</div>
                 <div class="step-text">Chọn <span class="guide-accent">Quận, Phường</span> và <span
-                    class="guide-accent">Tên đường</span> mà bạn đang cân nhắc kinh doanh.</div>
+                    class="guide-accent">Tên
+                    đường</span>, sau đó nhấn <span class="guide-accent">Thêm địa điểm</span>
+                  để thêm nhiều phương án cần so sánh.</div>
               </div>
             </div>
 
@@ -1848,24 +2028,25 @@
               <div class="step-content">
                 <div class="step-title">So sánh tiêu chí</div>
                 <div class="step-text">
-                  Nhập giá trị vào các ô <span class="guide-accent">phía trên đường chéo</span> của bảng ma trận AHP.
-                  <br>• <span class="guide-accent">Đường chéo:</span> Luôn bằng <span class="guide-accent">1</span>
-                  (tiêu chí bằng chính nó).
-                  <br>• <span class="guide-accent">Giá trị (1–9):</span> Càng lớn, tiêu chí dòng quan trọng hơn cột. (1
-                  = ngang nhau, 9 = quan trọng hơn rất nhiều).
-                  <br>• <span class="guide-accent">Đối xứng:</span> Tự động hiển thị nghịch đảo (ví dụ: bạn nhập <span
+                  Nhập giá trị vào các ô <span class="guide-accent">phía trên đường chéo</span> của bảng ma trận
+                  AHP.<br>
+                  • <span class="guide-accent">Đường chéo:</span> Luôn bằng <span class="guide-accent">1</span> (tiêu
+                  chí so với chính nó).<br>
+                  • <span class="guide-accent">Giá trị (1–9):</span> Càng lớn, tiêu chí hàng quan trọng hơn cột. (1 =
+                  ngang nhau, 9 = hơn rất nhiều).<br>
+                  • <span class="guide-accent">Đối xứng:</span> Tự động sinh nghịch đảo (ví dụ: nhập <span
                     class="guide-accent">4</span>, ô ngược lại hiển thị <span class="guide-accent">1/4</span>).
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="guide-step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <div class="step-title">Tính toán & Phân tích</div>
-              <div class="step-text">Nhấn <span class="guide-accent">Tính điểm tiêu chí</span>. Hệ thống sẽ sử dụng
-                thuật toán AHP để đưa ra trọng số tối ưu nhất cho bạn.</div>
+            <div class="guide-step" style="margin-bottom:0">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <div class="step-title">Tính toán &amp; Phân tích</div>
+                <div class="step-text">Nhấn <span class="guide-accent">Tính điểm và xếp hạng</span>. Hệ thống sẽ sử dụng
+                  thuật toán AHP để đưa ra kết quả tối ưu nhất.</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1873,81 +2054,99 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="index-footer">
-    © 2026 AHP Location — Hỗ trợ chọn địa điểm kinh doanh
-  </footer>
-  </div>
-
-  <!-- Modal: Đăng ký -->
-  <div class="modal-overlay" id="registerModal">
-    <div class="modal personal-info-modal">
-      <div class="modal-title">Đăng ký tài khoản</div>
-      <div class="info-item">
-        <div class="info-label">Họ và tên</div>
-        <input class="modal-input" id="reg-fullname" placeholder="Nhập họ và tên" />
-      </div>
-      <div class="info-item">
-        <div class="info-label">Email</div>
-        <input class="modal-input" id="reg-email" placeholder="Nhập email" />
-      </div>
-      <div class="info-item">
-        <div class="info-label">Số điện thoại</div>
-        <input class="modal-input" id="reg-phone" placeholder="Nhập số điện thoại (không bắt buộc)" />
-      </div>
-      <div class="info-item">
-        <div class="info-label">Mật khẩu</div>
-        <input class="modal-input" id="reg-password" type="password" placeholder="Nhập mật khẩu" />
-      </div>
-      <div class="info-item">
-        <div class="info-label">Xác nhận mật khẩu</div>
-        <input class="modal-input" id="reg-password-confirm" type="password" placeholder="Nhập lại mật khẩu" />
-      </div>
-      <div id="reg-msg" class="login-msg" style="margin-top: 10px"></div>
-      <button class="btn-confirm" id="registerBtn" style="margin-top: 20px">
-        Đăng ký
-      </button>
+  <!-- Modal: Yêu cầu nhập tên dự án -->
+  <div class="modal-overlay" id="projectNameModal">
+    <div class="modal">
+      <div class="modal-title">YÊU CẦU NHẬP TÊN DỰ ÁN</div>
+      <input type="text" class="modal-input" id="projectNameInput" placeholder="Nhập tên dự án" />
+      <button class="btn-confirm" id="confirmBtn">Xác nhận</button>
     </div>
   </div>
 
+  <!-- Modal: Kết quả AHP -->
+  <div class="modal-overlay" id="resultsModal">
+    <div class="modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto">
+      <div class="modal-title">KẾT QUẢ HỖ TRỢ RA QUYẾT ĐỊNH</div>
+
+      <div id="resultsContent" style="margin-bottom: 20px"></div>
+
+      <div style="display: flex; gap: 10px">
+        <button class="btn-confirm" id="saveResultsBtn" style="flex: 1">
+          Lưu kết quả
+        </button>
+        <button class="btn btn-outline" id="closeResultsBtn" style="flex: 1">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Thông tin cá nhân -->
+  <div class="modal-overlay" id="personalInfoModal">
+    <div class="modal personal-info-modal">
+      <div class="modal-title">Thông tin cá nhân</div>
+      <div class="info-item">
+        <div class="info-label">Họ và tên</div>
+        <input class="modal-input" id="pi-fullname" placeholder="Nhập họ và tên" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value" id="pi-email">--</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Số điện thoại</div>
+        <input class="modal-input" id="pi-phone" placeholder="Nhập số điện thoại" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Mật khẩu mới</div>
+        <input class="modal-input" id="pi-password" type="password" placeholder="Nhập mật khẩu mới" />
+      </div>
+      <div class="info-item">
+        <div class="info-label">Xác nhận mật khẩu</div>
+        <input class="modal-input" id="pi-password-confirm" type="password" placeholder="Nhập lại mật khẩu" />
+      </div>
+      <div id="pi-msg" class="login-msg" style="margin-top: 10px"></div>
+      <button class="btn-confirm" id="updatePersonalInfoBtn" style="margin-top: 20px">
+        Cập nhật thông tin
+      </button>
+    </div>
+  </div>
   <script src="js/api.js"></script>
-  <script src="js/app.js" defer></script>
+  <script src="js/dashboard.js" defer></script>
   <script src="js/chatbot.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // ── Guide Overlay: 30-minute dismissal logic ──
-      const GUIDE_KEY = 'ahp_guide_dismissed_at';
-      const GUIDE_DURATION = 30 * 60 * 1000; // 30 phút
+    // ── Guide Overlay: 30-minute dismissal logic ──
+    const GUIDE_KEY = 'ahp_guide_dismissed_at';
+    const GUIDE_DURATION = 30 * 60 * 1000; // 30 minutes in ms
 
-      const overlay = document.getElementById("video-guide-overlay");
-      const btn = document.getElementById("btn-understood");
-      const rewatchBtn = document.getElementById("btn-rewatch");
+    const guideOverlay = document.getElementById('video-guide-overlay');
 
-      function checkGuide() {
-        const dismissedAt = localStorage.getItem(GUIDE_KEY);
-        if (dismissedAt && (Date.now() - Number(dismissedAt)) < GUIDE_DURATION) {
-          overlay.classList.add("hidden");
-        } else {
-          overlay.classList.remove("hidden");
-        }
+    function checkGuide() {
+      const dismissedAt = localStorage.getItem(GUIDE_KEY);
+      if (dismissedAt && (Date.now() - Number(dismissedAt)) < GUIDE_DURATION) {
+        guideOverlay.classList.add('hidden');
+      } else {
+        guideOverlay.classList.remove('hidden');
       }
+    }
 
-      function dismissGuide() {
-        localStorage.setItem(GUIDE_KEY, Date.now());
-        overlay.classList.add("hidden");
-      }
+    function dismissGuide() {
+      localStorage.setItem(GUIDE_KEY, Date.now());
+      guideOverlay.classList.add('hidden');
+    }
 
-      checkGuide();
+    checkGuide();
 
-      if (btn && overlay) btn.addEventListener("click", dismissGuide);
+    const understoodBtn = document.getElementById('btn-understood');
+    if (understoodBtn) understoodBtn.addEventListener('click', dismissGuide);
 
-      if (rewatchBtn && overlay) {
-        rewatchBtn.addEventListener("click", () => {
-          localStorage.removeItem(GUIDE_KEY);
-          overlay.classList.remove("hidden");
-        });
-      }
-    });
+    const rewatchBtn = document.getElementById('btn-rewatch');
+    if (rewatchBtn) {
+      rewatchBtn.addEventListener('click', function () {
+        localStorage.removeItem(GUIDE_KEY);
+        guideOverlay.classList.remove('hidden');
+      });
+    }
   </script>
 </body>
 
