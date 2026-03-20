@@ -90,40 +90,24 @@ function renderPanel(tab) {
           <tbody>${bodyRows}</tbody>
         </table>
       </div>
-
-      <div class="legend">
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#f0fdf4; border:1px solid #bbf7d0;"></div>
-          <span>Better (integer > 1)</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#fff1f2; border:1px solid #fecaca;"></div>
-          <span>Worse (1/x)</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#fff; border:1px solid #e2e8f0;"></div>
-          <span>Equal ("1")</span>
-        </div>
-        <div class="legend-item" style="margin-left:auto;">
-          <div class="legend-dot" style="background:#eef2ff; border:1px solid #c7d2fe;"></div>
-          <span>Local Weight = priority of location for this criterion</span>
-        </div>
-      </div>
     </div>
   `;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   const summaryEl = document.getElementById('summary-info');
+  const setSummary = (html) => {
+    if (summaryEl) summaryEl.innerHTML = html;
+  };
   const tabsEl = document.getElementById('criteriaTabs');
   const panelEl = document.getElementById('criteriaPanel');
 
   const lastRequestStr = localStorage.getItem('ahp:lastRequest');
   if (!lastRequestStr) {
-    summaryEl.innerHTML = `
+    setSummary(`
       <div style="color:#b91c1c; font-weight:600;">
         No saved weights found. Please go back to Dashboard and run AHP weight calculation.
-      </div>`;
+      </div>`);
     panelEl.innerHTML = '';
     return;
   }
@@ -132,18 +116,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const req = JSON.parse(lastRequestStr);
     if (!req.weights || req.weights.length !== 5) {
-      summaryEl.innerHTML = '<div style="color:#b91c1c;">Invalid weights data (must have exactly 5 items). Please recalculate on Dashboard.</div>';
+      setSummary('<div style="color:#b91c1c;">Invalid weights data (must have exactly 5 items). Please recalculate on Dashboard.</div>');
       panelEl.innerHTML = '';
       return;
     }
     payload = { weights: req.weights, filters: req.filters || {} };
   } catch {
-    summaryEl.innerHTML = '<div style="color:#b91c1c;">Stored data is corrupted. Please recalculate on Dashboard.</div>';
+    setSummary('<div style="color:#b91c1c;">Stored data is corrupted. Please recalculate on Dashboard.</div>');
     panelEl.innerHTML = '';
     return;
   }
 
-  summaryEl.innerHTML = '<div class="state-loading">Loading criteria matrix...</div>';
+  setSummary('<div class="state-loading">Loading criteria matrix...</div>');
   panelEl.innerHTML = '';
 
   let data;
@@ -154,12 +138,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } catch (err) {
     console.error('criteria-evaluation API error:', err);
-    summaryEl.innerHTML = `<div class="state-error">Cannot connect to server.<br><small>${err.message}</small></div>`;
+    setSummary(`<div class="state-error">Cannot connect to server.<br><small>${err.message}</small></div>`);
     return;
   }
 
   if (!data || !data.success || !Array.isArray(data.tabs) || data.tabs.length === 0) {
-    summaryEl.innerHTML = '<div class="state-error">No matrix data returned. Server may not find matching locations.</div>';
+    setSummary('<div class="state-error">No matrix data returned. Server may not find matching locations.</div>');
     return;
   }
 
@@ -170,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ? `District: <strong>${payload.filters.district}</strong>`
     : 'All areas';
 
-  summaryEl.innerHTML = `
+  setSummary(`
     <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
       <div style="font-size:24px;">AHP</div>
       <div style="flex:1; min-width:220px;">
@@ -183,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       </div>
     </div>
-  `;
+  `);
 
   let activeIndex = 0;
   tabsEl.innerHTML = tabs.map((tab, i) => `
