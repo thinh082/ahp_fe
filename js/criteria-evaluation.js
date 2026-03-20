@@ -1,4 +1,4 @@
-// ── API Config (giống result.js) ──────────────────────────────────────────
+﻿// API Config (same as result.js)
 const API_BASE_URL = 'https://audrina-subultimate-ghostily.ngrok-free.dev';
 
 async function apiFetch(path, options = {}) {
@@ -21,53 +21,53 @@ async function apiFetch(path, options = {}) {
   return response.text();
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-
-/**
- * Trả về class CSS màu ô dựa trên giá trị AHP string.
- * "1"       → tương đương → trắng
- * số > 1    → hàng tốt hơn → xanh lá
- * "1/x"     → hàng kém hơn → đỏ nhạt
- */
+// Helpers
 function cellClass(val) {
   if (val === '1') return 'cell-equal';
-  if (val.includes('/')) return 'cell-worse';   // dạng "1/3", "1/5"…
-  return 'cell-better';                          // dạng "3", "5"…
+  if (String(val).includes('/')) return 'cell-worse';
+  return 'cell-better';
 }
 
-/**
- * Tạo emoji/icon phù hợp theo criteria_id để icon hoá tab.
- */
 function criteriaIcon(id) {
-  const icons = { C1: '💰', C2: '🚗', C3: '🏷️', C4: '🏆', C5: '🛡️' };
-  return icons[id] || '📊';
+  const icons = { C1: 'C1', C2: 'C2', C3: 'C3', C4: 'C4', C5: 'C5' };
+  return icons[id] || 'CR';
 }
 
-// ── Render một tab panel ──────────────────────────────────────────────────
-function renderPanel(tab) {
-  const { criteria_id, criteria_name, locations_header, matrix_rows, local_weights } = tab;
-  const n = locations_header.length;
+function formatCRMeta(cr) {
+  const value = Number(cr);
+  if (!Number.isFinite(value)) {
+    return { text: 'CR: N/A', color: '#64748b', background: '#f8fafc', border: '#e2e8f0' };
+  }
+  if (value < 0.1) {
+    return { text: 'CR: ' + value.toFixed(4), color: '#166534', background: '#f0fdf4', border: '#bbf7d0' };
+  }
+  if (value > 0.1) {
+    return { text: 'CR: ' + value.toFixed(4), color: '#b91c1c', background: '#fff1f2', border: '#fecaca' };
+  }
+  return { text: 'CR: ' + value.toFixed(4), color: '#92400e', background: '#fffbeb', border: '#fde68a' };
+}
 
-  // Build column headers (địa điểm)
-  let headerCols = '<th class="matrix-table th">Địa điểm \\ Địa điểm</th>';
-  locations_header.forEach(loc => {
+function renderPanel(tab) {
+  const { criteria_id, criteria_name, locations_header, matrix_rows, local_weights, cr } = tab;
+  const n = locations_header.length;
+  const crMeta = formatCRMeta(cr);
+
+  let headerCols = '<th class="matrix-table th">Location \\ Location</th>';
+  locations_header.forEach((loc) => {
     const label = typeof loc === 'object' ? loc.name : loc;
-    headerCols += `<th title="${label}">${label.length > 20 ? label.slice(0, 18) + '…' : label}</th>`;
+    headerCols += `<th title="${label}">${label.length > 20 ? label.slice(0, 18) + '...' : label}</th>`;
   });
   headerCols += '<th class="weight-header">Local Weight</th>';
 
-  // Build data rows
   let bodyRows = '';
   for (let i = 0; i < n; i++) {
     const rowLabel = typeof locations_header[i] === 'object' ? locations_header[i].name : locations_header[i];
-    const wPct = local_weights[i] !== undefined
-      ? (local_weights[i] * 100).toFixed(2) + '%'
-      : '—';
+    const wPct = local_weights[i] !== undefined ? (local_weights[i] * 100).toFixed(2) + '%' : '-';
 
-    let cells = `<td class="row-header" title="${rowLabel}">${rowLabel.length > 22 ? rowLabel.slice(0, 20) + '…' : rowLabel}</td>`;
+    let cells = `<td class="row-header" title="${rowLabel}">${rowLabel.length > 22 ? rowLabel.slice(0, 20) + '...' : rowLabel}</td>`;
     for (let j = 0; j < n; j++) {
-      const val = (matrix_rows[i] && matrix_rows[i][j]) ? matrix_rows[i][j] : '—';
-      cells += `<td class="${cellClass(val)}">${val}</td>`;
+      const val = matrix_rows[i] && matrix_rows[i][j] ? matrix_rows[i][j] : '-';
+      cells += `<td class="${cellClass(String(val))}">${val}</td>`;
     }
     cells += `<td class="weight-cell">${wPct}</td>`;
     bodyRows += `<tr>${cells}</tr>`;
@@ -76,9 +76,12 @@ function renderPanel(tab) {
   return `
     <div class="criteria-panel">
       <div class="criteria-panel-header">
-        <div class="criteria-panel-badge">${criteria_id} — ${criteriaIcon(criteria_id)}</div>
+        <div class="criteria-panel-badge">${criteria_id} - ${criteriaIcon(criteria_id)}</div>
         <div class="criteria-panel-title">${criteria_name}</div>
-        <div class="criteria-panel-desc">Ma trận so sánh cặp ${n}×${n} địa điểm theo tiêu chí này</div>
+        <div class="criteria-panel-desc">Pairwise matrix ${n}x${n} locations for this criterion</div>
+        <div style="margin-top:8px;display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;border:1px solid ${crMeta.border};background:${crMeta.background};color:${crMeta.color};font-size:12px;font-weight:700;">
+          ${crMeta.text}
+        </div>
       </div>
 
       <div class="matrix-wrap">
@@ -91,37 +94,35 @@ function renderPanel(tab) {
       <div class="legend">
         <div class="legend-item">
           <div class="legend-dot" style="background:#f0fdf4; border:1px solid #bbf7d0;"></div>
-          <span>Tốt hơn (số nguyên &gt; 1)</span>
+          <span>Better (integer > 1)</span>
         </div>
         <div class="legend-item">
           <div class="legend-dot" style="background:#fff1f2; border:1px solid #fecaca;"></div>
-          <span>Kém hơn (dạng 1/x)</span>
+          <span>Worse (1/x)</span>
         </div>
         <div class="legend-item">
           <div class="legend-dot" style="background:#fff; border:1px solid #e2e8f0;"></div>
-          <span>Tương đương ("1")</span>
+          <span>Equal ("1")</span>
         </div>
         <div class="legend-item" style="margin-left:auto;">
           <div class="legend-dot" style="background:#eef2ff; border:1px solid #c7d2fe;"></div>
-          <span>Local Weight = mức ưu tiên địa điểm theo tiêu chí này</span>
+          <span>Local Weight = priority of location for this criterion</span>
         </div>
       </div>
     </div>
   `;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   const summaryEl = document.getElementById('summary-info');
-  const tabsEl    = document.getElementById('criteriaTabs');
-  const panelEl   = document.getElementById('criteriaPanel');
+  const tabsEl = document.getElementById('criteriaTabs');
+  const panelEl = document.getElementById('criteriaPanel');
 
-  // 1. Đọc payload từ localStorage
   const lastRequestStr = localStorage.getItem('ahp:lastRequest');
   if (!lastRequestStr) {
     summaryEl.innerHTML = `
       <div style="color:#b91c1c; font-weight:600;">
-        ⚠️ Không tìm thấy dữ liệu trọng số. Vui lòng quay lại Dashboard và hoàn thành bước tính trọng số AHP.
+        No saved weights found. Please go back to Dashboard and run AHP weight calculation.
       </div>`;
     panelEl.innerHTML = '';
     return;
@@ -131,22 +132,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const req = JSON.parse(lastRequestStr);
     if (!req.weights || req.weights.length !== 5) {
-      summaryEl.innerHTML = `<div style="color:#b91c1c;">Dữ liệu weights không hợp lệ (cần đúng 5 phần tử). Hãy tính lại tại Dashboard.</div>`;
+      summaryEl.innerHTML = '<div style="color:#b91c1c;">Invalid weights data (must have exactly 5 items). Please recalculate on Dashboard.</div>';
       panelEl.innerHTML = '';
       return;
     }
     payload = { weights: req.weights, filters: req.filters || {} };
   } catch {
-    summaryEl.innerHTML = `<div style="color:#b91c1c;">Dữ liệu lưu trữ bị hỏng. Vui lòng tính lại tại Dashboard.</div>`;
+    summaryEl.innerHTML = '<div style="color:#b91c1c;">Stored data is corrupted. Please recalculate on Dashboard.</div>';
     panelEl.innerHTML = '';
     return;
   }
 
-  // 2. Loading state
-  summaryEl.innerHTML = `<div class="state-loading">⏳ Đang phân tích ma trận tiêu chí...</div>`;
-  panelEl.innerHTML   = '';
+  summaryEl.innerHTML = '<div class="state-loading">Loading criteria matrix...</div>';
+  panelEl.innerHTML = '';
 
-  // 3. Gọi API
   let data;
   try {
     data = await apiFetch('/api/locations/criteria-evaluation', {
@@ -155,40 +154,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } catch (err) {
     console.error('criteria-evaluation API error:', err);
-    summaryEl.innerHTML = `<div class="state-error">❌ Không thể kết nối đến server.<br><small>${err.message}</small></div>`;
+    summaryEl.innerHTML = `<div class="state-error">Cannot connect to server.<br><small>${err.message}</small></div>`;
     return;
   }
 
-  // 4. Kiểm tra response
   if (!data || !data.success || !Array.isArray(data.tabs) || data.tabs.length === 0) {
-    summaryEl.innerHTML = `<div class="state-error">⚠️ Không có dữ liệu ma trận trả về. Server có thể chưa tìm được địa điểm phù hợp.</div>`;
+    summaryEl.innerHTML = '<div class="state-error">No matrix data returned. Server may not find matching locations.</div>';
     return;
   }
 
   const tabs = data.tabs;
   const total = data.total_locations || 0;
 
-  // 5. Render summary card
   const filterDesc = payload.filters?.district
-    ? `Quận: <strong>${payload.filters.district}</strong>`
-    : 'Toàn bộ khu vực';
+    ? `District: <strong>${payload.filters.district}</strong>`
+    : 'All areas';
 
   summaryEl.innerHTML = `
     <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
-      <div style="font-size:24px;">📊</div>
+      <div style="font-size:24px;">AHP</div>
       <div style="flex:1; min-width:220px;">
         <div style="font-weight:700; color:#0f172a; margin-bottom:4px;">
-          Đánh giá ma trận thành công! <span style="color:#6366f1;">${total}</span> địa điểm được phân tích theo <span style="color:#6366f1;">${tabs.length}</span> tiêu chí
+          Matrix evaluation completed. <span style="color:#6366f1;">${total}</span> locations analyzed across <span style="color:#6366f1;">${tabs.length}</span> criteria
         </div>
         <div style="color:#64748b; font-size:13px;">
-          Bộ lọc: ${filterDesc} &nbsp;·&nbsp;
-          Trọng số: [${payload.weights.map(w => w.toFixed(4)).join(', ')}]
+          Filter: ${filterDesc} &nbsp;&middot;&nbsp;
+          Weights: [${payload.weights.map((w) => w.toFixed(4)).join(', ')}]
         </div>
       </div>
     </div>
   `;
 
-  // 6. Render tab buttons
   let activeIndex = 0;
   tabsEl.innerHTML = tabs.map((tab, i) => `
     <button
@@ -196,14 +192,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       id="tab-btn-${i}"
       onclick="switchTab(${i})"
     >
-      ${criteriaIcon(tab.criteria_id)} ${tab.criteria_id} · ${tab.criteria_name}
+      ${criteriaIcon(tab.criteria_id)} · ${tab.criteria_name}
     </button>
   `).join('');
 
-  // 7. Render panel đầu tiên
   panelEl.innerHTML = renderPanel(tabs[0]);
 
-  // 8. Hàm chuyển tab (global để onclick hoạt động)
   window.switchTab = function (index) {
     if (index === activeIndex) return;
 
@@ -211,7 +205,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById(`tab-btn-${index}`)?.classList.add('active');
     activeIndex = index;
 
-    // Fade animation
     panelEl.style.opacity = '0';
     panelEl.style.transform = 'translateY(6px)';
     panelEl.style.transition = 'opacity 0.18s, transform 0.18s';
