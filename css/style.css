@@ -1642,18 +1642,41 @@ select.ts-hidden-accessible {
 
 .ts-control {
   width: 100%;
-  min-height: 38px;
-  padding: 10px 12px 10px 36px;
-  /* chừa chỗ icon */
+  min-height: 48px;
+  padding: 12px 14px 12px 42px; /* increased padding for 20px text */
   border: 2px solid #d1d5db;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
-  font-size: var(--fs-sm);
+  font-size: var(--fs-body);
+  display: flex;
+  align-items: center;
 }
 
 .ts-control:focus-within {
   border-color: #2f6df6;
-  box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.15);
+  box-shadow: 0 0 0 4px rgba(47, 109, 246, 0.15);
+}
+
+/* Global TomSelect Overrides */
+.ts-dropdown {
+  font-size: var(--fs-body) !important;
+  border-radius: 12px !important;
+  border: 2px solid var(--border) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ts-dropdown .option {
+  padding: 12px 16px !important;
+  font-size: var(--fs-body) !important;
+}
+
+.ts-dropdown .active {
+  background-color: #eff6ff !important;
+  color: var(--primary) !important;
+}
+
+.ts-control .item {
+  font-size: var(--fs-body) !important;
 }
 
 .select-wrap {
@@ -1721,7 +1744,7 @@ header p {
 }
 
 .search-title {
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   margin: 0 0 12px 0;
   color: var(--dark);
   font-weight: 600;
@@ -1733,7 +1756,7 @@ header p {
 
 .search-field label {
   display: block;
-  font-size: 0.7rem;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   color: #64748b;
   font-weight: 700;
@@ -1745,13 +1768,15 @@ header p {
 }
 
 .search-field .ts-control {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 0.8rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: var(--fs-body);
   background: white;
   transition: all 0.2s;
-  min-height: 32px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 .search-field .ts-control:focus {
@@ -1767,8 +1792,8 @@ header p {
 }
 
 .search-field .ts-dropdown .option {
-  padding: 6px 10px;
-  font-size: 0.8rem;
+  padding: 12px 16px;
+  font-size: var(--fs-body);
 }
 
 .search-field .ts-dropdown .option.active {
@@ -1789,14 +1814,14 @@ header p {
 }
 
 .stat-item label {
-  font-size: 0.7rem;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   color: #64748b;
   font-weight: 700;
 }
 
 .stat-value {
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--dark);
   margin-top: 4px;
@@ -1807,7 +1832,7 @@ header p {
 }
 
 .legend-container h3 {
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   margin-top: 20px;
   color: var(--dark);
 }
@@ -1817,7 +1842,7 @@ header p {
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
 }
 
 .legend-overlay {
@@ -1904,7 +1929,7 @@ header p {
 }
 
 .popup-price {
-  font-size: 1.1rem !important;
+  font-size: 1.4rem !important;
   color: #b91c1c !important;
 }
 
@@ -1918,7 +1943,7 @@ header p {
   text-align: center;
   text-decoration: none;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -1947,7 +1972,7 @@ header p {
   text-align: center;
   text-decoration: none;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -2074,7 +2099,7 @@ header p {
 }
 
 .criteria-item span {
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   color: #0f172a;
   font-weight: 600;
   width: 100%;
@@ -2089,7 +2114,7 @@ header p {
 }
 
 .criteria-item span {
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   color: #0f172a;
   font-weight: 600;
   width: 100%;
@@ -2127,7 +2152,7 @@ header p {
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   color: #334155;
-  font-size: 0.8rem;
+  font-size: var(--fs-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -2228,7 +2253,7 @@ header p {
   max-width: 80%;
   padding: 8px 12px;
   border-radius: 12px;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   line-height: 1.4;
 }
 
