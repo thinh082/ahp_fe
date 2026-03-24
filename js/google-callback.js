@@ -1,4 +1,4 @@
-﻿// Trang callback: lấy code từ URL và gọi BE để đổi token
+// Trang callback: lấy code từ URL và gọi BE để đổi token
 (function () {
   const msgEl = document.getElementById("callbackMsg");
 
@@ -38,7 +38,7 @@
         localStorage.setItem("user_info", JSON.stringify(data.user || {}));
 
         setMsg("Đăng nhập thành công. Đang chuyển hướng...", "#15803d");
-        window.location.href = "dashboard.html";
+        window.location.href = "index.html";
       } else {
         setMsg(`Đăng nhập thất bại: ${data.detail || "Không rõ lỗi"}`, "#b91c1c");
       }

@@ -162,7 +162,7 @@ async function redirectIfLoggedIn() {
       { method: "GET", credentials: "include" }
     );
     if (response.ok) {
-      window.location.href = "dashboard.html";
+      window.location.href = "index.html";
     }
   } catch (_) {
     // ignore
@@ -719,7 +719,7 @@ if (loginBtn && emailInput && passwordInput && loginMsg) {
 
       loginMsg.textContent = "Đăng nhập thành công.";
       loginMsg.style.color = "#15803d";
-      window.location.href = "dashboard.html";
+      window.location.href = "index.html";
     } catch (error) {
       console.error("Login error:", error);
       loginMsg.textContent = "Lỗi kết nối tới backend.";
@@ -829,7 +829,7 @@ async function handleRegister() {
       regEls.msg.style.color = "#15803d";
     }
 
-    window.location.href = "dashboard.html";
+    window.location.href = "index.html";
   } catch (err) {
     console.error("Register error:", err);
     if (regEls.msg) {
