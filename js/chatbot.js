@@ -46,7 +46,7 @@
 
     // Chat History for context
     let chatHistory = [];
-    const API_KEY = "AIzaSyD9n1Xc8hOx5158dbv6tv8nppexOf0yYQs"; // Updated User Key
+    const API_KEY = "AIzaSyA-N4yeUgjHTJFaU1t7fO6WLA1Zku9o2kw"; // User Provided API Key
 
     // Send Message
     async function sendMessage() {
@@ -79,12 +79,13 @@
             chatHistory.push({ role: "model", parts: [{ text: replyText }] });
 
         } catch (error) {
-            console.error("Gemini API Error:", error);
+            console.error("Gemini API Error details:", error);
             const loadingMsg = document.getElementById(loadingId);
             if (loadingMsg) loadingMsg.remove();
 
-            // Fallback to mock response
+            // Fallback to mock response with error details for debugging
             console.log("Switching to mock response due to API error.");
+            addMessage(`[API Error]: ${error.message}. Chuyển sang chế độ offline...`, 'bot');
             const fallbackReply = getBotReply(text);
             addMessage(fallbackReply, 'bot');
         }
@@ -105,8 +106,8 @@
     }
 
     async function callGeminiAPI(history) {
-        // Using gemini-1.5-flash as preferred in user snippet (or fallback to user preferred)
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Using gemini-2.5-flash as discovered from diagnostics
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
         const payload = {
             contents: history
@@ -121,8 +122,17 @@
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+            let errorMessage = `HTTP ${response.status} ${response.statusText}`;
+            try {
+                const errorData = await response.json();
+                if (errorData.error && errorData.error.message) {
+                    errorMessage = errorData.error.message;
+                }
+            } catch (e) {
+                // Ignore parsing errors
+                console.warn("Failed to parse error response as JSON", e);
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -130,7 +140,7 @@
         if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts.length > 0) {
             return data.candidates[0].content.parts[0].text;
         } else {
-            return "Tôi không hiểu câu hỏi của bạn.";
+            throw new Error("Dữ liệu trả về từ API không hợp lệ.");
         }
     }
 
