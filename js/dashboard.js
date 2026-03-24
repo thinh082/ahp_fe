@@ -616,13 +616,11 @@ async function dashStep2Next() {
 
 
 // ──────────────────────────────────────────────────────────────
-// BƯỚC 3 — Xác nhận: Gọi API criteria-evaluation
-// Sang màn hình chọn Step 4 hiển thị ma trận đánh giá
+// BƯỚC 3 — Phân tích: Lưu vào localStorage rồi chuyển sang result.html
 // ──────────────────────────────────────────────────────────────
-async function dashStep3Next() {
+async function dashStep3Analyze() {
   const btn = document.getElementById("dashStep3AnalyzeBtn");
   const backBtn = document.getElementById("dashStep3BackBtn");
-  const body = document.getElementById("dashStep4Body");
   if (!btn) return;
 
   if (!ahpPipelineWeights || !ahpPipelineValid) {
@@ -632,16 +630,9 @@ async function dashStep3Next() {
 
   btn.disabled = true;
   if (backBtn) backBtn.disabled = true;
-
-  // ── SLIDE NGAY — không chờ API ──
-  body.innerHTML = `
-    <div id="dashAnalyzeLoading" class="ahp-loading" style="margin-bottom:12px;">
-      ⏳ Đang tính toán đánh giá các địa điểm, vui lòng chờ...
-    </div>`;
-  dashGoToStep(4);
+  btn.innerHTML = "⏳ Đang chuyển qua kết quả...";
 
   try {
-    // Lấy filters từ dropdown quận/phường/đường
     const districtEl = document.getElementById("district");
     const wardEl = document.getElementById("ward");
     const street = document.getElementById("street")?.value.trim() || "";
@@ -662,200 +653,18 @@ async function dashStep3Next() {
     if (street) filters.street = normalizeForFilter(street);
     filters.limit = 50;
 
-    // Gọi API đánh giá tiêu chí phương án với trọng số AHP đã tính
-    const result = await apiFetch("/api/locations/criteria-evaluation", {
-      method: "POST",
-      body: JSON.stringify({ weights: ahpPipelineWeights, filters }),
-    });
-
-    // Render Data sang Step 4
-    renderCriteriaEvaluation(result.tabs || []);
-
-  } catch (err) {
-    body.innerHTML = `
-      <div class="ahp-result-box ahp-result-error">
-        <div class="ahp-result-title">❌ Lỗi Phân tích Địa điểm</div>
-        <div class="ahp-result-desc">${err.message}</div>
-      </div>`;
-    btn.disabled = false;
-    if (backBtn) backBtn.disabled = false;
-    console.error("dashStep3 logic error:", err);
-  } finally {
-    btn.disabled = false;
-    if (backBtn) backBtn.disabled = false;
-  }
-}
-
-// Render dữ liệu bảng ma trận ở Step 4
-function renderCriteriaEvaluation(tabs) {
-  const body = document.getElementById("dashStep4Body");
-  if (!body) return;
-
-  if (!tabs || tabs.length === 0) {
-    body.innerHTML = `
-      <div class="ahp-result-box ahp-result-warning">
-        <div class="ahp-result-title">⚠️ Không có dữ liệu</div>
-        <div class="ahp-result-desc">Không tìm thấy địa điểm nào thỏa mãn bộ lọc.</div>
-      </div>`;
-    return;
-  }
-
-  // 1. Tạo Tabs Header
-  let tabsHtml = `<div class="ahp-tabs" style="margin-bottom: 20px;">`;
-  tabs.forEach((tab, index) => {
-    tabsHtml += `
-      <button class="ahp-tab-btn ${index === 0 ? "active" : ""}" data-tab="eval-tab-${index}">
-        ${tab.criteria_id}: ${tab.criteria_name}
-      </button>`;
-  });
-  tabsHtml += `</div>`;
-
-  // 2. Tạo Panels chứa Ma trận
-  let panelsHtml = ``;
-  tabs.forEach((tab, index) => {
-    const locations = tab.locations_header || [];
-    const matrix = tab.matrix_rows || [];
-    const localWeights = tab.local_weights || [];
-
-    let tableHtml = `
-      <div class="ahp-table-wrap" style="max-height: 400px; overflow-y: auto;">
-        <table class="ahp-table">
-          <thead style="position: sticky; top: 0; z-index: 10;">
-            <tr>
-              <th class="ahp-th-label" style="position: sticky; left: 0; background: #f0f4ff; z-index: 11;">Địa điểm</th>`;
-
-    locations.forEach(loc => {
-      tableHtml += `<th>${loc.name}</th>`;
-    });
-
-    tableHtml += `
-              <th style="background:#eef2ff; color:#4f46e5;">Local Weight</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    matrix.forEach((row, i) => {
-      tableHtml += `
-            <tr>
-              <th class="ahp-row-label" style="position: sticky; left: 0; z-index: 9;">${locations[i]?.name || ''}</th>`;
-      row.forEach(cellValue => {
-        tableHtml += `<td class="ahp-cell">${cellValue}</td>`;
-      });
-      // Thêm cột Local Weight
-      tableHtml += `
-              <td class="ahp-cell" style="background:#f8fafc; font-weight:700; color:#4f46e5;">
-                ${(Number(localWeights[i]) * 100).toFixed(2)}%
-              </td>
-            </tr>`;
-    });
-
-    tableHtml += `
-          </tbody>
-        </table>
-      </div>`;
-
-    panelsHtml += `
-      <div class="ahp-tab-panel ${index === 0 ? "active" : ""}" id="eval-tab-${index}">
-        <div style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
-          Đánh giá dựa trên thuộc tính: <strong>${tab.raw_column}</strong>
-        </div>
-        ${tableHtml}
-      </div>`;
-  });
-
-  body.innerHTML = tabsHtml + panelsHtml;
-
-  // Gắn event chuyển tab
-  const tabBtns = body.querySelectorAll('.ahp-tab-btn');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Bỏ active cũ
-      body.querySelectorAll('.ahp-tab-btn.active').forEach(el => el.classList.remove('active'));
-      body.querySelectorAll('.ahp-tab-panel.active').forEach(el => el.classList.remove('active'));
-
-      // Kích hoạt tab mới
-      btn.classList.add('active');
-      const targetId = btn.getAttribute('data-tab');
-      const targetPanel = body.querySelector(\`#\${targetId}\`);
-      if (targetPanel) {
-        targetPanel.classList.add('active');
-      }
-      
-      // Resize container
-      updateDashContainerHeight();
-    });
-  });
-
-  // Hiện nút phân tích
-  const analyzeBtn = document.getElementById("dashStep4AnalyzeBtn");
-  if (analyzeBtn) analyzeBtn.style.display = "inline-flex";
-  
-  // Resize Container fix cứng
-  setTimeout(updateDashContainerHeight, 50);
-}
-
-// ──────────────────────────────────────────────────────────────
-// BƯỚC 4 — Phân tích: Gọi API execute-final-analysis
-// Lưu vào localStorage rồi chuyển sang map.html / result.html
-// ──────────────────────────────────────────────────────────────
-async function dashStep4Analyze() {
-  const btn = document.getElementById("dashStep4AnalyzeBtn");
-  const backBtn = document.getElementById("dashStep4BackBtn");
-  if (!btn) return;
-
-  if (!ahpPipelineWeights || !ahpPipelineValid) {
-    alert("Vui lòng hoàn thành Bước 2 với CR hợp lệ trước khi phân tích.");
-    return;
-  }
-
-  btn.disabled = true;
-  if (backBtn) backBtn.disabled = true;
-  const originalText = btn.innerHTML;
-  btn.innerHTML = "⏳ Đang xếp hạng...";
-
-  try {
-    // Lấy filters từ dropdown quận/phường/đường
-    const districtEl = document.getElementById("district");
-    const wardEl = document.getElementById("ward");
-    const street = document.getElementById("street")?.value.trim() || "";
-    const cityText = getSelectText(districtEl, districtTomSelect);
-    const wardText = getSelectText(wardEl, wardTomSelect);
-
-    function normalizeForFilter(input) {
-      if (!input) return null;
-      return String(input).trim()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d").replace(/Đ/g, "D")
-        .replace(/\s+/g, " ").trim() || null;
-    }
-
-    const filters = {};
-    if (cityText) filters.district = normalizeForFilter(cityText);
-    if (wardText) filters.ward = normalizeForFilter(wardText);
-    if (street) filters.street = normalizeForFilter(street);
-    filters.limit = 50;
-
-    // Gọi API phân tích địa điểm với trọng số AHP đã tính
-    const result = await apiFetch("/api/locations/execute-final-analysis", {
-      method: "POST",
-      body: JSON.stringify({ weights: ahpPipelineWeights, filters }),
-    });
-
-    // Lưu kết quả vào localStorage để map.html đọc
+    // Lưu vào localStorage
     localStorage.setItem("ahp:lastRequest", JSON.stringify({ weights: ahpPipelineWeights, filters }));
-    localStorage.setItem("ahp:lastResponse", JSON.stringify(result));
 
-    // Chuyển sang trang bảng kết quả
+    // Chuyển sang trag kết quả
     window.location.href = "result.html";
 
   } catch (err) {
-    alert("❌ Lỗi khi phân tích: " + err.message);
-    console.error("dashStep4 analyze error:", err);
-  } finally {
+    alert("❌ Lỗi: " + err.message);
     btn.disabled = false;
     if (backBtn) backBtn.disabled = false;
-    btn.innerHTML = originalText;
+    btn.innerHTML = "🚀 Đánh giá điểm theo phương án";
+    console.error("dashStep3 error:", err);
   }
 }
 
@@ -877,17 +686,9 @@ async function dashStep4Analyze() {
   const step3BackBtn = document.getElementById("dashStep3BackBtn");
   if (step3BackBtn) step3BackBtn.addEventListener("click", () => dashGoToStep(2));
 
-  // Bước 3 → Đánh giá phương án (Next)
+  // Bước 3 → Chuyển sang result
   const step3AnalyzeBtn = document.getElementById("dashStep3AnalyzeBtn");
-  if (step3AnalyzeBtn) step3AnalyzeBtn.addEventListener("click", dashStep3Next);
-
-  // Bước 4 → Back
-  const step4BackBtn = document.getElementById("dashStep4BackBtn");
-  if (step4BackBtn) step4BackBtn.addEventListener("click", () => dashGoToStep(3));
-
-  // Bước 4 → Phân tích Cuối cùng
-  const step4AnalyzeBtn = document.getElementById("dashStep4AnalyzeBtn");
-  if (step4AnalyzeBtn) step4AnalyzeBtn.addEventListener("click", dashStep4Analyze);
+  if (step3AnalyzeBtn) step3AnalyzeBtn.addEventListener("click", dashStep3Analyze);
 
   // Set chiều cao container = Step 1 (position:absolute panels cần height cố định)
   initDashContainerHeight();
@@ -924,29 +725,27 @@ function showResultsModal(results) {
   // Hiển thị xếp hạng
   const rankingDiv = document.createElement("div");
   rankingDiv.innerHTML = `
-        < div style = "margin-bottom: 20px;" >
-        <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px; color: var(--text);">XẾP HẠNG PHƯƠNG ÁN:</div>
-          ${
-        ranked
+        <div style="margin-bottom: 20px;">
+          <div style="font-weight: 600; margin-bottom: 12px; font-size: 14px; color: var(--text);">XẾP HẠNG PHƯƠNG ÁN:</div>
+          ${ranked
       .map(
-          (item, rank) => `
+        (item, rank) => `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: ${rank === 0 ? "#eaf1ff" : "#f9fafb"
-            }; border: 1px solid var(--border); border-radius: 8px;">
+          }; border: 1px solid var(--border); border-radius: 8px;">
               <div style="display: flex; align-items: center; gap: 12px;">
                 <span style="font-weight: 700; color: var(--primary); font-size: 18px; min-width: 30px;">#${rank + 1
-            }</span>
+          }</span>
                 <span style="font-size: 13px; color: var(--text);">${item.name
-            }</span>
+          }</span>
               </div>
               <span style="font-weight: 700; color: var(--text); font-size: 14px;">${item.score.toFixed(
-              2
-            )}%</span>
+            2
+          )}%</span>
             </div>
           `
-        )
-          .join("")
-      }
-        </div >
+      )
+      .join("")}
+        </div>
         
         <div style="margin-bottom: 20px; padding: 12px; background: #f9fafb; border-radius: 8px; border: 1px solid var(--border);">
           <div style="font-weight: 600; margin-bottom: 8px; font-size: 13px; color: var(--text);">Trọng số tiêu chí:</div>
@@ -1024,13 +823,11 @@ let currentResults = null;
 if (saveResultsBtn) {
   saveResultsBtn.addEventListener("click", () => {
     // Lưu kết quả hiện tại
-    try {
-      currentResults = calculateAHPScores();
-      if (!currentResults) return;
-    } catch (error) {
-      alert("Lỗi khi tính toán lại: " + error.message);
+    if (!ahpPipelineValid || !ahpPipelineWeights) {
+      alert("Vui lòng hoàn thành Bước 2 với CR hợp lệ trước khi lưu kết quả.");
       return;
     }
+    currentResults = { criteriaWeights: ahpPipelineWeights };
 
     projectNameModal.classList.add("active");
     projectNameInput.focus();
@@ -1047,13 +844,11 @@ if (confirmBtn) {
     }
 
     if (!currentResults) {
-      try {
-        currentResults = calculateAHPScores();
-        if (!currentResults) return;
-      } catch (error) {
-        alert("Lỗi khi tính toán: " + error.message);
+      if (!ahpPipelineValid || !ahpPipelineWeights) {
+        alert("Vui lòng hoàn thành Bước 2 với CR hợp lệ.");
         return;
       }
+      currentResults = { criteriaWeights: ahpPipelineWeights };
     }
 
     const w = currentResults.criteriaWeights || [];
@@ -1165,7 +960,7 @@ if (logoutBtn) {
       );
 
       if (!response.ok) {
-        throw new Error(`API ${ response.status } ${ response.statusText } `);
+        throw new Error(`API ${response.status} ${response.statusText}`);
       }
     } catch (err) {
       console.error("Logout error:", err);
@@ -1183,7 +978,7 @@ async function loadPersonalInfo() {
     );
 
     if (!response.ok) {
-      throw new Error(`API ${ response.status } ${ response.statusText } `);
+      throw new Error(`API ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -1316,7 +1111,7 @@ function renderProjects(items) {
       .filter(Boolean)
       .join(", ");
     const nameText = item.name
-      ? `${ item.name }${ locationText ? " - " + locationText : "" } `
+      ? `${item.name}${locationText ? " - " + locationText : ""}`
       : "(Không có tên)";
     const nameEl = document.createElement("span");
     nameEl.textContent = nameText;
@@ -1326,13 +1121,13 @@ function renderProjects(items) {
     deleteBtn.type = "button";
     deleteBtn.title = "Xóa dự án";
     deleteBtn.innerHTML = `
-        < svg viewBox = "0 0 24 24" aria - hidden="true" >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 7H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M9 7V5C9 4.44772 9.44772 4 10 4H14C14.5523 4 15 4.44772 15 5V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M6 7L7 19C7.05201 19.5523 7.44772 20 8 20H16C16.5523 20 16.948 19.5523 17 19L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M10 11V16M14 11V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg >
-        `;
+      </svg>
+    `;
 
     deleteBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
@@ -1340,7 +1135,7 @@ function renderProjects(items) {
       if (!confirm("Bạn có chắc muốn xóa dự án này?")) return;
       try {
         const response = await fetch(
-          `${ API_BASE_URL } /api/projects / ${ item.id } `,
+          `${API_BASE_URL}/api/projects/${item.id}`,
           { method: "DELETE", credentials: "include" }
         );
         const data = await response.json().catch(() => ({}));
@@ -1420,14 +1215,14 @@ function openProjectOnMap(item) {
 let searchTimer = null;
 async function fetchProjects(params) {
   try {
-    const qs = params ? `? ${ params.toString() } ` : "";
+    const qs = params ? `?${params.toString()}` : "";
     const response = await fetch(
-      `${ API_BASE_URL } /api/projects${ qs } `,
+      `${API_BASE_URL}/api/projects${qs}`,
       { method: "GET", credentials: "include" }
     );
 
     if (!response.ok) {
-      throw new Error(`API ${ response.status } ${ response.statusText } `);
+      throw new Error(`API ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();

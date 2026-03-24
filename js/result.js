@@ -60,10 +60,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // Fetch data
-        const data = await apiFetch("/api/locations/execute-final-analysis", {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
+        const [data, evalData] = await Promise.all([
+            apiFetch("/api/locations/execute-final-analysis", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }),
+            apiFetch("/api/locations/criteria-evaluation", {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).catch(err => {
+                console.error("Lỗi khi tải ma trận đánh giá:", err);
+                return null;
+            })
+        ]);
 
         // Check data validity
         if (!data || (!data.success && !data.clusters)) {
@@ -95,6 +104,73 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       </div>
     `;
+
+        // Render criteria matrices
+        const criteriaMatricesContainer = document.getElementById("criteria-matrices-container");
+        if (evalData && evalData.success && evalData.tabs && evalData.tabs.length > 0) {
+            let evalTabsHtml = `
+              <div class="result-title" style="font-size: 18px; margin-bottom: 16px;">🏢 Ma trận Tỉ trọng Đánh giá Tiêu chí</div>
+              <div class="ahp-tabs" style="margin-bottom: 16px;">
+            `;
+            let evalPanelsHtml = `<div class="ahp-criteria-content">`;
+
+            evalData.tabs.forEach((tab, index) => {
+                const isActive = index === 0 ? "active" : "";
+                const tabId = `tab-eval-criteria-${index}`;
+
+                evalTabsHtml += `
+                    <button class="ahp-tab-btn ${isActive} eval-tab-btn" data-target="${tabId}">
+                        ${tab.criteria_name}
+                    </button>
+                `;
+
+                evalPanelsHtml += `
+                <div class="ahp-tab-panel ${isActive} eval-tab-panel" id="${tabId}">
+                  <div class="result-table-wrap">
+                    <table class="result-table">
+                      <thead>
+                        <tr>
+                          <th style="width: 20%;">Địa điểm</th>
+                          ${tab.locations_header.map(loc => `<th style="text-align: center;" title="${loc.name}">${loc.name}</th>`).join("")}
+                          <th style="color: #4f46e5; text-align: center; width: 15%;">Local Weight</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${tab.matrix_rows.map((row, i) => `
+                          <tr>
+                            <td style="font-weight: 600; color: #334155;" title="${tab.locations_header[i].name}">${tab.locations_header[i].name}</td>
+                            ${row.map(val => `<td style="text-align: center; font-family: monospace;">${val}</td>`).join("")}
+                            <td style="font-weight: bold; color: #4f46e5; text-align: center;">${(tab.local_weights[i] * 100).toFixed(2)}%</td>
+                          </tr>
+                        `).join("")}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                `;
+            });
+
+            evalTabsHtml += `</div>`;
+            evalPanelsHtml += `</div>`;
+
+            if (criteriaMatricesContainer) {
+                criteriaMatricesContainer.innerHTML = evalTabsHtml + evalPanelsHtml;
+
+                const evalTabBtns = criteriaMatricesContainer.querySelectorAll('.eval-tab-btn');
+                const evalTabPanels = criteriaMatricesContainer.querySelectorAll('.eval-tab-panel');
+
+                evalTabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        evalTabBtns.forEach(b => b.classList.remove('active'));
+                        evalTabPanels.forEach(p => p.classList.remove('active'));
+
+                        btn.classList.add('active');
+                        const targetId = btn.getAttribute('data-target');
+                        document.getElementById(targetId).classList.add('active');
+                    });
+                });
+            }
+        }
 
         // Render multiple criteria tables
         const criteriaAnalysis = data.summary?.criteria_analysis;
