@@ -799,6 +799,164 @@ function showResultsModal(results) {
 }
 */
 
+// =====================================================
+// AUTHENTICATION LOGIC (Login, Register & Token Check)
+// =====================================================
+async function checkAuthStatus() {
+  const authModalOverlay = document.getElementById('authModalOverlay');
+  const userProfileArea = document.getElementById('userProfileArea');
+  
+  if (!authModalOverlay) return; 
+
+  try {
+    const response = await apiFetch('/api/XacThucTaiKhoan/me', {
+      method: 'GET',
+      credentials: 'include' 
+    });
+    
+    // User is logged in
+    authModalOverlay.classList.remove('active');
+    if (userProfileArea) {
+      userProfileArea.style.display = 'flex';
+    }
+    
+    localStorage.setItem('user_info', JSON.stringify(response));
+    
+  } catch (error) {
+    console.error("Auth check failed:", error);
+    // Not logged in or expired
+    authModalOverlay.classList.add('active');
+    if (userProfileArea) {
+      userProfileArea.style.display = 'none';
+    }
+    localStorage.removeItem('user_info');
+  }
+}
+
+function initAuthEvents() {
+  const showRegisterBtn = document.getElementById('showRegisterBtn');
+  const showLoginBtn = document.getElementById('showLoginBtn');
+  const loginView = document.getElementById('loginView');
+  const registerView = document.getElementById('registerView');
+  
+  if (showRegisterBtn && showLoginBtn && loginView && registerView) {
+    showRegisterBtn.addEventListener('click', () => {
+      loginView.style.display = 'none';
+      registerView.style.display = 'block';
+    });
+    
+    showLoginBtn.addEventListener('click', () => {
+      registerView.style.display = 'none';
+      loginView.style.display = 'block';
+    });
+  }
+
+  // Google Login redirect
+  const googleLoginBtn = document.getElementById('googleLoginBtn');
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', () => {
+      // Backend should redirect to google oauth page
+      const redirectUri = window.location.origin + window.location.pathname.replace('index.html', '') + 'google-callback.html';
+      window.location.href = `${API_BASE_URL}/api/XacThucTaiKhoan/google-login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    });
+  }
+
+  // Handle Login 
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      if (!email || !password) {
+        alert('Vui lòng nhập đầy đủ Email và Mật khẩu.');
+        return;
+      }
+      
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Đang xử lý...";
+      
+      try {
+        const payload = { email, password };
+        const response = await apiFetch('/api/XacThucTaiKhoan/login', {
+          method: 'POST',
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+        
+        // Login successful (cookie is set)
+        localStorage.setItem('user_info', JSON.stringify(response.user || {}));
+        window.location.reload(); // Reload to run checkAuthStatus and load profile smoothly
+      } catch (err) {
+        alert("Đăng nhập thất bại: " + err.message);
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Đăng nhập";
+      }
+    });
+  }
+  
+  // Handle Register 
+  const registerBtn = document.getElementById('registerBtn');
+  if (registerBtn) {
+    registerBtn.addEventListener('click', async () => {
+      const fullname = document.getElementById('registerFullname').value.trim();
+      const phone = document.getElementById('registerPhone').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value.trim();
+      const passwordConfirm = document.getElementById('registerPasswordConfirm').value.trim();
+      
+      if (!fullname || !phone || !email || !password) {
+        alert('Vui lòng nhập đầy đủ thông tin (Họ tên, SĐT, Email, Mật khẩu).');
+        return;
+      }
+      
+      if (password !== passwordConfirm) {
+        alert('Mật khẩu xác nhận không khớp.');
+        return;
+      }
+      
+      registerBtn.disabled = true;
+      registerBtn.textContent = "Đang xử lý...";
+      
+      try {
+        const payload = { fullname, email, sodienthoai: phone, password };
+        const response = await apiFetch('/api/XacThucTaiKhoan/register', {
+          method: 'POST',
+          credentials: 'include', // As instructions said
+          body: JSON.stringify(payload)
+        });
+        
+        // Register returns token and user info just like login
+        localStorage.setItem('user_info', JSON.stringify(response.user || {}));
+        alert("Đăng ký thành công!");
+        window.location.reload(); 
+      } catch (err) {
+        alert("Đăng ký thất bại: " + err.message);
+        registerBtn.disabled = false;
+        registerBtn.textContent = "Đăng ký";
+      }
+    });
+  }
+
+  // Handle Logout
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await apiFetch('/api/XacThucTaiKhoan/logout', { method: 'POST', credentials: 'include' });
+      } catch (e) {
+        console.log('Logout endpoint:', e.message);
+      }
+      localStorage.removeItem('user_info');
+      window.location.reload();
+    });
+  }
+}
+
+// Run auth check and bind events on load (defer allows immediate call safely)
+checkAuthStatus();
+initAuthEvents();
+
+
 // Các phần tử modal
 const resultsModal = document.getElementById("resultsModal");
 const closeResultsBtn = document.getElementById("closeResultsBtn");
