@@ -332,35 +332,120 @@ function renderLocationCompare(base, target) {
     const targetScore = safeNum(target.loc.ahp_score, null);
     const delta = (baseScore !== null && targetScore !== null) ? (targetScore - baseScore) : null;
     const deltaText = delta === null ? '-' : `${delta >= 0 ? '+' : ''}${delta.toFixed(4)}`;
+    
+    // Choose color for delta to emphasize positive/negative change
+    const deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
+    const deltaBg = delta > 0 ? '#f0fdf4' : (delta < 0 ? '#fef2f2' : '#f1f5f9');
+    const deltaBorder = delta > 0 ? '#bbf7d0' : (delta < 0 ? '#fecaca' : '#e2e8f0');
 
     const ratingColorBase = ratingToColor(base.loc.rating);
     const ratingEmojiBase = ratingToEmoji(base.loc.rating);
     const ratingColorTarget = ratingToColor(target.loc.rating);
     const ratingEmojiTarget = ratingToEmoji(target.loc.rating);
 
-    showLocationCompareMessage(`
-        <div style="padding:20px; border-radius:24px; background:#fff;">
-            <div style="font-weight:800; margin-bottom:12px; color:#4f46e5; font-size:15px; display:flex; align-items:center; gap:10px;">
-                <span style="font-size:20px;">🔁</span> So sánh 2 địa điểm
-            </div>
-            <div style="font-size:13px; color:#64748b; margin-bottom:20px; background:rgba(99,102,241,0.06); padding:10px 14px; border-radius:12px; border:1px solid rgba(99,102,241,0.1);">
-                Chênh lệch (mới - gốc): <b style="color:#4f46e5; font-size:14px;">${deltaText}</b>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-                <div style="background:rgba(248,250,252,1); border:1px solid rgba(226,232,240,1); border-radius:18px; padding:16px;">
-                    <div style="font-size:10px; font-weight:800; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px; margin-bottom:8px;">GỐC</div>
-                    <div style="font-size:14px; font-weight:700; color:#1e293b; margin-bottom:8px; line-height:1.4;">${base.label}</div>
-                    <div style="margin-top:12px; font-size:13px; color:#64748b;">AHP: <b style="color:#4f46e5;">${formatAHP(base.loc.ahp_score)}</b></div>
-                    <div style="margin-top:8px; display:inline-flex; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; background:${ratingColorBase}15; color:${ratingColorBase}; border:1px solid ${ratingColorBase}30;">
-                        ${ratingEmojiBase} ${base.loc.rating || ''}
+    // Helper to generate criteria HTML with progress bars
+    const getCriteriaHtml = (loc) => {
+        if (!loc.criteria_scores) return '<div style="font-size:13px; color:#94a3b8; margin-top:12px; font-style: italic; text-align: center;">Chưa có điểm thành phần</div>';
+        
+        let html = '<div style="margin-top:16px; display: flex; flex-direction: column; gap: 10px;">';
+        criteria.forEach(c => {
+            const val = loc.criteria_scores[c];
+            const displayVal = val !== undefined ? formatAHP(val) : '-';
+            const percentage = val !== undefined ? Math.min(Math.max(val * 100, 0), 100) : 0; // Convert to roughly 0-100%
+            
+            const prefixMatch = c.match(/^(C[1-5])/);
+            const prefix = prefixMatch ? prefixMatch[1] : c;
+            const fullLabel = criteriaLabels[c];
+
+            html += `
+                <div style="display:flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:12px;">
+                        <span style="color:#475569; font-weight: 600;" title="${fullLabel}">${prefix} - <span style="font-weight: 500; color: #64748b;">${fullLabel}</span></span>
+                        <span style="font-weight:700; color:#3b82f6;">${displayVal}</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden;">
+                        <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, #60a5fa, #3b82f6); border-radius: 99px; transition: width 0.5s ease-out;"></div>
                     </div>
                 </div>
-                <div style="background:rgba(248,250,252,1); border:1px solid rgba(226,232,240,1); border-radius:18px; padding:16px;">
-                    <div style="font-size:10px; font-weight:800; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px; margin-bottom:8px;">SO SÁNH</div>
-                    <div style="font-size:14px; font-weight:700; color:#1e293b; margin-bottom:8px; line-height:1.4;">${target.label}</div>
-                    <div style="margin-top:12px; font-size:13px; color:#64748b;">AHP: <b style="color:#4f46e5;">${formatAHP(target.loc.ahp_score)}</b></div>
-                    <div style="margin-top:8px; display:inline-flex; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; background:${ratingColorTarget}15; color:${ratingColorTarget}; border:1px solid ${ratingColorTarget}30;">
-                        ${ratingEmojiTarget} ${target.loc.rating || ''}
+            `;
+        });
+        html += '</div>';
+        return html;
+    };
+
+    const criteriaBaseHtml = getCriteriaHtml(base.loc);
+    const criteriaTargetHtml = getCriteriaHtml(target.loc);
+
+    showLocationCompareMessage(`
+        <div style="padding:4px; font-family: 'Inter', sans-serif;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(99,102,241,0.15);">
+                    🔁
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px;">So sánh chi tiết</h3>
+                    <p style="margin: 2px 0 0; font-size: 13px; color: #64748b;">Phân tích điểm AHP và các tiêu chí giữa 2 vị trí</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom:20px; background:${deltaBg}; padding:12px 16px; border-radius:14px; border:1px solid ${deltaBorder};">
+                <span style="font-size: 14px; font-weight: 600; color: #475569;">Chênh lệch AHP (Mới - Gốc)</span>
+                <span style="font-size: 16px; font-weight: 800; color: ${deltaColor};">${deltaText}</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <!-- Card GỐC -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(226, 232, 240, 0.4); display: flex; flex-direction: column;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; background: #f1f5f9; border-radius: 8px; font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 0.5px; margin-bottom: 12px; align-self: flex-start;">
+                        ĐỊA ĐIỂM GỐC
+                    </div>
+                    
+                    <div style="font-size:15px; font-weight:700; color:#0f172a; margin-bottom:8px; line-height:1.4; flex-grow: 1;">
+                        ${base.label}
+                    </div>
+                    
+                    <div style="margin-top: 4px; display:flex; align-items: baseline; gap: 6px;">
+                        <span style="font-size:12px; font-weight: 600; color:#64748b;">Tổng AHP:</span>
+                        <span style="font-size:18px; font-weight:800; color:#4f46e5;">${formatAHP(base.loc.ahp_score)}</span>
+                    </div>
+                    
+                    <div style="height: 1px; background: #e2e8f0; margin: 16px 0;"></div>
+                    
+                    <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Điểm thành phần</div>
+                    ${criteriaBaseHtml}
+                    
+                    <div style="margin-top:20px; display:flex; justify-content: center;">
+                        <div style="display:inline-flex; align-items: center; gap: 6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700; background:${ratingColorBase}15; color:${ratingColorBase}; border:1px solid ${ratingColorBase}30;">
+                            <span>${ratingEmojiBase}</span> <span>${base.loc.rating || 'Chưa phân loại'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card MỚI -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(226, 232, 240, 0.4); display: flex; flex-direction: column; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #3b82f6, #8b5cf6);"></div>
+                    <div style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; background: #eef2ff; border-radius: 8px; font-size: 11px; font-weight: 800; color: #4f46e5; letter-spacing: 0.5px; margin-bottom: 12px; align-self: flex-start;">
+                        ĐỊA ĐIỂM SO SÁNH
+                    </div>
+                    
+                    <div style="font-size:15px; font-weight:700; color:#0f172a; margin-bottom:8px; line-height:1.4; flex-grow: 1;">
+                        ${target.label}
+                    </div>
+                    
+                    <div style="margin-top: 4px; display:flex; align-items: baseline; gap: 6px;">
+                        <span style="font-size:12px; font-weight: 600; color:#64748b;">Tổng AHP:</span>
+                        <span style="font-size:18px; font-weight:800; color:#4f46e5;">${formatAHP(target.loc.ahp_score)}</span>
+                    </div>
+                    
+                    <div style="height: 1px; background: #e2e8f0; margin: 16px 0;"></div>
+                    
+                    <div style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Điểm thành phần</div>
+                    ${criteriaTargetHtml}
+                    
+                    <div style="margin-top:20px; display:flex; justify-content: center;">
+                        <div style="display:inline-flex; align-items: center; gap: 6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700; background:${ratingColorTarget}15; color:${ratingColorTarget}; border:1px solid ${ratingColorTarget}30;">
+                            <span>${ratingEmojiTarget}</span> <span>${target.loc.rating || 'Chưa phân loại'}</span>
+                        </div>
                     </div>
                 </div>
             </div>
