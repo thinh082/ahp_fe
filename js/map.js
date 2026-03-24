@@ -158,9 +158,11 @@ function showCompareResult(compareResp) {
     const txt = compareResp?.comparison_text
         || `Điểm AHP: ${compareResp?.old_ahp_score ?? '-'} → ${compareResp?.new_ahp_score ?? '-'}`
         || 'Đã so sánh tiêu chí.';
-    el.innerHTML = `<div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff;">
-        <div style="font-weight:700; margin-bottom:6px;">So sánh tiêu chí</div>
-        <div style="color:#334155; font-size:13px;">${txt}</div>
+    el.innerHTML = `<div style="padding:16px; border:1px solid rgba(99, 102, 241, 0.15); border-radius:18px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+        <div style="font-weight:800; margin-bottom:10px; color:#4f46e5; display:flex; align-items:center; gap:8px; font-size:14px;">
+            <span style="font-size:18px;">📉</span> So sánh tiêu chí
+        </div>
+        <div style="color:#475569; font-size:13px; line-height:1.6;">${txt}</div>
     </div>`;
 }
 
@@ -282,10 +284,12 @@ function updateLegendFromClusters(clusters) {
     container.innerHTML = '';
 
     // ── Clusters as chips ──
-    container.innerHTML += `<div class="legend-section-label">🔵 Cụm (Cluster)</div>`;
+    container.innerHTML += `<div class="legend-section-label">📍 Cụm (Cluster)</div>`;
     const clusterChipsHtml = (clusters || []).map(c => `
-        <span class="legend-chip" style="background:${c.color}18; color:${c.color}; border-color:${c.color}44;">
-            <span class="legend-dot" style="background:${c.color};"></span>
+        <span class="legend-chip" style="background:${c.color}12; color:${c.color}; border-color:${c.color}33;">
+            <svg width="12" height="15" viewBox="0 0 24 24" fill="none" style="margin-right:4px;">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="${c.color}"/>
+            </svg>
             ${c.cluster_name || ('Cụm ' + c.cluster_id)}
         </span>
     `).join('');
@@ -329,27 +333,34 @@ function renderLocationCompare(base, target) {
     const delta = (baseScore !== null && targetScore !== null) ? (targetScore - baseScore) : null;
     const deltaText = delta === null ? '-' : `${delta >= 0 ? '+' : ''}${delta.toFixed(4)}`;
 
+    const ratingColorBase = ratingToColor(base.loc.rating);
+    const ratingEmojiBase = ratingToEmoji(base.loc.rating);
+    const ratingColorTarget = ratingToColor(target.loc.rating);
+    const ratingEmojiTarget = ratingToEmoji(target.loc.rating);
+
     showLocationCompareMessage(`
-        <div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff;">
-            <div style="font-weight:700; margin-bottom:6px;">So sánh 2 địa điểm</div>
-            <div style="font-size:12px; color:#64748b; margin-bottom:8px;">
-                Chênh lệch (marker mới - marker gốc): <b style="color:#0f172a;">${deltaText}</b>
+        <div style="padding:20px; border-radius:24px; background:#fff;">
+            <div style="font-weight:800; margin-bottom:12px; color:#4f46e5; font-size:15px; display:flex; align-items:center; gap:10px;">
+                <span style="font-size:20px;">🔁</span> So sánh 2 địa điểm
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div style="border:1px solid #e5e7eb; border-radius:10px; padding:10px;">
-                    <div style="font-weight:700; margin-bottom:6px;">Gốc</div>
-                    <div style="font-size:13px; color:#0f172a;">${base.label}</div>
-                    <div style="margin-top:6px; font-size:12px; color:#334155;">AHP: <b>${formatAHP(base.loc.ahp_score)}</b></div>
-                    <div style="margin-top:2px; font-size:12px; color:${ratingToColor(base.loc.rating)}; font-weight:700;">
-                        ${ratingToEmoji(base.loc.rating)} ${base.loc.rating || ''}
+            <div style="font-size:13px; color:#64748b; margin-bottom:20px; background:rgba(99,102,241,0.06); padding:10px 14px; border-radius:12px; border:1px solid rgba(99,102,241,0.1);">
+                Chênh lệch (mới - gốc): <b style="color:#4f46e5; font-size:14px;">${deltaText}</b>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div style="background:rgba(248,250,252,1); border:1px solid rgba(226,232,240,1); border-radius:18px; padding:16px;">
+                    <div style="font-size:10px; font-weight:800; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px; margin-bottom:8px;">GỐC</div>
+                    <div style="font-size:14px; font-weight:700; color:#1e293b; margin-bottom:8px; line-height:1.4;">${base.label}</div>
+                    <div style="margin-top:12px; font-size:13px; color:#64748b;">AHP: <b style="color:#4f46e5;">${formatAHP(base.loc.ahp_score)}</b></div>
+                    <div style="margin-top:8px; display:inline-flex; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; background:${ratingColorBase}15; color:${ratingColorBase}; border:1px solid ${ratingColorBase}30;">
+                        ${ratingEmojiBase} ${base.loc.rating || ''}
                     </div>
                 </div>
-                <div style="border:1px solid #e5e7eb; border-radius:10px; padding:10px;">
-                    <div style="font-weight:700; margin-bottom:6px;">So sánh</div>
-                    <div style="font-size:13px; color:#0f172a;">${target.label}</div>
-                    <div style="margin-top:6px; font-size:12px; color:#334155;">AHP: <b>${formatAHP(target.loc.ahp_score)}</b></div>
-                    <div style="margin-top:2px; font-size:12px; color:${ratingToColor(target.loc.rating)}; font-weight:700;">
-                        ${ratingToEmoji(target.loc.rating)} ${target.loc.rating || ''}
+                <div style="background:rgba(248,250,252,1); border:1px solid rgba(226,232,240,1); border-radius:18px; padding:16px;">
+                    <div style="font-size:10px; font-weight:800; text-transform:uppercase; color:#94a3b8; letter-spacing:0.5px; margin-bottom:8px;">SO SÁNH</div>
+                    <div style="font-size:14px; font-weight:700; color:#1e293b; margin-bottom:8px; line-height:1.4;">${target.label}</div>
+                    <div style="margin-top:12px; font-size:13px; color:#64748b;">AHP: <b style="color:#4f46e5;">${formatAHP(target.loc.ahp_score)}</b></div>
+                    <div style="margin-top:8px; display:inline-flex; padding:4px 10px; border-radius:99px; font-size:11px; font-weight:700; background:${ratingColorTarget}15; color:${ratingColorTarget}; border:1px solid ${ratingColorTarget}30;">
+                        ${ratingEmojiTarget} ${target.loc.rating || ''}
                     </div>
                 </div>
             </div>
@@ -433,12 +444,24 @@ function renderAHPResponse(resp) {
                 </div>
             `;
 
-            const circle = L.circleMarker([lat, lng], {
-                radius: ahpToRadius(score),
-                fillColor: color,
-                color: '#ffffff',
-                weight: 2,
-                fillOpacity: 0.9
+            // Custom Pin SVG with cluster color
+            const pinSvg = `
+                <svg class="pin-marker" width="28" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="${color}"/>
+                    <circle cx="12" cy="10" r="3" fill="white"/>
+                </svg>
+            `;
+
+            const customIcon = L.divIcon({
+                html: pinSvg,
+                className: 'custom-pin-icon',
+                iconSize: [28, 34],
+                iconAnchor: [14, 34],
+                popupAnchor: [0, -34]
+            });
+
+            const marker = L.marker([lat, lng], {
+                icon: customIcon
             }).addTo(markersLayer);
 
             const popup = L.popup({
@@ -446,34 +469,28 @@ function renderAHPResponse(resp) {
                 closeButton: false,
                 autoPan: false
             }).setContent(popupContent);
-            circle.bindPopup(popup);
+            marker.bindPopup(popup);
 
             let timer;
-            circle.on('mouseover', function () {
+            marker.on('mouseover', function () {
                 if (timer) clearTimeout(timer);
-                this.setStyle({ weight: 4, fillOpacity: 1 });
                 this.openPopup();
-
-                // Lưu marker đang hover để nút "So sánh" trong popup dùng được
                 lastHovered = { loc, cluster, label: popupTitle || (`Location #${loc.id}`) };
             });
-            circle.on('mouseout', function () {
-                this.setStyle({ weight: 2, fillOpacity: 0.9 });
+            marker.on('mouseout', function () {
                 timer = setTimeout(() => { this.closePopup(); }, 1200);
             });
 
             // Khi click marker
-            circle.on('click', function () {
-                // Nếu đang chờ chọn marker để so sánh
+            marker.on('click', function () {
                 if (waitingCompareTarget && compareBase) {
-                    // cùng marker -> bỏ qua, vẫn chờ
                     if ((compareBase.loc?.id ?? null) === (loc?.id ?? null)) return;
                     const target = { loc, cluster, label: popupTitle || (`Location #${loc.id}`) };
                     renderLocationCompare(compareBase, target);
                     waitingCompareTarget = false;
                     compareBase = null;
                     setMapPickMode(false);
-                    return; // Thoát sớm, không hiện bảng AHP
+                    return;
                 }
 
                 selectedCriteriaScores = loc.criteria_scores || null;
@@ -486,10 +503,12 @@ function renderAHPResponse(resp) {
 
                 const resultEl = document.getElementById('criteriaCompareResult');
                 if (resultEl) {
-                    resultEl.innerHTML = `<div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff;">
-                        <div style="font-weight:700; margin-bottom:6px;">Địa điểm đang chọn</div>
-                        <div style="color:#334155; font-size:13px;">${selectedLocationLabel}</div>
-                        <div style="color:#64748b; font-size:12px; margin-top:4px;">Chỉnh slider rồi bấm “Áp dụng tiêu chí” để xem so sánh.</div>
+                    resultEl.innerHTML = `<div style="padding:10px; border:1px solid rgba(99, 102, 241, 0.15); border-radius:18px; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+                        <div style="font-weight:800; margin-bottom:10px; color:#4f46e5; display:flex; align-items:center; gap:8px; font-size:14px;">
+                            <span style="font-size:18px;">📍</span> Địa điểm đang chọn
+                        </div>
+                        <div style="color:#475569; font-size:13px; line-height:1.6;">${selectedLocationLabel}</div>
+                        <div style="color:#64748b; font-size:12px; margin-top:8px; background:rgba(99,102,241,0.05); padding:8px 12px; border-radius:10px;">Chỉnh slider rồi bấm <b>“Áp dụng tiêu chí”</b> để xem so sánh.</div>
                     </div>`;
                 }
             });
