@@ -113,9 +113,9 @@
       AHP Location
     </div>
     <div class="hidden md:flex items-center gap-8 font-manrope font-semibold text-sm tracking-tight">
-      <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Trang chủ</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Về chúng tôi</a>
-      <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Liên hệ</a>
+      <a id="nav-home" class="nav-link text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1 cursor-pointer select-none">Trang chủ</a>
+      <a id="nav-about" class="nav-link text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer select-none">Về chúng tôi</a>
+      <a id="nav-contact" class="nav-link text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer select-none">Liên hệ</a>
     </div>
     <button id="openAuthBtn" class="bg-primary hover:opacity-80 transition-all duration-300 text-white px-6 py-2.5 rounded-xl font-semibold text-sm scale-95 active:scale-90 shadow-lg shadow-primary/20 flex items-center gap-2">
       <span class="material-symbols-outlined text-sm">login</span>
@@ -125,6 +125,9 @@
 </header>
 
 <main class="pt-24 overflow-x-hidden">
+
+  <!-- ── View Home ── -->
+  <div id="view-home" class="page-view relative transition-all duration-300 opacity-100 block">
 
   <!-- ── Hero Section ── -->
   <section class="relative px-6 py-20 md:py-32 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
@@ -392,6 +395,103 @@
     </div>
   </section>
 
+  </div> <!-- End view-home -->
+
+  <!-- ── View About Us ── -->
+  <div id="view-about" class="page-view hidden opacity-0 relative transition-all duration-300 min-h-[60vh] pb-24">
+    <section class="max-w-4xl mx-auto px-6 py-20 md:py-24">
+      <div class="text-center mb-16">
+        <span class="text-primary font-bold tracking-widest text-xs uppercase">Giới thiệu</span>
+        <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6">Hệ thống phân tích địa điểm AHP</h2>
+        <p class="text-lg text-on-surface-variant leading-relaxed">
+          Chúng tôi mang đến giải pháp công nghệ DSS (Decision Support System) giúp các doanh nghiệp, người kinh doanh loại bỏ tính chủ quan trong việc ra quyết định đầu tư, chuyển đổi dữ liệu thành lợi thế cạnh tranh cốt lõi.
+        </p>
+      </div>
+      <div class="bg-surface-container-lowest p-10 md:p-14 rounded-[3rem] shadow-xl border border-outline-variant/30 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+        <div class="relative z-10 space-y-8">
+          <div>
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-primary">target</span> Sứ mệnh</h3>
+            <p class="text-on-surface-variant leading-relaxed">Cung cấp bộ công cụ phân tích chuẩn quốc tế (AHP - Analytic Hierarchy Process) với giao diện tối giản, dễ sử dụng, nhằm mô hình hóa và lượng hóa các tiêu chí vị trí khó đong đếm nhất.</p>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-primary">verified_user</span> Độ tin cậy</h3>
+            <p class="text-on-surface-variant leading-relaxed">Thuật toán ma trận và véc tơ riêng được đảm bảo tính nhất quán qua thang đo Saaty chuẩn xác. Tích hợp công cụ tính tỷ số CR để loại trừ mọi sai số phán đoán.</p>
+          </div>
+          <div class="pt-6 border-t border-outline-variant/20 flex gap-6 items-center">
+            <div class="flex -space-x-4">
+               <img class="w-12 h-12 rounded-full border-2 border-white shadow-sm" src="https://ui-avatars.com/api/?name=AHP+Pro&background=0D8ABC&color=fff" alt="Avatar"/>
+            </div>
+            <div>
+              <div class="font-bold text-sm">Đội ngũ phát triển AHP Location</div>
+              <div class="text-xs text-on-surface-variant">Quyết đoán. Thông minh. Hiệu quả.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── View Contact ── -->
+  <div id="view-contact" class="page-view hidden opacity-0 relative transition-all duration-300 min-h-[60vh] pb-24">
+    <section class="max-w-6xl mx-auto px-6 py-20 md:py-24 grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <span class="text-primary font-bold tracking-widest text-xs uppercase">Hỗ trợ 24/7</span>
+          <h2 class="text-4xl font-bold mt-4 mb-6">Liên hệ với chúng tôi</h2>
+          <p class="text-on-surface-variant leading-relaxed">Mọi phản hồi, góp ý hoặc yêu cầu hỗ trợ hệ thống vui lòng gửi cho chúng tôi. Chúng tôi sẽ xử lý và phản hồi sớm nhất.</p>
+        </div>
+        <div class="space-y-6">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary shrink-0"><span class="material-symbols-outlined">location_on</span></div>
+            <div>
+              <div class="font-bold text-sm mb-1">Văn phòng chính</div>
+              <div class="text-sm text-on-surface-variant">123 Đường Công Nghệ, Quận 1, TP. HCM</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary shrink-0"><span class="material-symbols-outlined">mail</span></div>
+            <div>
+              <div class="font-bold text-sm mb-1">Email CSKH</div>
+              <div class="text-sm text-on-surface-variant">support@ahplocation.vn</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary shrink-0"><span class="material-symbols-outlined">phone_callback</span></div>
+            <div>
+              <div class="font-bold text-sm mb-1">Hotline</div>
+              <div class="text-sm text-on-surface-variant">1800 888 999 (Miễn cước)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="lg:col-span-3">
+        <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-xl shadow-primary/5 border border-outline-variant/30">
+          <form class="space-y-6" onsubmit="event.preventDefault(); alert('Tin nhắn đã được gửi. Chúng tôi sẽ sớm liên hệ lại với bạn!'); this.reset();">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Họ và tên</label>
+                <input type="text" placeholder="Nguyễn Văn A" class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-5 py-4 text-sm transition-all" required/>
+              </div>
+              <div>
+                <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Email</label>
+                <input type="email" placeholder="example@email.com" class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-5 py-4 text-sm transition-all" required/>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Nội dung tin nhắn</label>
+              <textarea rows="4" placeholder="Nhập câu hỏi, yêu cầu hoặc phản hồi của bạn..." class="w-full bg-surface-container-low border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl px-5 py-4 text-sm resize-none transition-all" required></textarea>
+            </div>
+            <button type="submit" class="bg-primary text-white font-bold py-4 px-8 rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all transform hover:-translate-y-1 inline-flex items-center gap-2">
+              Gửi tin nhắn <span class="material-symbols-outlined text-sm">send</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
 </main>
 
 <!-- ── Footer ── -->
@@ -619,6 +719,76 @@
       btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">person_add</span> Tạo tài khoản';
     }
   });
+
+  // ════════════════════════════
+  // SPA View Switcher Logic
+  // ════════════════════════════
+  const views = {
+    home: document.getElementById('view-home'),
+    about: document.getElementById('view-about'),
+    contact: document.getElementById('view-contact')
+  };
+  const navLinks = {
+    home: document.getElementById('nav-home'),
+    about: document.getElementById('nav-about'),
+    contact: document.getElementById('nav-contact')
+  };
+
+  const activeClasses = ['text-blue-700', 'dark:text-blue-400', 'border-b-2', 'border-blue-700', 'dark:border-blue-400', 'pb-1'];
+  const inactiveClasses = ['text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-slate-100'];
+
+  let activeView = 'home';
+
+  function switchView(target) {
+    if (target === activeView) return;
+    
+    // Đổi màu Nav Item
+    Object.keys(navLinks).forEach(key => {
+      const link = navLinks[key];
+      if (!link) return;
+      if (key === target) {
+        link.classList.remove(...inactiveClasses);
+        link.classList.add(...activeClasses);
+      } else {
+        link.classList.remove(...activeClasses);
+        link.classList.add(...inactiveClasses);
+      }
+    });
+
+    // Cross-fade views mượt mà
+    const currentEl = views[activeView];
+    const targetEl = views[target];
+    
+    // Mờ view hiện tại
+    currentEl.classList.remove('opacity-100');
+    currentEl.classList.add('opacity-0');
+    
+    setTimeout(() => {
+      // Ẩn view cũ
+      currentEl.classList.remove('block');
+      currentEl.classList.add('hidden');
+      
+      // Hiện khung view mới
+      targetEl.classList.remove('hidden');
+      targetEl.classList.add('block');
+      
+      // Bắt buộc trình duyệt repaint
+      void targetEl.offsetWidth;
+      
+      // Fade in view mới
+      targetEl.classList.remove('opacity-0');
+      targetEl.classList.add('opacity-100');
+      
+      activeView = target;
+      window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll lên đầu trang mượt mà
+    }, 200); // Đợi 200ms để view hiện tại kịp mờ đi
+  }
+
+  // Gắn sự kiện click
+  navLinks.home?.addEventListener('click', () => switchView('home'));
+  navLinks.about?.addEventListener('click', () => switchView('about'));
+  navLinks.contact?.addEventListener('click', () => switchView('contact'));
+
 </script>
 
 </body>
