@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AHP Location - Hệ Thống Hỗ Trợ Quyết Định Địa Điểm</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary-fixed": "#dae2ff",
+          "surface-bright": "#f8f9fa",
+          "tertiary-fixed": "#ffdbce",
+          "on-secondary": "#ffffff",
+          "on-tertiary": "#ffffff",
+          "on-surface": "#191c1d",
+          "surface-container-high": "#e7e8e9",
+          "surface-tint": "#0057ce",
+          "on-surface-variant": "#424655",
+          "outline-variant": "#c2c6d8",
+          "on-secondary-fixed-variant": "#3e4755",
+          "surface-container-highest": "#e1e3e4",
+          "secondary-container": "#d6e0f1",
+          "primary-fixed-dim": "#b1c5ff",
+          "on-primary": "#ffffff",
+          "on-secondary-container": "#596372",
+          "on-background": "#191c1d",
+          "on-primary-fixed-variant": "#00419e",
+          "inverse-on-surface": "#f0f1f2",
+          "error-container": "#ffdad6",
+          "on-secondary-fixed": "#121c28",
+          "on-error-container": "#93000a",
+          "inverse-primary": "#b1c5ff",
+          "surface-container-low": "#f3f4f5",
+          "surface-dim": "#d9dadb",
+          "surface": "#f8f9fa",
+          "background": "#f8f9fa",
+          "primary-container": "#0d6efd",
+          "tertiary-container": "#cf4b00",
+          "on-primary-fixed": "#001946",
+          "outline": "#727787",
+          "secondary": "#555f6d",
+          "primary": "#0057cd",
+          "error": "#ba1a1a",
+          "on-tertiary-fixed-variant": "#7f2b00",
+          "secondary-fixed": "#d9e3f4",
+          "on-tertiary-fixed": "#370e00",
+          "tertiary": "#a63b00",
+          "tertiary-fixed-dim": "#ffb599",
+          "inverse-surface": "#2e3132",
+          "on-error": "#ffffff",
+          "on-primary-container": "#ffffff",
+          "surface-variant": "#e1e3e4",
+          "surface-container": "#edeeef",
+          "on-tertiary-container": "#ffffff",
+          "secondary-fixed-dim": "#bdc7d8",
+          "surface-container-lowest": "#ffffff"
+        },
+        fontFamily: {
+          "headline": ["Manrope"],
+          "body": ["Inter"],
+          "label": ["Inter"]
+        },
+        borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+      },
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #191c1d; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .ahp-matrix input[type="number"]::-webkit-inner-spin-button,
+  .ahp-matrix input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  .ahp-matrix input[type="number"] { -moz-appearance: textfield; }
+
+  /* ── Auth Modal ── */
+  #authModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+  }
+  #authModal.open { display: flex; }
+  #authModal .modal-box { animation: modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+</style>
+</head>
+<body class="bg-surface selection:bg-primary-fixed selection:text-on-primary-fixed-variant">
+
+<!-- ── Top Navigation ── -->
+<header class="fixed top-0 w-full z-50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-none">
+  <nav class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+    <div class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">
+      AHP Location
+    </div>
+    <div class="hidden md:flex items-center gap-8 font-manrope font-semibold text-sm tracking-tight">
+      <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Trang chủ</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Về chúng tôi</a>
+      <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#">Liên hệ</a>
+    </div>
+    <button id="openAuthBtn" class="bg-primary hover:opacity-80 transition-all duration-300 text-white px-6 py-2.5 rounded-xl font-semibold text-sm scale-95 active:scale-90 shadow-lg shadow-primary/20 flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm">login</span>
+      Đăng nhập
+    </button>
+  </nav>
+</header>
+
+<main class="pt-24 overflow-x-hidden">
+
+  <!-- ── Hero Section ── -->
+  <section class="relative px-6 py-20 md:py-32 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+    <div class="flex-1 space-y-8">
+      <h1 class="text-5xl md:text-7xl font-bold text-on-surface leading-[1.1] tracking-tight">
+        Đánh giá địa điểm kinh doanh thông minh với <span class="text-primary italic">AHP</span>
+      </h1>
+      <p class="text-xl text-on-surface-variant max-w-xl leading-relaxed">
+        Loại bỏ các quyết định mang tính cảm tính. So sánh và lựa chọn vị trí tối ưu dựa trên dữ liệu định lượng và trọng số đa mục tiêu chuẩn xác.
+      </p>
+      <div class="flex gap-4">
+        <button id="openAuthBtn2" class="bg-gradient-to-r from-primary to-primary-container text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/25 flex items-center gap-2">
+          Đăng nhập <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+        <button class="bg-surface-container-highest text-on-surface px-8 py-4 rounded-xl font-bold text-lg hover:bg-surface-container-high transition-all">
+          Xem hướng dẫn
+        </button>
+      </div>
+    </div>
+    <div class="flex-1 relative">
+      <div class="w-full aspect-square rounded-[3rem] bg-surface-container-low overflow-hidden relative shadow-2xl">
+        <img alt="Data Analytics Visual" class="w-full h-full object-cover mix-blend-multiply opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxM9ZqPlLT_E1fT31a4XG8pvGBLGB_cKkqwCUj9FQV4_1qBDvTQ_Zlgo5Xvwn5WwpHHj7C1hgF9QICdTzfx7tTvn42wNwwUEE1etxkhwA1f5d5s7tCaZtxhXLwanebfEUaFOE6Uy0S3dU-YUiAQUKrOTqSvl2p1d0-rNBj3HAi4Te5XQDv2pkZppiS8-eE78WgyzfayR1ic0MJ7Ojz5qIUYBlEjbkpV_0YdmZuEiXxezUz9h7_laQg2ffY07QEWvRImrlo4Jdm66g"/>
+        <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+      </div>
+      <!-- Floating Card -->
+      <div class="absolute -bottom-10 -left-10 glass-card p-6 rounded-2xl shadow-xl border border-white/20 hidden lg:block">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-600">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <div>
+            <div class="font-bold text-on-surface">Độ chính xác 98.4%</div>
+            <div class="text-xs text-on-surface-variant">Đã xác thực tỷ lệ nhất quán (CR)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features Section ── -->
+  <section class="bg-surface-container-low py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+        <div class="max-w-2xl">
+          <span class="text-primary font-bold tracking-widest text-xs uppercase">Chỉ số cốt lõi</span>
+          <h2 class="text-4xl font-bold mt-4">Tiêu chí đánh giá chuẩn xác</h2>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div class="bg-surface-container-lowest p-10 rounded-3xl hover:translate-y-[-8px] transition-transform duration-500">
+          <span class="material-symbols-outlined text-4xl text-primary mb-6">trending_up</span>
+          <h3 class="font-bold text-lg mb-3">Doanh thu</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Mật độ khách hàng và tiềm năng tiêu thụ tại khu vực.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-10 rounded-3xl hover:translate-y-[-8px] transition-transform duration-500">
+          <span class="material-symbols-outlined text-4xl text-primary mb-6">directions_car</span>
+          <h3 class="font-bold text-lg mb-3">Tiếp cận</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Giao thông thuận tiện, bãi đỗ xe và luồng người đi bộ.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-10 rounded-3xl hover:translate-y-[-8px] transition-transform duration-500">
+          <span class="material-symbols-outlined text-4xl text-primary mb-6">payments</span>
+          <h3 class="font-bold text-lg mb-3">Chi phí thuê</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Giá thuê mặt bằng, điện nước và bảo trì hàng tháng.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-10 rounded-3xl hover:translate-y-[-8px] transition-transform duration-500">
+          <span class="material-symbols-outlined text-4xl text-primary mb-6">groups</span>
+          <h3 class="font-bold text-lg mb-3">Cạnh tranh</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Khoảng cách tới các đối thủ trực tiếp và gián tiếp.</p>
+        </div>
+        <div class="bg-surface-container-lowest p-10 rounded-3xl hover:translate-y-[-8px] transition-transform duration-500">
+          <span class="material-symbols-outlined text-4xl text-primary mb-6">warning</span>
+          <h3 class="font-bold text-lg mb-3">Rủi ro</h3>
+          <p class="text-sm text-on-surface-variant leading-relaxed">Pháp lý, an ninh trật tự và sự ổn định của cộng đồng.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── AHP Matrix Section ── -->
+  <section class="py-24 max-w-7xl mx-auto px-6" id="calculator">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold">Ma trận So sánh Cặp AHP</h2>
+      <p class="text-on-surface-variant mt-4">So sánh mức độ quan trọng giữa các cặp tiêu chí để xác định trọng số tối ưu</p>
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      <!-- Matrix Input Area -->
+      <div class="xl:col-span-8">
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-outline-variant/30 overflow-x-auto">
+          <div class="flex items-center gap-2 mb-8 text-primary">
+            <span class="material-symbols-outlined">grid_view</span>
+            <h4 class="font-bold text-xl text-on-surface">Thiết lập Ma trận So sánh</h4>
+          </div>
+          <table class="w-full text-left ahp-matrix min-w-[700px]">
+            <thead>
+              <tr class="border-b border-outline-variant/30">
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-on-surface-variant">Tiêu chí</th>
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-center text-on-surface-variant">Doanh thu</th>
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-center text-on-surface-variant">Tiếp cận</th>
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-center text-on-surface-variant">Chi phí</th>
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-center text-on-surface-variant">Cạnh tranh</th>
+                <th class="pb-4 font-bold text-xs uppercase tracking-widest text-center text-on-surface-variant">Rủi ro</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/10">
+              <tr>
+                <td class="py-6 font-bold text-sm">Doanh thu</td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1</div></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="3"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="5"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="2"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="4"/></td>
+              </tr>
+              <tr>
+                <td class="py-6 font-bold text-sm">Tiếp cận</td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/3</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1</div></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="2"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="4"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="3"/></td>
+              </tr>
+              <tr>
+                <td class="py-6 font-bold text-sm">Chi phí</td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/5</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/2</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1</div></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="3"/></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="2"/></td>
+              </tr>
+              <tr>
+                <td class="py-6 font-bold text-sm">Cạnh tranh</td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/2</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/4</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/3</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1</div></td>
+                <td class="py-4 px-2"><input class="w-full text-center py-2 rounded-xl border-outline-variant/40 focus:ring-primary focus:border-primary font-bold text-primary bg-primary/5" max="9" min="1" type="number" value="2"/></td>
+              </tr>
+              <tr>
+                <td class="py-6 font-bold text-sm">Rủi ro</td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/4</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/3</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/2</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1/2</div></td>
+                <td class="py-4 text-center"><div class="mx-auto w-12 h-10 flex items-center justify-center rounded-lg bg-surface-container text-slate-400 font-bold">1</div></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-8 p-4 bg-surface-container-low rounded-2xl flex items-start gap-3">
+            <span class="material-symbols-outlined text-primary text-sm mt-0.5">info</span>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              <strong>Hướng dẫn:</strong> Nhập giá trị từ 1 đến 9 cho các ô phía trên đường chéo. 1: Ngang nhau; 3: Quan trọng hơn một chút; 5: Quan trọng hơn nhiều; 7: Rất quan trọng; 9: Cực kỳ quan trọng.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Results Sidebar -->
+      <div class="xl:col-span-4 space-y-8">
+        <div class="bg-primary p-8 rounded-[2rem] text-white shadow-xl shadow-primary/20 relative overflow-hidden">
+          <div class="relative z-10">
+            <div class="text-white/70 font-bold text-xs tracking-widest uppercase mb-2">Điểm Hiệu Quả Tổng Thể</div>
+            <div class="text-6xl font-extrabold mb-2">0.86</div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-bold">
+              <span class="material-symbols-outlined text-sm">verified</span> Rất Khả Thi
+            </div>
+            <p class="text-sm text-white/70 mt-6 leading-relaxed">Dựa trên ma trận so sánh của bạn, "Doanh thu" đang chiếm ưu thế lớn nhất.</p>
+          </div>
+          <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        </div>
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-outline-variant/30">
+          <h4 class="font-bold text-lg mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">analytics</span> Trọng số Kết quả (%)
+          </h4>
+          <div class="space-y-5">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-2 text-on-surface-variant"><span>DOANH THU</span><span>38%</span></div>
+              <div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary" style="width: 38%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-2 text-on-surface-variant"><span>TIẾP CẬN</span><span>24%</span></div>
+              <div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary/80" style="width: 24%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-2 text-on-surface-variant"><span>CHI PHÍ THUÊ</span><span>16%</span></div>
+              <div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary/60" style="width: 16%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-2 text-on-surface-variant"><span>CẠNH TRANH</span><span>12%</span></div>
+              <div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary/40" style="width: 12%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-2 text-on-surface-variant"><span>RỦI RO</span><span>10%</span></div>
+              <div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary/20" style="width: 10%"></div></div>
+            </div>
+          </div>
+          <div class="mt-8 pt-6 border-t border-outline-variant/30">
+            <div class="flex items-end justify-between h-24 px-2">
+              <div class="w-8 bg-primary rounded-t-lg" style="height: 90%"></div>
+              <div class="w-8 bg-primary-fixed-dim rounded-t-lg" style="height: 65%"></div>
+              <div class="w-8 bg-primary-fixed-dim rounded-t-lg" style="height: 45%"></div>
+              <div class="w-8 bg-primary-fixed-dim rounded-t-lg" style="height: 30%"></div>
+              <div class="w-8 bg-primary-fixed-dim rounded-t-lg" style="height: 25%"></div>
+            </div>
+            <div class="flex justify-between mt-3 px-1 text-[9px] font-bold text-on-surface-variant uppercase tracking-tighter">
+              <span>Rev</span><span>Acc</span><span>Rent</span><span>Comp</span><span>Risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Process Section ── -->
+  <section class="py-24 bg-surface">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-20">Quy trình phân tích 4 bước</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+        <div class="relative p-8 bg-surface-container-low rounded-3xl group">
+          <span class="absolute -top-10 -left-4 text-9xl font-extrabold text-outline-variant opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity">01</span>
+          <div class="relative z-10">
+            <h3 class="text-xl font-bold mb-4">Nhập tiêu chí</h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">Định nghĩa các yếu tố ảnh hưởng đến sự thành công của mặt bằng.</p>
+          </div>
+        </div>
+        <div class="relative p-8 bg-surface-container-lowest rounded-3xl group shadow-sm">
+          <span class="absolute -top-10 -left-4 text-9xl font-extrabold text-outline-variant opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity">02</span>
+          <div class="relative z-10">
+            <h3 class="text-xl font-bold mb-4">So sánh cặp</h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">So sánh mức độ quan trọng giữa 2 tiêu chí theo thang điểm Saaty.</p>
+          </div>
+        </div>
+        <div class="relative p-8 bg-surface-container-low rounded-3xl group">
+          <span class="absolute -top-10 -left-4 text-9xl font-extrabold text-outline-variant opacity-20 pointer-events-none group-hover:opacity-40 transition-opacity">03</span>
+          <div class="relative z-10">
+            <h3 class="text-xl font-bold mb-4">Tính trọng số</h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">Hệ thống tự động tính toán vecto riêng và kiểm tra tính nhất quán.</p>
+          </div>
+        </div>
+        <div class="relative p-8 bg-primary rounded-3xl group">
+          <span class="absolute -top-10 -left-4 text-9xl font-extrabold text-white/10 pointer-events-none group-hover:opacity-20 transition-opacity">04</span>
+          <div class="relative z-10 text-white">
+            <h3 class="text-xl font-bold mb-4">Xem kết quả</h3>
+            <p class="text-sm opacity-90 leading-relaxed">Nhận báo cáo so sánh chi tiết và đưa ra quyết định đầu tư chính xác.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA Section ── -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto bg-slate-900 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
+      <div class="relative z-10 space-y-8">
+        <h2 class="text-4xl md:text-6xl font-bold text-white tracking-tight">
+          Sẵn sàng chọn địa điểm tốt nhất?
+        </h2>
+        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+          Bắt đầu mô hình hóa các tiêu chí của bạn ngay hôm nay với công cụ AHP chuyên sâu nhất thị trường.
+        </p>
+        <button id="openAuthBtn3" class="bg-primary text-white px-12 py-5 rounded-full font-bold text-xl hover:scale-105 transition-transform shadow-2xl shadow-primary/40">
+          Đăng nhập ngay
+        </button>
+      </div>
+      <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── Footer ── -->
+<footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+  <div class="flex flex-col md:flex-row justify-between items-center w-full px-8 py-12 max-w-7xl mx-auto gap-6">
+    <div class="space-y-4 text-center md:text-left">
+      <div class="text-lg font-bold text-slate-900 dark:text-white">AHP Location</div>
+      <p class="font-inter text-xs text-slate-500 dark:text-slate-400">© 2024 AHP Location. Xây dựng trên nền tảng logic phân tích.</p>
+    </div>
+    <div class="flex gap-8 items-center">
+      <a class="font-inter text-xs text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Chính sách bảo mật</a>
+      <a class="font-inter text-xs text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Điều khoản dịch vụ</a>
+      <a class="font-inter text-xs text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Tài liệu</a>
+      <a class="font-inter text-xs text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Hỗ trợ</a>
+    </div>
+    <div class="flex gap-4">
+      <span class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:opacity-80 transition-opacity cursor-pointer">
+        <span class="material-symbols-outlined text-sm">share</span>
+      </span>
+      <span class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:opacity-80 transition-opacity cursor-pointer">
+        <span class="material-symbols-outlined text-sm">public</span>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     AUTH MODAL (Đăng nhập / Đăng ký)
+     ══════════════════════════════════════════ -->
+<div id="authModal">
+  <div class="modal-box w-full max-w-md mx-4 relative">
+
+    <!-- Login Panel -->
+    <div id="loginPanel" class="bg-white rounded-2xl shadow-2xl p-8">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">🔐</div>
+        <h2 class="text-xl font-bold text-slate-900">Đăng nhập</h2>
+        <p class="text-sm text-slate-500 mt-1">Truy cập vào hệ thống AHP Location</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Email</label>
+          <input id="loginEmail" type="email" placeholder="example@email.com"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Mật khẩu</label>
+          <input id="loginPassword" type="password" placeholder="••••••••••"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <button id="loginBtn"
+          class="w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold py-3.5 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all transform hover:-translate-y-0.5 active:scale-95 text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-base leading-none">login</span>
+          Đăng nhập
+        </button>
+        <div class="flex items-center gap-3 text-slate-400 text-xs">
+          <div class="flex-1 h-px bg-slate-200"></div><span>hoặc</span><div class="flex-1 h-px bg-slate-200"></div>
+        </div>
+        <button id="googleLoginBtn"
+          class="w-full flex items-center justify-center gap-3 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Đăng nhập với Google
+        </button>
+      </div>
+      <div class="text-center mt-5 text-sm text-slate-500">
+        Chưa có tài khoản?
+        <button id="showRegisterBtn" class="text-primary font-bold hover:underline ml-1">Đăng ký</button>
+      </div>
+      <button id="closeAuthBtn" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+
+    <!-- Register Panel -->
+    <div id="registerPanel" class="hidden bg-white rounded-2xl shadow-2xl p-8">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">📝</div>
+        <h2 class="text-xl font-bold text-slate-900">Tạo tài khoản</h2>
+        <p class="text-sm text-slate-500 mt-1">Miễn phí — bắt đầu ngay hôm nay</p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Họ và tên</label>
+          <input id="registerFullname" type="text" placeholder="Nguyễn Văn A"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Email</label>
+          <input id="registerEmail" type="email" placeholder="example@email.com"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Số điện thoại</label>
+          <input id="registerPhone" type="text" placeholder="0901 234 567"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Mật khẩu</label>
+          <input id="registerPassword" type="password" placeholder="••••••••••"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">Xác nhận mật khẩu</label>
+          <input id="registerPasswordConfirm" type="password" placeholder="••••••••••"
+            class="w-full bg-surface-container-highest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none transition-all"/>
+        </div>
+        <button id="registerBtn"
+          class="w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold py-3.5 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all transform hover:-translate-y-0.5 active:scale-95 text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-base leading-none">person_add</span>
+          Tạo tài khoản
+        </button>
+      </div>
+      <div class="text-center mt-4 text-sm text-slate-500">
+        Đã có tài khoản?
+        <button id="showLoginBtn" class="text-primary font-bold hover:underline ml-1">Đăng nhập</button>
+      </div>
+      <button id="closeAuthBtn2" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCRIPT — Auth Logic
+     ════════════════════════════ -->
+<script src="js/api.js"></script>
+<script>
+  const API_BASE = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '';
+
+  const authModal  = document.getElementById('authModal');
+  const loginPanel = document.getElementById('loginPanel');
+  const regPanel   = document.getElementById('registerPanel');
+
+  function openAuth(showRegister = false) {
+    authModal.classList.add('open');
+    loginPanel.classList.toggle('hidden', showRegister);
+    regPanel.classList.toggle('hidden', !showRegister);
+  }
+  function closeAuth() { authModal.classList.remove('open'); }
+
+  ['openAuthBtn','openAuthBtn2','openAuthBtn3'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => openAuth(false));
+  });
+  document.getElementById('closeAuthBtn').addEventListener('click', closeAuth);
+  document.getElementById('closeAuthBtn2').addEventListener('click', closeAuth);
+  authModal.addEventListener('click', e => { if (e.target === authModal) closeAuth(); });
+
+  document.getElementById('showRegisterBtn').addEventListener('click', () => {
+    loginPanel.classList.add('hidden'); regPanel.classList.remove('hidden');
+  });
+  document.getElementById('showLoginBtn').addEventListener('click', () => {
+    regPanel.classList.add('hidden'); loginPanel.classList.remove('hidden');
+  });
+
+  // Helper fetch
+  async function authFetch(path, opts = {}) {
+    const res = await fetch(API_BASE + path, {
+      headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      credentials: 'include', ...opts,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || data.message || `Lỗi ${res.status}`);
+    return data;
+  }
+
+  // Auto-redirect if already logged in
+  (async function checkSession() {
+    try {
+      await authFetch('/api/XacThucTaiKhoan/me');
+      window.location.href = 'index.html';
+    } catch (_) { /* not logged in, stay */ }
+  })();
+
+  // Login
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const btn      = document.getElementById('loginBtn');
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    if (!email || !password) { alert('Vui lòng nhập đầy đủ Email và Mật khẩu.'); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">progress_activity</span> Đang xử lý...';
+    try {
+      await authFetch('/api/XacThucTaiKhoan/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      window.location.href = 'index.html';
+    } catch (err) {
+      alert('Đăng nhập thất bại: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">login</span> Đăng nhập';
+    }
+  });
+
+  // Google Login
+  document.getElementById('googleLoginBtn').addEventListener('click', () => {
+    const redirectUri = window.location.origin + window.location.pathname.replace('home.html', '') + 'google-callback.html';
+    window.location.href = `${API_BASE}/api/XacThucTaiKhoan/google-login?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  });
+
+  // Register
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    const btn             = document.getElementById('registerBtn');
+    const fullname        = document.getElementById('registerFullname').value.trim();
+    const email           = document.getElementById('registerEmail').value.trim();
+    const phone           = document.getElementById('registerPhone').value.trim();
+    const password        = document.getElementById('registerPassword').value.trim();
+    const passwordConfirm = document.getElementById('registerPasswordConfirm').value.trim();
+    if (!fullname || !email || !phone || !password) { alert('Vui lòng nhập đầy đủ thông tin.'); return; }
+    if (password !== passwordConfirm) { alert('Mật khẩu xác nhận không khớp.'); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">progress_activity</span> Đang xử lý...';
+    try {
+      await authFetch('/api/XacThucTaiKhoan/register', {
+        method: 'POST', body: JSON.stringify({ fullname, email, sodienthoai: phone, password }),
+      });
+      window.location.href = 'index.html';
+    } catch (err) {
+      alert('Đăng ký thất bại: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">person_add</span> Tạo tài khoản';
+    }
+  });
+</script>
+
+</body>
+</html>
