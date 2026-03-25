@@ -804,6 +804,7 @@ function showResultsModal(results) {
 // =====================================================
 async function checkAuthStatus() {
   const userProfileArea = document.getElementById('userProfileArea');
+  const favoriteProjectsCard = document.getElementById('favoriteProjectsCard');
   
   try {
     const response = await apiFetch('/api/XacThucTaiKhoan/me', {
@@ -815,13 +816,49 @@ async function checkAuthStatus() {
     if (userProfileArea) {
       userProfileArea.style.display = 'flex';
     }
+    if (favoriteProjectsCard) {
+      favoriteProjectsCard.style.display = 'block';
+    }
     
     localStorage.setItem('user_info', JSON.stringify(response));
+    
+    // Fetch favorite projects directly after login
+    fetchFavoriteProjects();
     
   } catch (error) {
     console.error("Auth check failed:", error);
     // Not logged in or expired => redirect to home.html
     window.location.href = 'home.html';
+  }
+}
+
+async function fetchFavoriteProjects() {
+  const container = document.getElementById('favoriteProjectsList');
+  if (!container) return;
+  
+  try {
+    const data = await apiFetch('/api/projects?page=1&size=10', {
+      method: 'GET',
+      credentials: 'include'
+    });
+    
+    if (data && data.items && data.items.length > 0) {
+      container.innerHTML = '';
+      data.items.forEach(proj => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        div.innerHTML = `
+          <div style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">${proj.name || 'Dự án không tên'}</div>
+          ${proj.description ? `<div style="font-size: 11px; color: #64748b; line-height: 1.4;">${proj.description}</div>` : ''}
+        `;
+        container.appendChild(div);
+      });
+    } else {
+      container.innerHTML = `<div style="text-align:center; padding: 20px 10px; color:#94a3b8; font-size:13px;">Bạn chưa có dự án phân tích nào.</div>`;
+    }
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    container.innerHTML = `<div style="text-align:center; padding: 20px 10px; color:#ef4444; font-size:13px;">Lỗi tải dữ liệu.</div>`;
   }
 }
 

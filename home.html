@@ -679,7 +679,7 @@
     const password = document.getElementById('loginPassword').value.trim();
     if (!email || !password) { alert('Vui lòng nhập đầy đủ Email và Mật khẩu.'); return; }
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">progress_activity</span> Đang xử lý...';
+    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none animate-spin">progress_activity</span> Đang xử lý...';
     try {
       await authFetch('/api/XacThucTaiKhoan/login', { method: 'POST', body: JSON.stringify({ email, password }) });
       window.location.href = 'index.html';
@@ -707,7 +707,7 @@
     if (!fullname || !email || !phone || !password) { alert('Vui lòng nhập đầy đủ thông tin.'); return; }
     if (password !== passwordConfirm) { alert('Mật khẩu xác nhận không khớp.'); return; }
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none">progress_activity</span> Đang xử lý...';
+    btn.innerHTML = '<span class="material-symbols-outlined text-base leading-none animate-spin">progress_activity</span> Đang xử lý...';
     try {
       await authFetch('/api/XacThucTaiKhoan/register', {
         method: 'POST', body: JSON.stringify({ fullname, email, sodienthoai: phone, password }),
