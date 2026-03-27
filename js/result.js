@@ -30,6 +30,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("result-tbody");
     const summaryInfo = document.getElementById("summary-info");
 
+    // Cập nhật tiêu đề và nút Back nếu đến từ home.html (dự án đã lưu)
+    const projectName = localStorage.getItem('ahp:lastProjectName');
+    const projectId   = localStorage.getItem('ahp:lastProjectId');
+
+    if (projectName) {
+        const titleEl = document.querySelector('.result-title');
+        if (titleEl) titleEl.innerHTML = `Kết quả: <span>${projectName}</span>`;
+    }
+
+    // Cập nhật nút Quay lại về home nếu đến từ project list
+    if (projectId) {
+        const backBtn = document.querySelector('a[href="index.html"].back-btn');
+        if (backBtn) {
+            backBtn.href = 'home.html';
+            backBtn.innerHTML = `
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Danh sách dự án`;
+        }
+    }
+
     // Read payload from localStorage
     const lastRequestStr = localStorage.getItem("ahp:lastRequest");
 

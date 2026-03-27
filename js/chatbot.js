@@ -46,7 +46,7 @@
 
     // Chat History for context
     let chatHistory = [];
-    const API_KEY = "AIzaSyA-N4yeUgjHTJFaU1t7fO6WLA1Zku9o2kw"; // User Provided API Key
+    const API_KEY = ""; // User Provided API Key
 
     // Send Message
     async function sendMessage() {
@@ -105,11 +105,64 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    const SYSTEM_PROMPT = `Bạn là trợ lý AI cho hệ thống DSS chọn địa điểm kinh doanh bằng AHP.
+
+Mô tả dự án:
+- Đây là dự án Backend FastAPI cho Hệ Hỗ Trợ Ra Quyết Định (Decision Support System).
+- Mục tiêu chính: phân tích và xếp hạng địa điểm kinh doanh bằng phương pháp AHP, kết hợp gom cụm (K-Means) để hiển thị trực quan trên bản đồ.
+- Hệ thống có 3 nhóm chức năng chính:
+  1) Phân tích địa điểm (AHP + clustering)
+  2) Quản lý Project (tạo/xóa/danh sách/favorite locations)
+  3) Quản lý tài khoản người dùng (đăng nhập, hồ sơ cá nhân)
+
+Nguyên tắc chung:
+- Trả lời bằng tiếng Việt, rõ ràng, ngắn gọn, ưu tiên hành động.
+- Không bịa dữ liệu. Chỉ dùng dữ liệu có từ backend hoặc từ người dùng.
+- Nếu thiếu thông tin đầu vào, yêu cầu đúng dữ liệu còn thiếu.
+- Với thao tác cần đăng nhập, nhắc người dùng đăng nhập nếu chưa có phiên/cookie hợp lệ.
+
+A. Phân tích địa điểm (AHP):
+- 5 tiêu chí: C1 doanh thu, C2 tiếp cận, C3 chi phí, C4 cạnh tranh, C5 rủi ro & ổn định.
+- Ma trận so sánh cặp phải 5x5, đường chéo = 1.
+- Chỉ chấp nhận ma trận nhất quán khi CR < 0.1.
+- AHP score theo thang 1-9.
+- Đánh giá:
+  - >= 7.0: NÊN MỞ
+  - >= 5.0 và < 7.0: CÂN NHẮC
+  - < 5.0: KHÔNG NÊN
+- Khi có kết quả, luôn tóm tắt:
+  1) CR và trạng thái nhất quán
+  2) Top địa điểm nổi bật
+  3) Tiêu chí đóng góp mạnh/yếu
+  4) Khuyến nghị tiếp theo
+
+B. Quản lý Project:
+- Hỗ trợ:
+  - Xem danh sách project (lọc tên + phân trang)
+  - Tạo project mới
+  - Xóa project
+  - Thêm/xóa địa điểm yêu thích
+  - Lấy danh sách địa điểm yêu thích theo project
+- Khi xử lý project, luôn trả: kết quả + lý do + bước tiếp theo.
+
+C. Hồ sơ cá nhân:
+- Hỗ trợ:
+  - Xem thông tin tài khoản hiện tại
+  - Cập nhật họ tên, số điện thoại, mật khẩu
+- Nếu dữ liệu cập nhật rỗng, thông báo “No data to update”.
+
+Quy tắc phản hồi:
+- Nếu lỗi backend, diễn giải lỗi dễ hiểu và gợi ý cách sửa.
+- Không tiết lộ token, mật khẩu, khóa bí mật, dữ liệu nhạy cảm.`;
+
     async function callGeminiAPI(history) {
         // Using gemini-2.5-flash as discovered from diagnostics
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
         const payload = {
+            system_instruction: {
+                parts: { text: SYSTEM_PROMPT }
+            },
             contents: history
         };
 
@@ -151,6 +204,99 @@
         if (text.includes('giá') || text.includes('chi phí')) return 'Thông tin về chi phí thuê mặt bằng đang được cập nhật (Offline mode).';
         if (text.includes('quận 10')) return 'Quận 10 có mật độ dân cư cao và nhiều tiềm năng kinh doanh.';
         return 'Cảm ơn câu hỏi của bạn. Hệ thống đang phân tích dữ liệu (Offline response).';
+    }
+
+    // ── Selection-to-Chat Feature (only on home.html & map.html) ──
+    const allowedPages = ['home.html', 'map.html'];
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const isAllowedPage = allowedPages.some(p => currentPage.includes(p));
+
+    if (isAllowedPage) {
+        // Create tooltip element
+        const tooltip = document.createElement('div');
+        tooltip.id = 'selection-tooltip';
+        tooltip.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Dán vào chatbot
+        `;
+        document.body.appendChild(tooltip);
+
+        let hideTooltipTimer = null;
+
+        function showTooltip(x, y) {
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            tooltip.classList.add('active');
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('active');
+        }
+
+        document.addEventListener('mouseup', function (e) {
+            // Don't trigger if clicking the tooltip itself
+            if (e.target.closest('#selection-tooltip')) return;
+
+            clearTimeout(hideTooltipTimer);
+
+            // Small delay to let selection finalize
+            setTimeout(() => {
+                const selection = window.getSelection();
+                const selectedText = selection ? selection.toString().trim() : '';
+
+                if (selectedText.length > 0) {
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+
+                    // Position tooltip above the selection, centered
+                    const tooltipX = rect.left + rect.width / 2 - 75; // ~75 = half tooltip width
+                    const tooltipY = rect.top - 48; // 48px above selection (Viewport relative)
+
+                    // Clamp to viewport
+                    const clampedX = Math.max(8, Math.min(tooltipX, window.innerWidth - 160));
+                    const clampedY = Math.max(8, tooltipY);
+
+                    showTooltip(clampedX, clampedY);
+                } else {
+                    hideTooltip();
+                }
+            }, 10);
+        });
+
+        // Hide on click anywhere else
+        document.addEventListener('mousedown', function (e) {
+            if (!e.target.closest('#selection-tooltip')) {
+                hideTooltipTimer = setTimeout(hideTooltip, 120);
+            }
+        });
+
+        // Handle tooltip click: paste to chatbot
+        tooltip.addEventListener('mousedown', function (e) {
+            e.preventDefault(); // prevent losing selection
+        });
+
+        tooltip.addEventListener('click', function () {
+            const selection = window.getSelection();
+            const selectedText = selection ? selection.toString().trim() : '';
+
+            if (!selectedText) return;
+
+            // Open chatbot window if hidden
+            if (chatWindow.classList.contains('hidden')) {
+                chatWindow.classList.remove('hidden');
+            }
+
+            // Paste text into input
+            inputField.value = selectedText;
+            inputField.focus();
+
+            // Deselect text and hide tooltip
+            window.getSelection().removeAllRanges();
+            hideTooltip();
+        });
     }
 
 })();

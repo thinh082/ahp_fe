@@ -38,7 +38,7 @@
         localStorage.setItem("user_info", JSON.stringify(data.user || {}));
 
         setMsg("Đăng nhập thành công. Đang chuyển hướng...", "#15803d");
-        window.location.href = "index.html";
+        window.location.href = "home.html";
       } else {
         setMsg(`Đăng nhập thất bại: ${data.detail || "Không rõ lỗi"}`, "#b91c1c");
       }

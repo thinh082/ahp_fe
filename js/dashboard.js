@@ -277,14 +277,14 @@ function addAlternativeFromInputs() {
   const wardText = getSelectText(wardEl, wardTomSelect);
 
   if (!cityText || !wardText || !street) {
-    alert("Vui lòng chọn đầy đủ Quận, Phường/Xã và nhập Tên đường!");
+    showToast("Vui lòng chọn đầy đủ Quận, Phường/Xã và nhập Tên đường!", "warning");
     return;
   }
 
   const selectedValue = `${street}, ${wardText}, ${cityText}`;
 
   if (alternatives.includes(selectedValue)) {
-    alert("Phương án này đã được thêm vào danh sách!");
+    showToast("Phương án này đã được thêm vào danh sách!", "warning");
     return;
   }
 
@@ -626,7 +626,7 @@ async function dashStep3Analyze() {
   if (!btn) return;
 
   if (!ahpPipelineWeights || !ahpPipelineValid) {
-    alert("Vui lòng hoàn thành Bước 2 với CR hợp lệ trước khi phân tích.");
+    showToast("Vui lòng hoàn thành Bước 2 với CR hợp lệ trước khi phân tích.", "warning");
     return;
   }
 
@@ -678,7 +678,7 @@ async function dashStep3Analyze() {
 
   } catch (err) {
     document.getElementById("dashAnalyzeLoading")?.remove();
-    alert("❌ Lỗi khi phân tích: " + err.message);
+    showToast("❌ Lỗi khi phân tích: " + err.message, "error");
     btn.disabled = false;
     if (backBtn) backBtn.disabled = false;
     btn.textContent = "Đánh giá tiêu chí theo phương án";
@@ -929,7 +929,7 @@ if (saveResultsBtn) {
       currentResults = calculateAHPScores();
       if (!currentResults) return;
     } catch (error) {
-      alert("Lỗi khi tính toán lại: " + error.message);
+      showToast("Lỗi khi tính toán lại: " + error.message, "error");
       return;
     }
 
@@ -943,7 +943,7 @@ if (confirmBtn) {
   confirmBtn.addEventListener("click", async () => {
     const projectName = projectNameInput.value.trim();
     if (!projectName) {
-      alert("Vui lòng nhập tên dự án!");
+      showToast("Vui lòng nhập tên dự án!", "warning");
       return;
     }
 
@@ -952,7 +952,7 @@ if (confirmBtn) {
         currentResults = calculateAHPScores();
         if (!currentResults) return;
       } catch (error) {
-        alert("Lỗi khi tính toán: " + error.message);
+        showToast("Lỗi khi tính toán: " + error.message, "error");
         return;
       }
     }
@@ -991,7 +991,7 @@ if (confirmBtn) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         const msg = data.detail || "Tạo dự án thất bại.";
-        alert(msg);
+        showToast(msg, "success");
         return;
       }
 
@@ -1026,7 +1026,7 @@ if (confirmBtn) {
       window.location.href = "result.html";
     } catch (error) {
       console.error("Lỗi khi tạo dự án:", error);
-      alert("Lỗi kết nối tới backend.");
+      showToast("Lỗi kết nối tới backend.", "error");
     } finally {
       confirmBtn.disabled = false;
       confirmBtn.textContent = "Xác nhận";
@@ -1246,13 +1246,13 @@ function renderProjects(items) {
         );
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-          alert(data.detail || "Xóa dự án thất bại.");
+          showToast(data.detail || "Xóa dự án thất bại.", "error");
           return;
         }
         await fetchProjects();
       } catch (err) {
         console.error("Lỗi khi xóa dự án:", err);
-        alert("Lỗi kết nối tới backend.");
+        showToast("Lỗi kết nối tới backend.", "error");
       }
     });
 

@@ -727,7 +727,7 @@ async function refreshFromAPI() {
         }
     } catch (e) {
         console.error('calculate-ahp error:', e);
-        alert(`Lỗi tải dữ liệu bản đồ: ${e.message}`);
+        showToast(`Lỗi tải dữ liệu bản đồ: ${e.message}`, 'error');
     }
 }
 
@@ -754,7 +754,7 @@ async function bootstrap() {
                     oldCriteriaMatrix = newMatrix;
                 }
                 if (!selectedCriteriaScores) {
-                    alert('Bạn hãy click chọn 1 marker trước, rồi mới áp dụng tiêu chí để so sánh.');
+                    showToast('Bạn hãy click chọn 1 marker trước, rồi mới áp dụng tiêu chí để so sánh.', 'warning');
                     return;
                 }
 
@@ -1034,7 +1034,7 @@ document.addEventListener('click', function (e) {
         e.preventDefault();
         const base = lastClicked || lastHovered;
         if (!base) {
-            alert('Bạn hãy hover/click 1 marker trước rồi bấm “So sánh”.');
+            showToast('Bạn hãy hover/click 1 marker trước rồi bấm “So sánh”.', 'warning');
             return;
         }
 
@@ -1073,7 +1073,7 @@ document.addEventListener('click', function (e) {
         }
 
         if (!projectId) {
-            alert('Vui lòng chọn dự án trước khi thêm yêu thích.');
+            showToast('Vui lòng chọn dự án trước khi thêm yêu thích.', 'warning');
             return;
         }
 
@@ -1108,7 +1108,7 @@ document.addEventListener('click', function (e) {
             .catch((err) => {
                 console.error('Favorite error:', err);
                 btn.textContent = originalText;
-                alert(err.message || 'Lỗi kết nối tới backend.');
+                showToast(err.message || 'Lỗi kết nối tới backend.', 'error');
             })
             .finally(() => {
                 btn.disabled = false;
