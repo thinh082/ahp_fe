@@ -26,7 +26,7 @@
     const messagesContainer = document.getElementById("chatbot-messages");
 
     let chatHistory = [];
-    const API_KEY = "AIzaSyAR56zud9NWf_YvT8Fq7e2bZ7t63Ip8UH8";
+    const API_KEY = "";
 
     function toggleChat() {
         chatWindow.classList.toggle("hidden");
