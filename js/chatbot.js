@@ -46,7 +46,7 @@
 
     // Chat History for context
     let chatHistory = [];
-    const API_KEY = "AIzaSyAR56zud9NWf_YvT8Fq7e2bZ7t63Ip8UH8"; // User Provided API Key
+    const API_KEY = ""; // User Provided API Key
 
     // Send Message
     async function sendMessage() {
