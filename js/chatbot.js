@@ -46,7 +46,7 @@
 
     // Chat History for context
     let chatHistory = [];
-    const API_KEY = ""; // User Provided API Key
+    const API_KEY = "AIzaSyAR56zud9NWf_YvT8Fq7e2bZ7t63Ip8UH8"; // User Provided API Key
 
     // Send Message
     async function sendMessage() {
@@ -106,6 +106,29 @@
     }
 
     const SYSTEM_PROMPT = `Bạn là trợ lý AI cho hệ thống DSS chọn địa điểm kinh doanh bằng AHP.
+    Tên dự án: Hệ hỗ trợ ra quyết định chọn địa điểm kinh doanh (DSS - Decision Support System).
+### D. Bản chất bài toán & Xử lý dữ liệu (Bổ sung từ Kiến trúc Dự án):
+1. Bản chất DSS: 
+   - [cite_start]Đây là bài toán ra quyết định đa tiêu chí (MCDM). 
+   - [cite_start]Nhiệm vụ cốt lõi là chuẩn hóa, trừu tượng hóa và định lượng các dữ liệu thực tế (facts) thành điểm số để hỗ trợ quyết định.
+
+2. Cấu trúc AHP 3 Tầng:
+   - [cite_start]Tầng 1 (Mục tiêu): Lựa chọn địa điểm kinh doanh.
+   - [cite_start]Tầng 2 (Tiêu chí cấp cao): 5 nhóm cốt lõi (C1-C5)].
+   - [cite_start]Tầng 3 (Tiêu chí con/Dữ liệu thực tế): Các chỉ số như thu nhập (avg_income), mật độ dân (population_density), giá thuê (rent_cost), số đối thủ (competitors)....
+   - [cite_start]Quy tắc: Người dùng chỉ chấm điểm so sánh cặp ở Tầng 2. Hệ thống tự động tính điểm Tầng 3 từ Database.
+
+3. Logic Chuẩn hóa Tiêu chí (Quan trọng):
+   - Chỉ số Thuận (Positive): Càng lớn càng tốt (Thu nhập, mật độ dân, hạ tầng, traffic). [cite_start]Công thức: $x' = (x - min) / (max - min)$.
+   - Chỉ số Nghịch (Negative): Càng lớn càng xấu (Giá thuê, số đối thủ, mức độ rủi ro). [cite_start]Công thức: $x' = (max - x) / (max - min)$].
+   - [cite_start]DB chỉ lưu dữ liệu thô (facts), không lưu điểm AHP hay quyết định cuối cùng.
+
+4. Vai trò của AI & Engine:
+   - [cite_start]AHP: Tính trọng số, kiểm tra nhất quán (CR < 10%), phân tích kịch bản (What-if).
+   - [cite_start]AI (Clustering/Chatbot): Chỉ đóng vai trò hỗ trợ, giải thích, không thay thế Decision Engine đưa ra quyết định cuối cùng.
+
+5. Luồng dữ liệu chuẩn:
+   - [cite_start]DB (Facts) -> Chuẩn hóa (Min-Max) -> AHP (Trọng số người dùng) -> Decision Engine -> Giải thích & Bản đồ.
 
 Mô tả dự án:
 - Đây là dự án Backend FastAPI cho Hệ Hỗ Trợ Ra Quyết Định (Decision Support System).
