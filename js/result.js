@@ -26,6 +26,23 @@ async function apiFetch(path, options = {}) {
     return response.text();
 }
 
+function normalizeWeights(rawWeights) {
+    const fallback = [0.2, 0.2, 0.2, 0.2, 0.2];
+    if (!Array.isArray(rawWeights) || rawWeights.length !== 5) return fallback;
+
+    const parsed = rawWeights.map((value) => {
+        if (value === null || value === undefined) return null;
+        if (typeof value === "string" && value.trim() === "") return null;
+        const n = Number(value);
+        return Number.isFinite(n) && n > 0 ? n : null;
+    });
+
+    const base = parsed.map((v) => (v !== null ? v : 0.2));
+    const sum = base.reduce((acc, w) => acc + w, 0);
+    if (!(sum > 0)) return fallback;
+    return base.map((w) => w / sum);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const tbody = document.getElementById("result-tbody");
     const summaryInfo = document.getElementById("summary-info");
@@ -69,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Request từ dashboard (có criteriaMatrix) hoặc từ index (chỉ chứa weights và filters)
         if (requestData.weights) {
             payload = {
-                weights: requestData.weights,
+                weights: normalizeWeights(requestData.weights),
                 filters: requestData.filters || {}
             };
         } else if (requestData.criteriaMatrix) {

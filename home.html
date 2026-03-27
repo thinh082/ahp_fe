@@ -2017,7 +2017,7 @@
         }
       };
 
-      window.loadProjectResult = function loadProjectResult(id) {
+      window.loadProjectResult = async function loadProjectResult(id) {
         const project = window._projectsCache && window._projectsCache[id];
         if (!project) {
           notify(
@@ -2027,20 +2027,36 @@
           return;
         }
 
-        const weights = [
-          project.w_revenue ?? null,
-          project.w_access ?? null,
-          project.w_cost ?? null,
-          project.w_competition ?? null,
-          project.w_risk ?? null,
-        ];
-
-        if (weights.some((w) => w === null || w === undefined)) {
+        const parseWeight = (value) => {
+          if (value === null || value === undefined) return null;
+          if (typeof value === "string" && value.trim() === "") return null;
+          const n = Number(value);
+          return Number.isFinite(n) && n > 0 ? n : null;
+        };
+        const parsedWeights = [
+          project.w_revenue,
+          project.w_access,
+          project.w_cost,
+          project.w_competition,
+          project.w_risk,
+        ].map(parseWeight);
+        const hasAtLeastOneWeight = parsedWeights.some((w) => w !== null);
+        const baseWeights = parsedWeights.map((w) => (w !== null ? w : 0.2));
+        const sumWeights = baseWeights.reduce((acc, w) => acc + w, 0);
+        const weights =
+          sumWeights > 0
+            ? baseWeights.map((w) => w / sumWeights)
+            : [0.2, 0.2, 0.2, 0.2, 0.2];
+        if (!hasAtLeastOneWeight) {
           notify(
-            "Du an nay chua co du lieu trong so AHP. Hay hoan thanh phan tich AHP truoc.",
+            "Du an nay chua co trong so day du. He thong tam dung trong so mac dinh de hien thi ket qua.",
             "warning",
           );
-          return;
+        } else if (parsedWeights.some((w) => w === null)) {
+          notify(
+            "Du an co mot so trong so thieu/khong hop le. He thong da bo sung va chuan hoa de tiep tuc.",
+            "warning",
+          );
         }
 
         const filters = {};
@@ -2049,14 +2065,36 @@
         if (project.street) filters.street = project.street;
         filters.limit = 50;
 
-        localStorage.setItem(
-          "ahp:lastRequest",
-          JSON.stringify({ weights, filters }),
-        );
-        localStorage.setItem("ahp:lastProjectId", String(id));
-        localStorage.setItem("ahp:lastProjectName", project.name || "Du an");
+        try {
+          const favoriteRes = await authFetch(
+            `/api/projects/${id}/favorite-locations`,
+            { method: "GET" },
+          );
+          const favoriteIds = Array.isArray(favoriteRes?.items)
+            ? favoriteRes.items
+                .map((x) => Number(x))
+                .filter((x) => Number.isFinite(x))
+            : [];
 
-        window.location.href = "result.html";
+          localStorage.setItem(
+            "ahp:lastRequest",
+            JSON.stringify({ weights, filters, projectid: id }),
+          );
+          localStorage.setItem("ahp:lastProjectId", String(id));
+          localStorage.setItem("ahp:lastProjectName", project.name || "Du an");
+          localStorage.setItem(
+            "ahp:lastFavoriteLocationIds",
+            JSON.stringify(favoriteIds),
+          );
+
+          window.location.href = "result.html";
+        } catch (err) {
+          notify(
+            "Khong the tai danh sach dia diem yeu thich cua du an: " +
+              (err.message || "Khong xac dinh"),
+            "error",
+          );
+        }
       };
 
       document
